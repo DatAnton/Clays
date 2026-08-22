@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+  </Folder>
+  <Project Path="Clays.Application/Clays.Application.csproj" />
+  <Project Path="Clays.Domain/Clays.Domain.csproj" />
+  <Project Path="Clays.Infrastructure/Clays.Infrastructure.csproj" />
+  <Project Path="Clays/Clays.csproj" />
+</Solution>
