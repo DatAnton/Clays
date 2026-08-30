@@ -11,10 +11,18 @@ namespace Clays.Application.Managers
             "wheel loader",
             "wheeled loader",
             "front loader",
+            "articulated loader",
+            "compact wheel loader",
             "loader",
             "pyorakuormaaja",
             "pyöräkuormaaja",
+            "pyorakuormain",
+            "pyöräkuormain",
             "rengaskuormaaja",
+            "etukuormaaja",
+            "nivelkuormaaja",
+            "pyorakone",
+            "pyöräkone",
             "kuormaaja"
         ];
 
@@ -24,13 +32,25 @@ namespace Clays.Application.Managers
             "crawler excavator",
             "wheeled excavator",
             "mini excavator",
+            "hydraulic excavator",
             "digger",
             "kaivinkone",
             "kaivuri",
+            "kaivinkoneet",
+            "kaivurit",
             "telakaivinkone",
+            "telakaivuri",
             "pyorakaivinkone",
             "pyöräkaivinkone",
-            "minikaivuri"
+            "pyorakaivuri",
+            "pyöräkaivuri",
+            "pyorakone",
+            "pyöräkone",
+            "minikaivuri",
+            "minikaivinkone",
+            "mikrokaivuri",
+            "pienkaivuri",
+            "telakone"
         ];
 
         private static readonly string[] WheelLoaderBrands = ["volvo", "caterpillar", "cat"];

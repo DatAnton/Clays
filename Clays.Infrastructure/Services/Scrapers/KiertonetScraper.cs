@@ -33,8 +33,11 @@ namespace Clays.Infrastructure.Services.Scrapers
                 if (MachineManager.IsWantedMachine(kiertonetAuction.FullTitle))
                 {
                     // send notification
+                    Console.WriteLine($"Wanted machine found: {kiertonetAuction.FullTitle}");
                 }
             }
+
+            Console.WriteLine(payload);
         }
 
         private sealed class KiertonetResponse
