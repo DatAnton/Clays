@@ -1,7 +1,9 @@
 using Clays.Application.Common.Interfaces;
+using Clays.Application.Common.Interfaces.Scrapers;
 using Clays.Extensions;
 using Clays.Infrastructure.Data;
 using Clays.Infrastructure.Services;
+using Clays.Infrastructure.Services.Scrapers;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +22,7 @@ builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(optio
 });
 
 builder.Services.AddScoped<IMachineService, MachineService>();
+builder.Services.AddScoped<IKiertonetScraper, KiertonetScraper>();
 
 var app = builder.Build();
 
