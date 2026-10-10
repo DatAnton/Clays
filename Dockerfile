@@ -1,8 +1,8 @@
 FROM node:26 AS react-build
 WORKDIR /client
-COPY frontend/package*.json ./
+COPY ReactUI/package*.json ./
 RUN npm install
-COPY frontend/ ./
+COPY ReactUI/ ./
 RUN npm run build
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
