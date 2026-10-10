@@ -26,7 +26,7 @@ builder.Services.AddScoped<IKiertonetScraper, KiertonetScraper>();
 
 var app = builder.Build();
 
-app.MigrateDatabase<ApplicationDbContext>();
+// app.MigrateDatabase<ApplicationDbContext>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

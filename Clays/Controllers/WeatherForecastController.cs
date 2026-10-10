@@ -11,8 +11,14 @@ namespace Clays.Controllers
         [HttpGet(Name = "GetWeatherForecast")]
         public async Task<IActionResult> Get()
         {
-            await kiertonetScraper.Scrape();
-            return Ok();
+            return Ok("it works");
         }
+
+        // [HttpGet(Name = "GetWeatherForecast")]
+        // public async Task<IActionResult> Get()
+        // {
+        //     await kiertonetScraper.Scrape();
+        //     return Ok();
+        // }
     }
 }
