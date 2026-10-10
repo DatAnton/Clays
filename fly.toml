@@ -1,3 +1,8 @@
+# fly.toml app configuration file generated for clays on 2026-10-10T14:27:30Z
+#
+# See https://docs.fly.io/reference/configuration for information about how to use this file.
+#
+
 app = 'clays'
 primary_region = 'arn'
 
@@ -15,3 +20,11 @@ primary_region = 'arn'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 512
+  processes = ['app']
+  size = 'shared-cpu-1x'
