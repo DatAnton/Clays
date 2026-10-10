@@ -8,18 +8,19 @@ RUN npm run build
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY Clays/*.csproj ./Clays/
+COPY Clays/Clays.csproj ./Clays/
 WORKDIR /src/Clays
 RUN dotnet restore
 
 COPY . ./
-COPY --from=react-build /client/dist ./wwwroot
 
-RUN dotnet publish -c Release -o /src/out
+WORKDIR /src/Clays
+RUN dotnet publish -c Release -o /out
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
-WORKDIR /src
-COPY --from=build /src/out .
+WORKDIR /app
+COPY --from=build /out .
+COPY --from=react-build /client/dist ./wwwroot
 
 EXPOSE 8080
 
