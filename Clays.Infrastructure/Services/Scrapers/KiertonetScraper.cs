@@ -30,10 +30,10 @@ namespace Clays.Infrastructure.Services.Scrapers
 
             foreach (var kiertonetAuction in payload.Data)
             {
-                if (MachineManager.IsWantedMachine(kiertonetAuction.FullTitle))
+                if (kiertonetAuction.FullTitle is { } title && MachineManager.IsWantedMachine(title))
                 {
                     // send notification
-                    Console.WriteLine($"Wanted machine found: {kiertonetAuction.FullTitle}");
+                    Console.WriteLine($"Wanted machine found: {title}");
                 }
             }
 

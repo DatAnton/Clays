@@ -1,12 +1,18 @@
 using Clays.Application.Common.Interfaces;
 using Clays.Application.Common.Interfaces.Scrapers;
+using Clays.Configuration;
 using Clays.Extensions;
 using Clays.Infrastructure.Data;
 using Clays.Infrastructure.Services;
 using Clays.Infrastructure.Services.Scrapers;
+using Clays.Services;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+var applicationConnectionString = builder.Configuration.GetConnectionString("ApplicationContext")
+    ?? throw new InvalidOperationException("Connection string 'ApplicationContext' was not found.");
 
 // Add services to the container.
 
@@ -16,17 +22,35 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
 {
-    var connectString = builder.Configuration.GetConnectionString("ApplicationContext");
-    
-    options.UseSqlite(connectString);
+    options.UseNpgsql(applicationConnectionString);
 });
+
+builder.Services.AddHangfire(configuration => configuration
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(applicationConnectionString)));
+builder.Services.AddHangfireServer();
+
+builder.Services.AddOptions<HangfireJobSchedules>()
+    .Bind(builder.Configuration.GetRequiredSection(HangfireJobSchedules.SectionName))
+    .Validate(schedules => !string.IsNullOrWhiteSpace(schedules.KiertonetScraper),
+        $"{HangfireJobSchedules.SectionName}:KiertonetScraper must be configured.")
+    .ValidateOnStart();
 
 builder.Services.AddScoped<IMachineService, MachineService>();
 builder.Services.AddScoped<IKiertonetScraper, KiertonetScraper>();
+builder.Services.AddScoped<IScopedProcessingService, ScopedProcessingService>();
 
 var app = builder.Build();
 
-// app.MigrateDatabase<ApplicationDbContext>();
+app.MigrateDatabase<ApplicationDbContext>();
+
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider
+        .GetRequiredService<IScopedProcessingService>()
+        .AddOrUpdateRecurringJobs();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -37,6 +61,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseHangfireDashboard();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
