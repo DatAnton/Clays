@@ -6,9 +6,9 @@ namespace Clays.Infrastructure.Services
 {
     public class TelegramBotService(ITelegramBotClient botClient) : ITelegramBotService
     {
-        public async Task SendMessage(ChatId chatId, string text)
+        public async Task SendMessage(ChatId chatId, string text, CancellationToken cancellationToken = default)
         {
-            await botClient.SendMessage(chatId, text);
+            await botClient.SendMessage(chatId, text, cancellationToken: cancellationToken);
         }
 
     }

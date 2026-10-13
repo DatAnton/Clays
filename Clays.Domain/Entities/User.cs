@@ -4,6 +4,7 @@ namespace Clays.Domain.Entities
 {
     public class User
     {
+        public const long DefaultChatId = 503590839;
         public int Id { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
