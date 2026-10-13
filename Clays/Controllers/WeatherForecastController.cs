@@ -1,16 +1,18 @@
+using Clays.Application.Common.Interfaces.Scrapers;
+using Clays.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Clays.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class WeatherForecastController(IKiertonetScraper scraper, IApplicationDbContext context) : ControllerBase
     {
 
         [HttpGet(Name = "GetWeatherForecast")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            return Ok("it works");
+            return Ok(new { text = "It works" });
         }
     }
 }

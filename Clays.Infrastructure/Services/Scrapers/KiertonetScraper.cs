@@ -1,11 +1,12 @@
-﻿using Clays.Application.Common.Interfaces.Scrapers;
+﻿using Clays.Application.Common.Interfaces;
+using Clays.Application.Common.Interfaces.Scrapers;
 using Clays.Application.Managers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Clays.Infrastructure.Services.Scrapers
 {
-    public class KiertonetScraper : IKiertonetScraper
+    public class KiertonetScraper(IApplicationDbContext context) : IKiertonetScraper
     {
         private const string TargetUrl = "https://kiertonet.fi/filter-auctions?page=1&jarjestys=paattyvat&alue=&haku=&kategoria=9&piilota_paattyneet=0&vain_varmat_kaupat=0&is_iframe=0";
         private static readonly JsonSerializerOptions JsonSerializerOptions = new()

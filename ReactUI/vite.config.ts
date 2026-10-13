@@ -8,11 +8,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/WeatherForecast': {
-        target: 'http://localhost:5138',
+        target: 'http://localhost:8080',
         changeOrigin: true,
       },
       '/api': {
-        target: 'http://localhost:5138',
+        target: 'http://localhost:8080',
         changeOrigin: true,
       }
     }

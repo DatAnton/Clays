@@ -29,17 +29,19 @@ builder.Services.AddHangfire(configuration => configuration
     .UseSimpleAssemblyNameTypeSerializer()
     .UseRecommendedSerializerSettings()
     .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(applicationConnectionString)));
+
 builder.Services.AddHangfireServer();
 
 builder.Services.AddOptions<HangfireJobSchedules>()
     .Bind(builder.Configuration.GetRequiredSection(HangfireJobSchedules.SectionName))
-    .Validate(schedules => !string.IsNullOrWhiteSpace(schedules.KiertonetScraper),
-        $"{HangfireJobSchedules.SectionName}:KiertonetScraper must be configured.")
     .ValidateOnStart();
 
 builder.Services.AddScoped<IMachineService, MachineService>();
 builder.Services.AddScoped<IKiertonetScraper, KiertonetScraper>();
 builder.Services.AddScoped<IScopedProcessingService, ScopedProcessingService>();
+
+builder.Services.AddTelegramBotClient(builder.Configuration);
+builder.Services.AddScoped<ITelegramBotService, TelegramBotService>();
 
 var app = builder.Build();
 
