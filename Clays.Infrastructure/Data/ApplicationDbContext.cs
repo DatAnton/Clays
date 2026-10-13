@@ -8,5 +8,6 @@ namespace Clays.Infrastructure.Data
         : DbContext(options), IApplicationDbContext
     {
         public DbSet<Machine> Machines { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }

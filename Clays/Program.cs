@@ -38,6 +38,7 @@ builder.Services.AddOptions<HangfireJobSchedules>()
 
 builder.Services.AddScoped<IMachineService, MachineService>();
 builder.Services.AddScoped<IKiertonetScraper, KiertonetScraper>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IScopedProcessingService, ScopedProcessingService>();
 
 builder.Services.AddTelegramBotClient(builder.Configuration);
