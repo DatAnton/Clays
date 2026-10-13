@@ -20,6 +20,7 @@ namespace Clays.Infrastructure.Services.Scrapers
         {
             using var httpClient = new HttpClient();
             using var response = await httpClient.GetAsync(TargetUrl);
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
             response.EnsureSuccessStatusCode();
 
             await using var contentStream = await response.Content.ReadAsStreamAsync();
@@ -29,7 +30,6 @@ namespace Clays.Infrastructure.Services.Scrapers
             {
                 throw new InvalidOperationException("Kiertonet response did not contain a data array.");
             }
-
 
             foreach (var kiertonetAuction in payload.Data)
             {
