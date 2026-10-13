@@ -50,7 +50,7 @@ namespace Clays.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Logs");
+                    b.ToTable("Logs", (string)null);
                 });
 
             modelBuilder.Entity("Clays.Domain.Entities.Machine", b =>
@@ -87,12 +87,96 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("text");
 
+                    b.Property<string>("TCRefreshToken")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TCToken")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("UserName")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.VinEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsFound")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("VinCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("VinSearchSessionId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VinSearchSessionId");
+
+                    b.ToTable("VinEntries");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.VinSearchSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("VinEnd")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("VinStart")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("VinSearchSessions");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.VinEntry", b =>
+                {
+                    b.HasOne("Clays.Domain.Entities.VinSearchSession", "VinSearchSession")
+                        .WithMany()
+                        .HasForeignKey("VinSearchSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("VinSearchSession");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.VinSearchSession", b =>
+                {
+                    b.HasOne("Clays.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

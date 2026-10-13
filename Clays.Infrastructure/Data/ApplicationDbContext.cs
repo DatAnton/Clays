@@ -10,6 +10,8 @@ namespace Clays.Infrastructure.Data
         public DbSet<Machine> Machines { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<ErrorLog> ErrorLogs { get; set; }
+        public DbSet<VinSearchSession> VinSearchSessions { get; set; }
+        public DbSet<VinEntry> VinEntries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

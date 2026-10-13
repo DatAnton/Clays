@@ -1,5 +1,6 @@
 using Clays.Application.Common.Interfaces;
 using Clays.Application.Common.Interfaces.Scrapers;
+using Clays.Application.Common.Configuration;
 using Clays.Configuration;
 using Clays.Extensions;
 using Clays.Infrastructure.Data;
@@ -41,8 +42,14 @@ builder.Services.AddOptions<HangfireJobSchedules>()
     .Bind(builder.Configuration.GetRequiredSection(HangfireJobSchedules.SectionName))
     .ValidateOnStart();
 
+builder.Services.AddOptions<EarthConfiguration>()
+    .Bind(builder.Configuration.GetRequiredSection(EarthConfiguration.SectionName))
+    .ValidateOnStart();
+
 builder.Services.AddScoped<IMachineService, MachineService>();
 builder.Services.AddScoped<IKiertonetScraper, KiertonetScraper>();
+builder.Services.AddHttpClient<IEarthScraper, EarthScraper>();
+builder.Services.AddHttpClient<IEarthAuthService, EarthAuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IScopedProcessingService, ScopedProcessingService>();
 

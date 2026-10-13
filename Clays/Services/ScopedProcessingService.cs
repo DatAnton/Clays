@@ -16,5 +16,15 @@ public sealed class ScopedProcessingService(
             "kiertonet-scraper",
             scraper => scraper.Scrape(),
             schedules.Value.KiertonetScraper);
+
+            recurringJobManager.AddOrUpdate<IEarthScraper>(
+            "earth-scraper",
+            scraper => scraper.Scrape(),
+            schedules.Value.EarthScraper);
+
+            recurringJobManager.AddOrUpdate<IEarthAuthService>(
+            "earth-auth",
+            authService => authService.UpdateAuthToken(),
+            schedules.Value.EarthAuth);
     }
 }
