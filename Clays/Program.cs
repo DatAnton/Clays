@@ -9,6 +9,9 @@ using Clays.Services;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
+using Soenneker.Hangfire.BasicAuthentication;
+using Soenneker.Hangfire.BasicAuthentication.Registrars;
+
 
 var builder = WebApplication.CreateBuilder(args);
 var applicationConnectionString = builder.Configuration.GetConnectionString("ApplicationContext")
@@ -31,6 +34,7 @@ builder.Services.AddHangfire(configuration => configuration
     .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(applicationConnectionString)));
 
 builder.Services.AddHangfireServer();
+builder.Services.AddHangfireBasicAuth();
 
 builder.Services.AddOptions<HangfireJobSchedules>()
     .Bind(builder.Configuration.GetRequiredSection(HangfireJobSchedules.SectionName))
@@ -62,10 +66,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseHangfireAuthorized();
 
 app.UseAuthorization();
 
-app.UseHangfireDashboard();
+ConfigureHangfire(app, builder.Configuration["Hangfire:Url"] ?? "/hangfire");
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
@@ -75,3 +80,11 @@ app.MapControllers();
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+void ConfigureHangfire(IApplicationBuilder app, string dashboardPath)
+{
+    app.UseHangfireDashboard(dashboardPath, new DashboardOptions
+    {
+        Authorization = [new HangfireAuthorizationFilter()]
+    });
+}
