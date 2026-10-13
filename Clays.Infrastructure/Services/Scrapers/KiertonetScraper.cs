@@ -18,7 +18,6 @@ namespace Clays.Infrastructure.Services.Scrapers
 
         public async Task Scrape()
         {
-            await telegramBotService.SendMessage(User.DefaultChatId, $"Kiertonet scraping at {DateTime.Now}.", CancellationToken.None);
             using var httpClient = new HttpClient();
             using var response = await httpClient.GetAsync(TargetUrl);
             response.EnsureSuccessStatusCode();
@@ -31,7 +30,6 @@ namespace Clays.Infrastructure.Services.Scrapers
                 throw new InvalidOperationException("Kiertonet response did not contain a data array.");
             }
 
-            await telegramBotService.SendMessage(User.DefaultChatId, $"Received machines in Kiertonet: {payload.Data.Count}", CancellationToken.None);
 
             foreach (var kiertonetAuction in payload.Data)
             {
@@ -40,8 +38,6 @@ namespace Clays.Infrastructure.Services.Scrapers
                     await telegramBotService.SendMessage(User.DefaultChatId, $"Wanted machine found in Kiertonet: {title}", CancellationToken.None);
                 }
             }
-
-            await telegramBotService.SendMessage(User.DefaultChatId, $"Kiertonet scraping completed.", CancellationToken.None);
         }
 
         private sealed class KiertonetResponse
