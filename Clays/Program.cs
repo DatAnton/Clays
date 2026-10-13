@@ -7,6 +7,7 @@ using Clays.Infrastructure.Services;
 using Clays.Infrastructure.Services.Scrapers;
 using Clays.Services;
 using Hangfire;
+using Hangfire.Common;
 using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Soenneker.Hangfire.BasicAuthentication;
@@ -50,36 +51,47 @@ builder.Services.AddScoped<ITelegramBotService, TelegramBotService>();
 
 var app = builder.Build();
 
-app.MigrateDatabase<ApplicationDbContext>();
-
-using (var scope = app.Services.CreateScope())
+try
 {
-    scope.ServiceProvider
-        .GetRequiredService<IScopedProcessingService>()
-        .AddOrUpdateRecurringJobs();
-}
+    app.MigrateDatabase<ApplicationDbContext>();
+    GlobalJobFilters.Filters.Add(new HangfireExceptionLoggingFilter(app.Services));
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+    using (var scope = app.Services.CreateScope())
+    {
+        scope.ServiceProvider
+            .GetRequiredService<IScopedProcessingService>()
+            .AddOrUpdateRecurringJobs();
+    }
+
+    // Configure the HTTP request pipeline.
+    app.UseMiddleware<ExceptionLoggingMiddleware>();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseHangfireAuthorized();
+
+    app.UseAuthorization();
+
+    ConfigureHangfire(app, builder.Configuration["Hangfire:Url"] ?? "/hangfire");
+
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+
+    app.MapControllers();
+
+    app.MapFallbackToFile("index.html");
+
+    await app.RunAsync();
+}
+catch (Exception exception)
 {
-    app.MapOpenApi();
+    await ExceptionLogWriter.TryWriteAsync(app.Services, exception, "Application startup or host execution");
+    throw;
 }
-
-app.UseHttpsRedirection();
-app.UseHangfireAuthorized();
-
-app.UseAuthorization();
-
-ConfigureHangfire(app, builder.Configuration["Hangfire:Url"] ?? "/hangfire");
-
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
-app.MapControllers();
-
-app.MapFallbackToFile("index.html");
-
-app.Run();
 
 void ConfigureHangfire(IApplicationBuilder app, string dashboardPath)
 {

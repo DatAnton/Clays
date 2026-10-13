@@ -9,5 +9,12 @@ namespace Clays.Infrastructure.Data
     {
         public DbSet<Machine> Machines { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<ErrorLog> ErrorLogs { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ErrorLog>().ToTable("Logs");
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
