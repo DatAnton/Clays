@@ -46,7 +46,8 @@ public class EarthAuthService(
                 throw new InvalidDataException("The Earth auth response did not contain both access_token and refresh_token.");
             }
 
-await telegramBotService.SendMessage(user.ChatId, "Token updated successfully.");
+            await telegramBotService.SendMessage(user.ChatId, "Token updated successfully.");
+            
             user.TCToken = tokenResponse.AccessToken;
             user.TCRefreshToken = tokenResponse.RefreshToken;
 
