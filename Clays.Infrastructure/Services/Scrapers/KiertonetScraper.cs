@@ -31,11 +31,12 @@ namespace Clays.Infrastructure.Services.Scrapers
                 throw new InvalidOperationException("Kiertonet response did not contain a data array.");
             }
 
+            await telegramBotService.SendMessage(User.DefaultChatId, $"Received machines in Kiertonet: {payload.Data.Count}", CancellationToken.None);
+
             foreach (var kiertonetAuction in payload.Data)
             {
                 if (kiertonetAuction.FullTitle is { } title && MachineManager.IsWantedMachine(title))
                 {
-
                     await telegramBotService.SendMessage(User.DefaultChatId, $"Wanted machine found in Kiertonet: {title}", CancellationToken.None);
                 }
             }
