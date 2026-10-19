@@ -1,184 +1,103 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; background: #fff; }
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+.app-header {
+  color: #fff;
+  background: linear-gradient(112deg, #0b2344 0%, #123b70 55%, #1b4e86 100%);
+  box-shadow: 0 4px 18px rgb(12 35 68 / 16%);
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
+.header-inner {
+  max-width: 1440px;
+  min-height: 76px;
+  margin: 0 auto;
+  padding: 0 48px;
   display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
+  align-items: center;
+  gap: 13px;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  display: grid;
   place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  background: rgb(255 255 255 / 10%);
 }
 
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
+.brand-title.ant-typography {
+  margin: 0 34px 0 0;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -.35px;
+  white-space: nowrap;
 }
 
-#docs {
-  border-right: 1px solid var(--border);
+.primary-navigation { align-self: stretch; display: flex; align-items: end; }
+.primary-navigation .ant-tabs { color: rgb(255 255 255 / 74%); }
+.primary-navigation .ant-tabs-nav { margin: 0; }
+.primary-navigation .ant-tabs-nav::before { border-bottom-color: transparent; }
+.primary-navigation .ant-tabs-tab { padding: 0 4px 20px; color: rgb(255 255 255 / 74%); }
+.primary-navigation .ant-tabs-tab:hover,
+.primary-navigation .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn { color: #fff; }
+.primary-navigation .ant-tabs-ink-bar { height: 3px; background: #fff; border-radius: 3px 3px 0 0; }
+.primary-navigation .ant-tabs-content-holder { display: none; }
 
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
+.app-main { width: 100%; max-width: 1440px; margin: 0 auto; padding: 42px 48px 48px; flex: 1; }
+.companies-view { width: 100%; }
+.view-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+.view-heading .ant-typography { margin: 0; }
+.view-heading h2.ant-typography { color: #182b42; font-size: 27px; font-weight: 650; letter-spacing: -.55px; }
+.view-heading p.ant-typography { margin-top: 5px; font-size: 14px; }
+.company-count { min-width: 120px; display: flex; flex-direction: column; align-items: flex-end; }
+.count-value { color: #123b70; font-size: 23px; font-weight: 700; line-height: 1.1; }
+.count-label { margin-top: 4px; color: #8190a3; font-size: 12px; }
+
+.filter-card, .table-card { border: 1px solid #e8edf3; border-radius: 12px; background: #fff; box-shadow: 0 3px 14px rgb(25 53 84 / 4%); }
+.filter-card { margin-bottom: 20px; padding: 20px 22px 16px; }
+.filter-grid { display: grid; grid-template-columns: minmax(250px, 1.5fr) repeat(2, minmax(160px, 1fr)) minmax(170px, .85fr); gap: 16px; }
+.filter-field { display: flex; flex-direction: column; gap: 7px; color: #566579; font-size: 12px; font-weight: 600; }
+.filter-field .ant-input, .filter-field .ant-select-selector { min-height: 38px; }
+.filter-field .ant-select { width: 100%; }
+.filter-actions { display: flex; justify-content: flex-end; margin-top: 17px; }
+.companies-error { margin: 0 0 18px; }
+.table-card { overflow: hidden; }
+.table-heading { min-height: 64px; padding: 19px 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #edf1f5; }
+.table-heading .ant-typography { margin: 0; }
+.table-heading h5.ant-typography { color: #23374f; font-weight: 650; }
+.table-heading .ant-typography-secondary { font-size: 12px; }
+.table-card .ant-table { color: #34445a; font-size: 13px; }
+.table-card .ant-table-thead > tr > th { padding: 13px 16px; color: #627188; background: #f7f9fc; font-size: 11px; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; }
+.table-card .ant-table-tbody > tr > td { padding: 14px 16px; }
+.table-card .ant-table-tbody > tr:hover > td { background: #f6f9fd !important; }
+.company-name-cell { display: flex; flex-direction: column; gap: 3px; }
+.company-name-cell .ant-typography { color: #1e344e; font-size: 13px; }
+.company-name-cell .business-id { font-size: 11px; }
+.table-card .ant-pagination { padding: 12px 20px 17px; }
+.app-footer { padding: 18px 24px; color: #8794a4; border-top: 1px solid #eef1f5; text-align: center; font-size: 11px; }
+.app-footer span { padding: 0 5px; color: #b3bdc8; }
+
+@media (max-width: 1000px) {
+  .header-inner { padding: 0 28px; }
+  .app-main { padding: 34px 28px 40px; }
+  .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
-}
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
-  width: 100%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
+@media (max-width: 600px) {
+  .header-inner { min-height: 68px; padding: 0 18px; gap: 10px; }
+  .brand-title.ant-typography { margin-right: auto; font-size: 17px; }
+  .app-main { padding: 26px 16px 32px; }
+  .view-heading { align-items: flex-start; }
+  .view-heading h2.ant-typography { font-size: 24px; }
+  .company-count { min-width: auto; padding-top: 2px; }
+  .filter-card { padding: 16px; }
+  .filter-grid { grid-template-columns: 1fr; gap: 13px; }
+  .table-heading { align-items: flex-start; flex-direction: column; }
+  .primary-navigation .ant-tabs-tab { padding-bottom: 17px; }
 }
