@@ -22,6 +22,70 @@ namespace Clays.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Clays.Domain.Entities.Company", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsOurPartner")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("MainBusinessLine")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Companies");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.Contact", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("Contacts");
+                });
+
             modelBuilder.Entity("Clays.Domain.Entities.ErrorLog", b =>
                 {
                     b.Property<int>("Id")
@@ -157,10 +221,21 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.ToTable("VinSearchSessions");
                 });
 
+            modelBuilder.Entity("Clays.Domain.Entities.Contact", b =>
+                {
+                    b.HasOne("Clays.Domain.Entities.Company", "Company")
+                        .WithMany("Contacts")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
             modelBuilder.Entity("Clays.Domain.Entities.VinEntry", b =>
                 {
                     b.HasOne("Clays.Domain.Entities.VinSearchSession", "VinSearchSession")
-                        .WithMany()
+                        .WithMany("VinEntries")
                         .HasForeignKey("VinSearchSessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -177,6 +252,16 @@ namespace Clays.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.Company", b =>
+                {
+                    b.Navigation("Contacts");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.VinSearchSession", b =>
+                {
+                    b.Navigation("VinEntries");
                 });
 #pragma warning restore 612, 618
         }
