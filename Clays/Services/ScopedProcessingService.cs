@@ -17,6 +17,11 @@ public sealed class ScopedProcessingService(
             scraper => scraper.Scrape(),
             schedules.Value.KiertonetScraper);
 
+        recurringJobManager.AddOrUpdate<ICompanyScraper>(
+            "company-scraper",
+            scraper => scraper.Scrape(),
+            schedules.Value.CompanyScraper);
+
             // recurringJobManager.AddOrUpdate<IEarthScraper>(
             // "earth-scraper",
             // scraper => scraper.Scrape(),

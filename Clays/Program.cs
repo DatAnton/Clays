@@ -46,8 +46,16 @@ builder.Services.AddOptions<EarthConfiguration>()
     .Bind(builder.Configuration.GetRequiredSection(EarthConfiguration.SectionName))
     .ValidateOnStart();
 
+builder.Services.AddOptions<CompanyScraperConfiguration>()
+    .Bind(builder.Configuration.GetRequiredSection(CompanyScraperConfiguration.SectionName))
+    .Validate(configuration => Uri.TryCreate(configuration.EndpointUrl, UriKind.Absolute, out var endpoint)
+        && (endpoint.Scheme == Uri.UriSchemeHttp || endpoint.Scheme == Uri.UriSchemeHttps),
+        "CompanyScraperConfiguration:EndpointUrl must be an absolute HTTP or HTTPS URL.")
+    .ValidateOnStart();
+
 builder.Services.AddScoped<IMachineService, MachineService>();
 builder.Services.AddScoped<IKiertonetScraper, KiertonetScraper>();
+builder.Services.AddHttpClient<ICompanyScraper, CompanyScraper>();
 builder.Services.AddHttpClient<IEarthScraper, EarthScraper>();
 builder.Services.AddHttpClient<IEarthAuthService, EarthAuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
