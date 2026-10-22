@@ -27,16 +27,16 @@ var applicationConnectionString = builder.Configuration.GetConnectionString("App
 
 builder.Services.AddControllers(options =>
 {
-    if (builder.Configuration.GetValue<bool>("Authentication:AllowAnonymousApi"))
-    {
-        options.Filters.Add(new AllowAnonymousFilter());
-    }
-    else
-    {
-        options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder()
-            .RequireAuthenticatedUser()
-            .Build()));
-    }
+    // if (builder.Configuration.GetValue<bool>("Authentication:AllowAnonymousApi"))
+    // {
+    //     options.Filters.Add(new AllowAnonymousFilter());
+    // }
+    // else
+    // {
+    //     options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder()
+    //         .RequireAuthenticatedUser()
+    //         .Build()));
+    // }
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
