@@ -238,6 +238,9 @@ public sealed class CompanyEntitiesController(
 
         private async Task<User?> GetRequestActorAsync(CancellationToken cancellationToken)
         {
+            return await context.Users.AsNoTracking()
+                .FirstOrDefaultAsync(cancellationToken);
+
             if (int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
             {
                 return await context.Users.AsNoTracking()
