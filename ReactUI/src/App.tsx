@@ -97,7 +97,9 @@ function App() {
               />
             </nav>
             <div className="account-menu">
-              <span className="account-email">{user.email}</span>
+              <span className="account-name">
+                {[user.firstName, user.lastName].filter(Boolean).join(' ') || user.userName || user.email}
+              </span>
               <Button ghost size="small" onClick={() => void handleSignOut()}>Sign out</Button>
             </div>
           </div>
