@@ -43,7 +43,7 @@
 .primary-navigation .ant-tabs { color: rgb(255 255 255 / 74%); }
 .primary-navigation .ant-tabs-nav { margin: 0; }
 .primary-navigation .ant-tabs-nav::before { border-bottom-color: transparent; }
-.primary-navigation .ant-tabs-tab { padding: 0 4px 20px; color: rgb(255 255 255 / 74%); }
+.primary-navigation .ant-tabs-tab { padding: 0 4px 20px; color: rgb(255 255 255 / 74%); font-size: 16px; }
 .primary-navigation .ant-tabs-tab:hover,
 .primary-navigation .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn { color: #fff; }
 .primary-navigation .ant-tabs-ink-bar { height: 3px; background: #fff; border-radius: 3px 3px 0 0; }
@@ -68,6 +68,14 @@
 .filter-field { display: flex; flex-direction: column; gap: 7px; color: #566579; font-size: 12px; font-weight: 600; }
 .filter-field .ant-input, .filter-field .ant-select-selector { min-height: 38px; }
 .filter-field .ant-select { width: 100%; }
+.machine-filter-grid .filter-field > .ant-input,
+.machine-filter-grid .filter-field > .ant-input-affix-wrapper,
+.machine-filter-grid .filter-field > .ant-select,
+.machine-filter-grid .filter-field > .ant-select .ant-select-selector { height: 40px; }
+.machine-filter-grid .filter-field > .ant-input,
+.machine-filter-grid .filter-field > .ant-select .ant-select-selector { min-height: 40px; }
+.machine-filter-grid .filter-field > .ant-input-affix-wrapper { min-height: 40px; align-items: center; }
+.machine-filter-grid .filter-field > .ant-input-affix-wrapper .ant-input { min-height: 0; }
 .filter-actions { display: flex; justify-content: flex-end; margin-top: 17px; }
 .companies-error { margin: 0 0 18px; }
 .table-card { overflow: hidden; }
@@ -75,13 +83,13 @@
 .table-heading .ant-typography { margin: 0; }
 .table-heading h5.ant-typography { color: #23374f; font-weight: 650; }
 .table-heading .ant-typography-secondary { font-size: 12px; }
-.table-card .ant-table { color: #34445a; font-size: 13px; }
-.table-card .ant-table-thead > tr > th { padding: 13px 16px; color: #627188; background: #f7f9fc; font-size: 11px; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; }
-.table-card .ant-table-tbody > tr > td { padding: 14px 16px; }
-.table-card .ant-table-tbody > tr:hover > td { background: #f6f9fd !important; }
+.table-card .ant-table, .machine-history .ant-table { color: #34445a; font-size: 15px; }
+.table-card .ant-table-thead > tr > th, .machine-history .ant-table-thead > tr > th { padding: 13px 16px; color: #627188; background: #f7f9fc; font-size: 12px; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; }
+.table-card .ant-table-tbody > tr > td, .machine-history .ant-table-tbody > tr > td { padding: 14px 16px; }
+.table-card .ant-table-tbody > tr:hover > td, .machine-history .ant-table-tbody > tr:hover > td { background: #f6f9fd !important; }
 .company-name-cell { display: flex; flex-direction: column; gap: 3px; }
-.company-name-cell .ant-typography { color: #1e344e; font-size: 13px; }
-.company-name-cell .business-id { font-size: 11px; }
+.company-name-cell .ant-typography { color: #1e344e; font-size: 15px; }
+.company-name-cell .business-id { font-size: 12px; }
 .machine-company-link { padding: 0; white-space: normal; text-align: left; }
 .table-card .ant-pagination { padding: 12px 20px 17px; }
 .company-table-row { cursor: pointer; }

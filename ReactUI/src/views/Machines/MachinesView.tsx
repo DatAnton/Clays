@@ -170,6 +170,7 @@ function MachinesView({ onSelectCompany }: Props) {
           <label className="filter-field filter-search">
             <span>Search machines</span>
             <Input
+              size="large"
               allowClear
               placeholder="Model, VIN, registration, company..."
               value={draftFilters.search}
@@ -180,6 +181,7 @@ function MachinesView({ onSelectCompany }: Props) {
           <label className="filter-field">
             <span>Manufacturer</span>
             <Select
+              size="large"
               allowClear
               placeholder="All manufacturers"
               value={draftFilters.manufacturerId}
@@ -190,6 +192,7 @@ function MachinesView({ onSelectCompany }: Props) {
           <label className="filter-field">
             <span>Status</span>
             <Select
+              size="large"
               allowClear
               placeholder="All statuses"
               value={draftFilters.status}
@@ -200,6 +203,7 @@ function MachinesView({ onSelectCompany }: Props) {
           <label className="filter-field">
             <span>Company city</span>
             <Input
+              size="large"
               allowClear
               placeholder="All cities"
               value={draftFilters.city}
