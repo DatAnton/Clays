@@ -22,6 +22,54 @@ namespace Clays.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Clays.Domain.Entities.Action", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActionWeek")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("AssignedUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("MachineId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedUserId");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("MachineId");
+
+                    b.ToTable("Actions");
+                });
+
             modelBuilder.Entity("Clays.Domain.Entities.Company", b =>
                 {
                     b.Property<int>("Id")
@@ -39,6 +87,9 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Property<string>("City")
                         .HasColumnType("text");
 
+                    b.Property<int?>("CreatedById")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsOurPartner")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -51,9 +102,44 @@ namespace Clays.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedById");
+
                     b.ToTable("Companies");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.CompanyComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("CompanyComments");
                 });
 
             modelBuilder.Entity("Clays.Domain.Entities.Contact", b =>
@@ -125,13 +211,113 @@ namespace Clays.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CountryOfImport")
+                        .HasColumnType("text");
+
+                    b.Property<int>("CreatedById")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ManufacturerId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("PurchaseYear")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RegistrationNumber")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("VinNumber")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("ManufacturerId");
+
+                    b.ToTable("Machines");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.Manufacturer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Machines");
+                    b.ToTable("Manufacturers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Volvo"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Hyundai"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Doosan"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Develon"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Hitachi"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Caterpillar"
+                        });
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.OwnerHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MachineId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("MachineId");
+
+                    b.ToTable("OwnerHistories");
                 });
 
             modelBuilder.Entity("Clays.Domain.Entities.User", b =>
@@ -221,6 +407,67 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.ToTable("VinSearchSessions");
                 });
 
+            modelBuilder.Entity("Clays.Domain.Entities.Action", b =>
+                {
+                    b.HasOne("Clays.Domain.Entities.User", "AssignedUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Clays.Domain.Entities.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Clays.Domain.Entities.Company", "Company")
+                        .WithMany("Actions")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Clays.Domain.Entities.Machine", "Machine")
+                        .WithMany()
+                        .HasForeignKey("MachineId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("AssignedUser");
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Machine");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.Company", b =>
+                {
+                    b.HasOne("Clays.Domain.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.CompanyComment", b =>
+                {
+                    b.HasOne("Clays.Domain.Entities.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Clays.Domain.Entities.Company", "Company")
+                        .WithMany("Comments")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Company");
+                });
+
             modelBuilder.Entity("Clays.Domain.Entities.Contact", b =>
                 {
                     b.HasOne("Clays.Domain.Entities.Company", "Company")
@@ -230,6 +477,44 @@ namespace Clays.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.Machine", b =>
+                {
+                    b.HasOne("Clays.Domain.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+
+                    b.HasOne("Clays.Domain.Entities.Manufacturer", "Manufacturer")
+                        .WithMany()
+                        .HasForeignKey("ManufacturerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Manufacturer");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.OwnerHistory", b =>
+                {
+                    b.HasOne("Clays.Domain.Entities.Company", "Company")
+                        .WithMany("OwnerHistory")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Clays.Domain.Entities.Machine", "Machine")
+                        .WithMany()
+                        .HasForeignKey("MachineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Machine");
                 });
 
             modelBuilder.Entity("Clays.Domain.Entities.VinEntry", b =>
@@ -256,7 +541,13 @@ namespace Clays.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Clays.Domain.Entities.Company", b =>
                 {
+                    b.Navigation("Actions");
+
+                    b.Navigation("Comments");
+
                     b.Navigation("Contacts");
+
+                    b.Navigation("OwnerHistory");
                 });
 
             modelBuilder.Entity("Clays.Domain.Entities.VinSearchSession", b =>

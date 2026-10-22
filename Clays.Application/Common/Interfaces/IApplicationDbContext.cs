@@ -12,6 +12,10 @@ namespace Clays.Application.Common.Interfaces
         public DbSet<VinEntry> VinEntries { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Contact> Contacts { get; set; }
+        public DbSet<Manufacturer> Manufacturers { get; set; }
+        public DbSet<CompanyComment> CompanyComments { get; set; }
+        public DbSet<OwnerHistory> OwnerHistories { get; set; }
+        public DbSet<Clays.Domain.Entities.Action> Actions { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
