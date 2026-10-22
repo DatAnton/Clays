@@ -1,3 +1,5 @@
+import { apiFetch } from './apiClient'
+
 export interface MachineGridItem {
   id: number
   manufacturerId: number
@@ -39,9 +41,8 @@ export async function getMachines(
   if (filters.status !== undefined) params.set('status', String(filters.status))
   if (filters.city.trim()) params.set('city', filters.city.trim())
 
-  const response = await fetch(`/api/machines?${params.toString()}`, {
+  const response = await apiFetch(`/api/machines?${params.toString()}`, {
     signal,
-    credentials: 'same-origin',
   })
   if (!response.ok) {
     throw new Error(`Unable to load machines (${response.status})`)

@@ -1,3 +1,5 @@
+import { apiFetch } from './apiClient'
+
 export interface Company {
   id: number
   name: string
@@ -145,9 +147,8 @@ export interface CreateActionPayload {
 }
 
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
+  const response = await apiFetch(url, {
     ...init,
-    credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json', ...init?.headers },
   })
   if (!response.ok) {
@@ -169,18 +170,16 @@ export async function getUsers(page: number, search: string, signal?: AbortSigna
   const params = new URLSearchParams({ page: String(page) })
   if (search.trim()) params.set('search', search.trim())
 
-  const response = await fetch(`/api/users?${params.toString()}`, {
+  const response = await apiFetch(`/api/users?${params.toString()}`, {
     signal,
-    credentials: 'same-origin',
   })
   if (!response.ok) throw new Error(`Unable to load users (${response.status})`)
   return response.json() as Promise<UserDirectoryPage>
 }
 
 export async function updateUserActiveStatus(id: number, isActive: boolean): Promise<UserDirectoryItem> {
-  const response = await fetch(`/api/users/${id}/active`, {
+  const response = await apiFetch(`/api/users/${id}/active`, {
     method: 'PATCH',
-    credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ isActive }),
   })
@@ -195,9 +194,8 @@ export function signInWithGoogle(credential: string): Promise<AuthUser> {
 }
 
 export async function signOut(): Promise<void> {
-  const response = await fetch('/api/auth/logout', {
+  const response = await apiFetch('/api/auth/logout', {
     method: 'POST',
-    credentials: 'same-origin',
   })
   if (!response.ok) throw new Error(`Sign out failed (${response.status})`)
 }
@@ -243,9 +241,8 @@ export async function getCompanies(
     params.set('isOurPartner', String(filters.isOurPartner))
   }
 
-  const response = await fetch(`/api/companies?${params.toString()}`, {
+  const response = await apiFetch(`/api/companies?${params.toString()}`, {
     signal,
-    credentials: 'same-origin',
   })
   if (!response.ok) {
     throw new Error(`Unable to load companies (${response.status})`)
