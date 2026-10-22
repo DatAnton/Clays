@@ -3,6 +3,7 @@ using Clays.Domain.Entities;
 using Clays.Domain.Entities.Enums;
 using Clays.Models;
 using System.Security.Claims;
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,9 @@ namespace Clays.Controllers;
 /// <summary>Creates comments, contacts, machines, and company actions.</summary>
 [ApiController]
 [Route("api")]
-public sealed class CompanyEntitiesController(IApplicationDbContext context) : ControllerBase
+public sealed class CompanyEntitiesController(
+    IApplicationDbContext context,
+    IConfiguration configuration) : ControllerBase
 {
     /// <summary>Adds a comment to a company.</summary>
     [HttpPost("companies/{companyId:int}/comments")]
@@ -27,9 +30,7 @@ public sealed class CompanyEntitiesController(IApplicationDbContext context) : C
             return NotFound($"Company {companyId} was not found.");
         }
 
-        var authorId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var author = await context.Users.AsNoTracking()
-            .SingleOrDefaultAsync(user => user.Id == authorId, cancellationToken);
+        var author = await GetRequestActorAsync(cancellationToken);
         if (author is null)
         {
             return Unauthorized();
@@ -80,6 +81,12 @@ public sealed class CompanyEntitiesController(IApplicationDbContext context) : C
             return BadRequest("Machine status is invalid.");
         }
 
+        var actor = await GetRequestActorAsync(cancellationToken);
+        if (actor is null)
+        {
+            return Unauthorized();
+        }
+
         var machine = new Machine
         {
             ManufacturerId = request.ManufacturerId,
@@ -90,7 +97,7 @@ public sealed class CompanyEntitiesController(IApplicationDbContext context) : C
             CountryOfImport = request.CountryOfImport,
             PurchaseYear = request.PurchaseYear,
             Status = request.Status,
-            CreatedById = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!),
+            CreatedById = actor.Id,
             CompanyId = request.CompanyId
         };
 
@@ -121,9 +128,7 @@ public sealed class CompanyEntitiesController(IApplicationDbContext context) : C
             return NotFound($"Company {request.CompanyId} was not found.");
         }
 
-        var authorId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var author = await context.Users.AsNoTracking()
-            .SingleOrDefaultAsync(user => user.Id == authorId, cancellationToken);
+        var author = await GetRequestActorAsync(cancellationToken);
         if (author is null)
         {
             return Unauthorized();
@@ -230,6 +235,23 @@ public sealed class CompanyEntitiesController(IApplicationDbContext context) : C
             .Include(action => action.Machine)
                 .ThenInclude(machine => machine!.Manufacturer)
             .SingleOrDefaultAsync(action => action.Id == id, cancellationToken);
+
+        private async Task<User?> GetRequestActorAsync(CancellationToken cancellationToken)
+        {
+            if (int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+            {
+                return await context.Users.AsNoTracking()
+                    .SingleOrDefaultAsync(user => user.Id == userId, cancellationToken);
+            }
+
+            if (!configuration.GetValue<bool>("Authentication:AllowAnonymousApi"))
+            {
+                return null;
+            }
+
+            return await context.Users.AsNoTracking()
+                .SingleOrDefaultAsync(user => user.GoogleSubject == "__anonymous_api__", cancellationToken);
+        }
 
     private static UserSummaryResponse ToUserResponse(User user) =>
         new(user.Id, user.FirstName, user.LastName, user.UserName);

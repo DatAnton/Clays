@@ -27,9 +27,16 @@ var applicationConnectionString = builder.Configuration.GetConnectionString("App
 
 builder.Services.AddControllers(options =>
 {
-    options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build()));
+    if (builder.Configuration.GetValue<bool>("Authentication:AllowAnonymousApi"))
+    {
+        options.Filters.Add(new AllowAnonymousFilter());
+    }
+    else
+    {
+        options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder()
+            .RequireAuthenticatedUser()
+            .Build()));
+    }
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -120,6 +127,24 @@ var app = builder.Build();
 try
 {
     app.MigrateDatabase<ApplicationDbContext>();
+    if (builder.Configuration.GetValue<bool>("Authentication:AllowAnonymousApi"))
+    {
+        using var scope = app.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        const string anonymousApiUserSubject = "__anonymous_api__";
+        if (!await dbContext.Users.AnyAsync(user => user.GoogleSubject == anonymousApiUserSubject))
+        {
+            dbContext.Users.Add(new Clays.Domain.Entities.User
+            {
+                GoogleSubject = anonymousApiUserSubject,
+                FirstName = "Anonymous",
+                LastName = "API",
+                IsActive = false,
+                ChatId = 0
+            });
+            await dbContext.SaveChangesAsync();
+        }
+    }
     GlobalJobFilters.Filters.Add(new HangfireExceptionLoggingFilter(app.Services));
 
     using (var scope = app.Services.CreateScope())

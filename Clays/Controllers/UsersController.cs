@@ -1,5 +1,4 @@
 using Clays.Application.Common.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +7,9 @@ namespace Clays.Controllers;
 /// <summary>Provides a searchable directory of application users.</summary>
 [ApiController]
 [Route("api/users")]
-public sealed class UsersController(IApplicationDbContext context) : ControllerBase
+public sealed class UsersController(
+    IApplicationDbContext context,
+    IConfiguration configuration) : ControllerBase
 {
     private const int PageSize = 100;
 
@@ -54,7 +55,6 @@ public sealed class UsersController(IApplicationDbContext context) : ControllerB
     }
 
     /// <summary>Changes whether a user is allowed to sign in.</summary>
-    [Authorize(Roles = "Admin")]
     [HttpPatch("{id:int}/active")]
     [ProducesResponseType<UserListItemResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -63,6 +63,11 @@ public sealed class UsersController(IApplicationDbContext context) : ControllerB
         UpdateUserActiveStatusRequest request,
         CancellationToken cancellationToken = default)
     {
+        if (!configuration.GetValue<bool>("Authentication:AllowAnonymousApi") && !User.IsInRole("Admin"))
+        {
+            return Forbid();
+        }
+
         var user = await context.Users.SingleOrDefaultAsync(item => item.Id == id, cancellationToken);
         if (user is null)
         {

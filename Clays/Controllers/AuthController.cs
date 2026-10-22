@@ -126,7 +126,11 @@ public sealed class AuthController(
     [ProducesResponseType<AuthUserResponse>(StatusCodes.Status200OK)]
     public async Task<ActionResult<AuthUserResponse>> GetCurrentUser(CancellationToken cancellationToken = default)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+        {
+            return Unauthorized();
+        }
+
         var user = await context.Users.AsNoTracking()
             .SingleAsync(item => item.Id == userId, cancellationToken);
         return Ok(ToResponse(user, User.IsInRole("Admin")));
