@@ -32,28 +32,22 @@ function App() {
     : location.pathname.startsWith('/users') ? 'users' : 'companies'
   const [user, setUser] = useState<AuthUser | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
-  const [authError, setAuthError] = useState<string | null>(null)
   const [messageApi, contextHolder] = message.useMessage()
 
   useEffect(() => {
     let active = true
     getCurrentUser()
       .then((currentUser) => { if (active) setUser(currentUser) })
-      .catch((error: unknown) => {
-        if (active && !(error instanceof Error && error.message.includes('(401)'))) {
-          setAuthError(error instanceof Error ? error.message : 'Unable to check your account.')
-        }
-      })
+      .catch(() => undefined)
       .finally(() => { if (active) setAuthLoading(false) })
     return () => { active = false }
   }, [])
 
   const handleSignIn = useCallback(async (credential: string) => {
     try {
-      setAuthError(null)
       setUser(await signInWithGoogle(credential))
-    } catch (error) {
-      setAuthError(error instanceof Error ? error.message : 'Google sign-in failed.')
+    } catch {
+      // Keep failed sign-in attempts silent in the UI.
     }
   }, [])
 
@@ -78,7 +72,6 @@ function App() {
     }}>
       {contextHolder}
       {authLoading ? <div className="auth-loading"><Spin size="large" /></div> : !user ? <GoogleSignIn
-        error={authError}
         onCredential={handleSignIn}
       /> : <div className="app-shell">
         <header className="app-header">
@@ -120,7 +113,7 @@ function App() {
   )
 }
 
-function GoogleSignIn({ error, onCredential }: { error: string | null; onCredential: (credential: string) => void }) {
+function GoogleSignIn({ onCredential }: { onCredential: (credential: string) => void }) {
   const buttonRef = useRef<HTMLDivElement>(null)
   const [clientId, setClientId] = useState<string | null>(null)
   const [setupError, setSetupError] = useState<string | null>(null)
@@ -179,7 +172,6 @@ function GoogleSignIn({ error, onCredential }: { error: string | null; onCredent
       <Typography.Title level={2}>Welcome</Typography.Title>
       <Typography.Paragraph type="secondary">Sign in with your Google account to access company and machine intelligence.</Typography.Paragraph>
       {setupError && <Alert type="warning" showIcon message={setupError} />}
-      {error && <Alert className="sign-in-error" type="error" showIcon message="Sign-in failed" description={error} />}
       <div className="google-button-slot" ref={buttonRef} />
       <Typography.Text className="sign-in-caption">Your account is protected by Google authentication.</Typography.Text>
     </section>
