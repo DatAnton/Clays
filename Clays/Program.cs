@@ -10,6 +10,7 @@ using Clays.Services;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.PostgreSql;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -52,6 +53,25 @@ builder.Services
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
             return Task.CompletedTask;
+        };
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            var userId = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userId, out var parsedUserId))
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return;
+            }
+
+            var dbContext = context.HttpContext.RequestServices.GetRequiredService<IApplicationDbContext>();
+            var isActive = await dbContext.Users.AsNoTracking()
+                .AnyAsync(user => user.Id == parsedUserId && user.IsActive);
+            if (!isActive)
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
         };
     });
 builder.Services.AddAuthorization();

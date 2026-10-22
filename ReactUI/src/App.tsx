@@ -4,6 +4,7 @@ import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 're
 import CompaniesView from './views/Companies/CompaniesView'
 import CompanyDetailsView from './views/Companies/CompanyDetailsView'
 import MachinesView from './views/Machines/MachinesView'
+import UsersView from './views/Users/UsersView'
 import { getAuthConfiguration, getCurrentUser, signInWithGoogle, signOut } from './services/companiesApi'
 import type { AuthUser } from './services/companiesApi'
 import './App.css'
@@ -25,7 +26,9 @@ declare global {
 function App() {
   const navigate = useNavigate()
   const location = useLocation()
-  const activeTab = location.pathname.startsWith('/machines') ? 'machines' : 'companies'
+  const activeTab = location.pathname.startsWith('/machines')
+    ? 'machines'
+    : location.pathname.startsWith('/users') ? 'users' : 'companies'
   const [user, setUser] = useState<AuthUser | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [authError, setAuthError] = useState<string | null>(null)
@@ -87,8 +90,9 @@ function App() {
                 items={[
                   { key: 'companies', label: 'Companies' },
                   { key: 'machines', label: 'Machines' },
+                  { key: 'users', label: 'Users' },
                 ]}
-                onChange={(key) => navigate(key === 'machines' ? '/machines' : '/')}
+                onChange={(key) => navigate(key === 'machines' ? '/machines' : key === 'users' ? '/users' : '/')}
               />
             </nav>
             <div className="account-menu">
@@ -101,6 +105,7 @@ function App() {
           <Routes>
             <Route path="/" element={<CompaniesView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
             <Route path="/machines" element={<MachinesView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
+            <Route path="/users" element={<UsersView isAdmin={user.isAdmin} />} />
             <Route path="/company/:id" element={<CompanyDetailsRoute />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

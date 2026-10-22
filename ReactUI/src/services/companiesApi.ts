@@ -93,9 +93,27 @@ export interface AuthUser {
   lastName: string | null
   userName: string | null
   email: string | null
+  isActive: boolean
+  isAdmin: boolean
 }
 
 export interface AuthConfiguration { googleClientId: string | null }
+
+export interface UserDirectoryItem {
+  id: number
+  firstName: string | null
+  lastName: string | null
+  telegramNickname: string | null
+  email: string | null
+  isActive: boolean
+}
+
+export interface UserDirectoryPage {
+  items: UserDirectoryItem[]
+  page: number
+  pageSize: number
+  totalCount: number
+}
 
 export interface CreateCommentPayload { text: string }
 export interface CreateContactPayload {
@@ -145,6 +163,29 @@ export function getAuthConfiguration(): Promise<AuthConfiguration> {
 
 export function getCurrentUser(): Promise<AuthUser> {
   return requestJson<AuthUser>('/api/auth/me')
+}
+
+export async function getUsers(page: number, search: string, signal?: AbortSignal): Promise<UserDirectoryPage> {
+  const params = new URLSearchParams({ page: String(page) })
+  if (search.trim()) params.set('search', search.trim())
+
+  const response = await fetch(`/api/users?${params.toString()}`, {
+    signal,
+    credentials: 'same-origin',
+  })
+  if (!response.ok) throw new Error(`Unable to load users (${response.status})`)
+  return response.json() as Promise<UserDirectoryPage>
+}
+
+export async function updateUserActiveStatus(id: number, isActive: boolean): Promise<UserDirectoryItem> {
+  const response = await fetch(`/api/users/${id}/active`, {
+    method: 'PATCH',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ isActive }),
+  })
+  if (!response.ok) throw new Error(`Unable to update user access (${response.status})`)
+  return response.json() as Promise<UserDirectoryItem>
 }
 
 export function signInWithGoogle(credential: string): Promise<AuthUser> {

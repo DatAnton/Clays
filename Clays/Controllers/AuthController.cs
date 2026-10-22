@@ -66,6 +66,8 @@ public sealed class AuthController(
             return Unauthorized("Google must provide a verified email address.");
         }
 
+        var isAdmin = IsAdministrator(payload.Email);
+
         var user = await context.Users
             .SingleOrDefaultAsync(item => item.GoogleSubject == payload.Subject, cancellationToken);
 
@@ -78,7 +80,7 @@ public sealed class AuthController(
                 Email = payload.Email,
                 FirstName = payload.GivenName ?? names.FirstOrDefault(),
                 LastName = payload.FamilyName ?? (names.Length > 1 ? names[1] : null),
-                UserName = payload.Name ?? payload.Email,
+                IsActive = isAdmin,
                 ChatId = 0
             };
             context.Users.Add(user);
@@ -88,23 +90,35 @@ public sealed class AuthController(
             user.Email = payload.Email;
             user.FirstName = payload.GivenName ?? user.FirstName;
             user.LastName = payload.FamilyName ?? user.LastName;
-            user.UserName = payload.Name ?? user.UserName;
+            if (isAdmin)
+            {
+                user.IsActive = true;
+            }
         }
 
         await context.SaveChangesAsync(cancellationToken);
 
+        if (!user.IsActive)
+        {
+            return Unauthorized("Your account is inactive. Contact an administrator to request access.");
+        }
+
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.UserName ?? user.Email),
+            new(ClaimTypes.Name, payload.Name ?? user.Email!),
             new(ClaimTypes.Email, user.Email!)
         };
+        if (isAdmin)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+        }
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
             new ClaimsPrincipal(identity));
 
-        return Ok(ToResponse(user));
+        return Ok(ToResponse(user, isAdmin));
     }
 
     /// <summary>Gets the profile associated with the current session.</summary>
@@ -115,7 +129,7 @@ public sealed class AuthController(
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var user = await context.Users.AsNoTracking()
             .SingleAsync(item => item.Id == userId, cancellationToken);
-        return Ok(ToResponse(user));
+        return Ok(ToResponse(user, User.IsInRole("Admin")));
     }
 
     /// <summary>Ends the current application session.</summary>
@@ -127,12 +141,18 @@ public sealed class AuthController(
         return NoContent();
     }
 
-    private static AuthUserResponse ToResponse(User user) => new(
+    private bool IsAdministrator(string email) =>
+        (configuration.GetSection("Google:AdminEmails").Get<string[]>() ?? [])
+        .Contains(email, StringComparer.OrdinalIgnoreCase);
+
+    private static AuthUserResponse ToResponse(User user, bool isAdmin) => new(
         user.Id,
         user.FirstName,
         user.LastName,
         user.UserName,
-        user.Email);
+        user.Email,
+        user.IsActive,
+        isAdmin);
 }
 
 /// <summary>Public authentication configuration used by the browser.</summary>
@@ -147,4 +167,6 @@ public sealed record AuthUserResponse(
     string? FirstName,
     string? LastName,
     string? UserName,
-    string? Email);
+    string? Email,
+    bool IsActive,
+    bool IsAdmin);

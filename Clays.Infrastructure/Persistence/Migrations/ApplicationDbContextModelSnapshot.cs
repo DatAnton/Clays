@@ -350,6 +350,11 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Property<string>("GoogleSubject")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("LastName")
                         .HasColumnType("text");
 

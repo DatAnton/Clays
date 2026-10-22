@@ -25,6 +25,9 @@ namespace Clays.Infrastructure.Data
             modelBuilder.Entity<User>()
                 .HasIndex(user => user.GoogleSubject)
                 .IsUnique();
+            modelBuilder.Entity<User>()
+                .Property(user => user.IsActive)
+                .HasDefaultValue(false);
 
             modelBuilder.Entity<Manufacturer>().HasData(
                 new Manufacturer { Id = 1, Name = "Volvo" },
