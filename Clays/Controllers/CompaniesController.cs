@@ -1,5 +1,6 @@
 using Clays.Application.Common.Interfaces;
 using Clays.Domain.Entities;
+using Clays.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -62,7 +63,7 @@ public sealed class CompaniesController(IApplicationDbContext context) : Control
             .ThenBy(company => company.Id)
             .Skip(offset)
             .Take(PageSize)
-            .Select(company => new CompanyResponse(
+            .Select(company => new CompanyListItemResponse(
                 company.Id,
                 company.Name,
                 company.BusinessId,
@@ -74,10 +75,105 @@ public sealed class CompaniesController(IApplicationDbContext context) : Control
 
         return Ok(new CompanyPageResponse(companies, page, PageSize, totalCount));
     }
+
+    /// <summary>Gets one company together with its related entities.</summary>
+    [HttpGet("{id:int}")]
+    [ProducesResponseType<CompanyDetailsResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<CompanyDetailsResponse>> GetCompanyById(
+        int id,
+        CancellationToken cancellationToken = default)
+    {
+        var company = await context.Companies
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(item => item.CreatedBy)
+            .Include(item => item.Contacts)
+            .Include(item => item.Comments)
+                .ThenInclude(comment => comment.Author)
+            .Include(item => item.Machines)
+                .ThenInclude(machine => machine.Manufacturer)
+            .Include(item => item.OwnerHistory)
+                .ThenInclude(history => history.Machine)
+                    .ThenInclude(machine => machine.Manufacturer)
+            .Include(item => item.Actions)
+                .ThenInclude(action => action.Author)
+            .Include(item => item.Actions)
+                .ThenInclude(action => action.AssignedUser)
+            .Include(item => item.Actions)
+                .ThenInclude(action => action.Machine)
+                    .ThenInclude(machine => machine!.Manufacturer)
+            .SingleOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+        if (company is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new CompanyDetailsResponse(
+            company.Id,
+            company.Name,
+            company.City,
+            company.Address,
+            company.IsOurPartner,
+            company.BusinessId,
+            company.MainBusinessLine,
+            company.Status,
+            company.Note,
+            MapUser(company.CreatedBy),
+            company.Contacts.Select(contact => new ContactResponse(
+                contact.Id,
+                contact.FirstName,
+                contact.LastName,
+                contact.PhoneNumber,
+                contact.Email,
+                contact.CompanyId)).ToList(),
+            company.Comments.Select(comment => new CompanyCommentResponse(
+                comment.Id,
+                comment.CompanyId,
+                comment.Text,
+                MapUser(comment.Author)!,
+                comment.CreatedAtUtc)).ToList(),
+            company.Machines.Select(MapMachine).ToList(),
+            company.OwnerHistory.Select(history => new OwnerHistoryResponse(
+                history.Id,
+                MapMachine(history.Machine))).ToList(),
+            company.Actions.Select(action => new ActionResponse(
+                action.Id,
+                action.AuthorId,
+                MapUser(action.Author)!,
+                action.AssignedUserId,
+                MapUser(action.AssignedUser),
+                action.Type,
+                action.Status,
+                action.Note,
+                new DateTimeOffset(DateTime.SpecifyKind(action.CreatedDate, DateTimeKind.Utc)),
+                action.ActionWeek,
+                action.CompanyId,
+                action.MachineId,
+                action.Machine is null ? null : MapMachine(action.Machine))).ToList()));
+    }
+
+    private static UserSummaryResponse? MapUser(User? user) => user is null
+        ? null
+        : new UserSummaryResponse(user.Id, user.FirstName, user.LastName, user.UserName);
+
+    private static MachineResponse MapMachine(Machine machine) => new(
+        machine.Id,
+        machine.ManufacturerId,
+        machine.Manufacturer.Name,
+        machine.Model,
+        machine.Year,
+        machine.VinNumber,
+        machine.RegistrationNumber,
+        machine.CountryOfImport,
+        machine.PurchaseYear,
+        machine.Status,
+        machine.CreatedById);
 }
 
 /// <summary>A company row returned by the companies API.</summary>
-public sealed record CompanyResponse(
+public sealed record CompanyListItemResponse(
     int Id,
     string Name,
     string? BusinessId,
@@ -88,7 +184,7 @@ public sealed record CompanyResponse(
 
 /// <summary>A company page and its pagination metadata.</summary>
 public sealed record CompanyPageResponse(
-    IReadOnlyList<CompanyResponse> Items,
+    IReadOnlyList<CompanyListItemResponse> Items,
     int Page,
     int PageSize,
     int TotalCount);

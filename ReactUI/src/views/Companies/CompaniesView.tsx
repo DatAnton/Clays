@@ -5,6 +5,10 @@ import type { ChangeEvent } from 'react'
 import { getCompanies } from '../../services/companiesApi'
 import type { Company, CompanyFilters, CompanyPage } from '../../services/companiesApi'
 
+interface Props {
+  onSelectCompany: (companyId: number) => void
+}
+
 const PAGE_SIZE = 100
 const initialFilters: CompanyFilters = {
   search: '',
@@ -46,7 +50,7 @@ const columns: TableColumnsType<Company> = [
   },
 ]
 
-function CompaniesView() {
+function CompaniesView({ onSelectCompany }: Props) {
   const [page, setPage] = useState<CompanyPage>({ items: [], page: 1, pageSize: PAGE_SIZE, totalCount: 0 })
   const [currentPage, setCurrentPage] = useState(1)
   const [filters, setFilters] = useState<CompanyFilters>(initialFilters)
@@ -179,6 +183,11 @@ function CompaniesView() {
           dataSource={page.items}
           loading={loading}
           onChange={handleTableChange}
+          onRow={(company) => ({
+            onClick: () => onSelectCompany(company.id),
+            className: 'company-table-row',
+            'aria-label': `Open ${company.name}`,
+          })}
           pagination={{
             current: currentPage,
             pageSize: PAGE_SIZE,

@@ -6,6 +6,7 @@ public class CompanyComment
     public int CompanyId { get; set; }
     public string Text { get; set; } = string.Empty;
     public int AuthorId { get; set; }
+    public DateTimeOffset CreatedAtUtc { get; set; } = DateTimeOffset.UtcNow;
 
     public Company Company { get; set; } = null!;
     public User Author { get; set; } = null!;

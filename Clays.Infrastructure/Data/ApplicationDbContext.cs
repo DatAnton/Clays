@@ -52,6 +52,12 @@ namespace Clays.Infrastructure.Data
                 .HasForeignKey(machine => machine.CreatedById)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            modelBuilder.Entity<Machine>()
+                .HasOne(machine => machine.Company)
+                .WithMany(company => company.Machines)
+                .HasForeignKey(machine => machine.CompanyId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<CompanyComment>()
                 .HasOne(comment => comment.Company)
                 .WithMany(company => company.Comments)
@@ -63,6 +69,10 @@ namespace Clays.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(comment => comment.AuthorId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CompanyComment>()
+                .Property(comment => comment.CreatedAtUtc)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             modelBuilder.Entity<OwnerHistory>()
                 .HasOne(history => history.Company)

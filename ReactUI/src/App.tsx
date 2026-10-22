@@ -1,8 +1,12 @@
 import { ConfigProvider, Tabs, Typography } from 'antd'
+import { Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import CompaniesView from './views/Companies/CompaniesView'
+import CompanyDetailsView from './views/Companies/CompanyDetailsView'
 import './App.css'
 
 function App() {
+  const navigate = useNavigate()
+
   return (
     <ConfigProvider theme={{
       token: {
@@ -21,18 +25,34 @@ function App() {
               <Tabs
                 activeKey="companies"
                 items={[{ key: 'companies', label: 'Companies' }]}
-                onChange={() => undefined}
+                onChange={() => navigate('/')}
               />
             </nav>
           </div>
         </header>
         <main className="app-main">
-          <CompaniesView />
+          <Routes>
+            <Route path="/" element={<CompaniesView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
+            <Route path="/company/:id" element={<CompanyDetailsRoute />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </main>
         <footer className="app-footer">Invest Machinery <span>·</span> Company intelligence</footer>
       </div>
     </ConfigProvider>
   )
+}
+
+function CompanyDetailsRoute() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const companyId = Number(id)
+
+  if (!Number.isInteger(companyId) || companyId < 1) {
+    return <Navigate to="/" replace />
+  }
+
+  return <CompanyDetailsView companyId={companyId} onBack={() => navigate('/')} />
 }
 
 export default App

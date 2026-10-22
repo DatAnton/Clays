@@ -129,6 +129,11 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Property<int>("CompanyId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("text");
@@ -211,6 +216,9 @@ namespace Clays.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("CountryOfImport")
                         .HasColumnType("text");
 
@@ -240,6 +248,8 @@ namespace Clays.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
 
                     b.HasIndex("CreatedById");
 
@@ -481,6 +491,11 @@ namespace Clays.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Clays.Domain.Entities.Machine", b =>
                 {
+                    b.HasOne("Clays.Domain.Entities.Company", "Company")
+                        .WithMany("Machines")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Clays.Domain.Entities.User", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
@@ -492,6 +507,8 @@ namespace Clays.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ManufacturerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Company");
 
                     b.Navigation("CreatedBy");
 
@@ -546,6 +563,8 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Contacts");
+
+                    b.Navigation("Machines");
 
                     b.Navigation("OwnerHistory");
                 });
