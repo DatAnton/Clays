@@ -223,10 +223,6 @@ function MachinesView({ onSelectCompany }: Props) {
       {error && <Alert className="companies-error" type="error" showIcon message="Could not load machines" description={error} />}
 
       <div className="table-card">
-        <div className="table-heading">
-          <Typography.Title level={5}>Machine directory</Typography.Title>
-          <Typography.Text type="secondary">Showing up to {PAGE_SIZE} machines per page</Typography.Text>
-        </div>
         <Table<MachineGridItem>
           rowKey="id"
           columns={columns}

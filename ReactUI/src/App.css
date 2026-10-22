@@ -73,10 +73,6 @@
 .filter-actions { display: flex; justify-content: flex-end; margin-top: 17px; }
 .companies-error { margin: 0 0 18px; }
 .table-card { overflow: hidden; }
-.table-heading { min-height: 64px; padding: 19px 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #edf1f5; }
-.table-heading .ant-typography { margin: 0; }
-.table-heading h5.ant-typography { color: #23374f; font-weight: 650; }
-.table-heading .ant-typography-secondary { font-size: 12px; }
 .table-card .ant-table, .machine-history .ant-table { color: #34445a; font-size: 15px; }
 .table-card .ant-table-thead > tr > th, .machine-history .ant-table-thead > tr > th { padding: 13px 16px; color: #627188; background: #f7f9fc; font-size: 12px; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; }
 .table-card .ant-table-tbody > tr > td, .machine-history .ant-table-tbody > tr > td { padding: 14px 16px; }
@@ -162,7 +158,6 @@
   .machines-heading-actions { gap: 10px; }
   .filter-card { padding: 16px; }
   .filter-grid { grid-template-columns: 1fr; gap: 13px; }
-  .table-heading { align-items: flex-start; flex-direction: column; }
   .primary-navigation .ant-tabs-tab { padding-bottom: 17px; }
   .company-detail-grid { grid-template-columns: 1fr; }
   .detail-card-wide { grid-column: auto; }

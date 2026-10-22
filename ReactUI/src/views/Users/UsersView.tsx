@@ -121,10 +121,6 @@ function UsersView({ isAdmin }: Props) {
       {error && <Alert className="companies-error" type="error" showIcon message="Could not load users" description={error} />}
 
       <div className="table-card">
-        <div className="table-heading">
-          <Typography.Title level={5}>User directory</Typography.Title>
-          <Typography.Text type="secondary">Showing up to {PAGE_SIZE} users per page</Typography.Text>
-        </div>
         <Table<UserDirectoryItem>
           rowKey="id"
           columns={columns.map((column) => column.key === 'isActive'

@@ -173,10 +173,6 @@ function CompaniesView({ onSelectCompany }: Props) {
       {error && <Alert className="companies-error" type="error" showIcon message="Could not load companies" description={error} />}
 
       <div className="table-card">
-        <div className="table-heading">
-          <Typography.Title level={5}>Company directory</Typography.Title>
-          <Typography.Text type="secondary">Showing up to {PAGE_SIZE} companies per page</Typography.Text>
-        </div>
         <Table<Company>
           rowKey="id"
           columns={columns}
