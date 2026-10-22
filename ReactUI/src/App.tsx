@@ -1,11 +1,14 @@
 import { ConfigProvider, Tabs, Typography } from 'antd'
-import { Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import CompaniesView from './views/Companies/CompaniesView'
 import CompanyDetailsView from './views/Companies/CompanyDetailsView'
+import MachinesView from './views/Machines/MachinesView'
 import './App.css'
 
 function App() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const activeTab = location.pathname.startsWith('/machines') ? 'machines' : 'companies'
 
   return (
     <ConfigProvider theme={{
@@ -23,9 +26,12 @@ function App() {
             <Typography.Title level={3} className="brand-title">Invest Machinery</Typography.Title>
             <nav className="primary-navigation" aria-label="Main navigation">
               <Tabs
-                activeKey="companies"
-                items={[{ key: 'companies', label: 'Companies' }]}
-                onChange={() => navigate('/')}
+                activeKey={activeTab}
+                items={[
+                  { key: 'companies', label: 'Companies' },
+                  { key: 'machines', label: 'Machines' },
+                ]}
+                onChange={(key) => navigate(key === 'machines' ? '/machines' : '/')}
               />
             </nav>
           </div>
@@ -33,6 +39,7 @@ function App() {
         <main className="app-main">
           <Routes>
             <Route path="/" element={<CompaniesView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
+            <Route path="/machines" element={<MachinesView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
             <Route path="/company/:id" element={<CompanyDetailsRoute />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

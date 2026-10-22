@@ -98,7 +98,7 @@ export interface CreateContactPayload {
 export interface CreateMachinePayload {
   manufacturerId: number
   model: string
-  companyId: number
+  companyId?: number
   year?: number
   vinNumber?: string
   registrationNumber?: string

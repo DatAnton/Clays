@@ -188,7 +188,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
             key={action.id}
             size="small"
             className="action-item-card"
-            title={<Space wrap><Tag color={action.status === 2 ? 'green' : action.status === 1 ? 'processing' : 'default'}>{actionStatuses[action.status]?.label ?? 'Unknown'}</Tag><Tag>{actionTypes[action.type]?.label ?? 'Action'}</Tag><Typography.Text strong>{displayName(action.author)}</Typography.Text></Space>}
+            title={<Space wrap><Tag color={action.status === 2 ? 'green' : action.status === 1 ? 'blue' : action.status === 0 ? 'orange' : 'default'}>{actionStatuses[action.status]?.label ?? 'Unknown'}</Tag><Tag>{actionTypes[action.type]?.label ?? 'Action'}</Tag><Typography.Text strong>{displayName(action.author)}</Typography.Text></Space>}
             extra={<Select aria-label={`Update action ${action.id} status`} value={action.status} loading={busyActionId === action.id} options={actionStatuses} onChange={(status: number) => void changeActionStatus(action, status)} style={{ minWidth: 135 }} />}
           >
             <Typography.Paragraph className="action-note">{action.note || 'No details provided'}</Typography.Paragraph>
