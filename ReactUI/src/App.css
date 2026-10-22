@@ -56,6 +56,7 @@
 .view-heading h2.ant-typography { color: #182b42; font-size: 27px; font-weight: 650; letter-spacing: -.55px; }
 .view-heading p.ant-typography { margin-top: 5px; font-size: 14px; }
 .company-count { min-width: 120px; display: flex; flex-direction: column; align-items: flex-end; }
+.machines-heading-actions { display: flex; align-items: center; gap: 18px; }
 .count-value { color: #123b70; font-size: 23px; font-weight: 700; line-height: 1.1; }
 .count-label { margin-top: 4px; color: #8190a3; font-size: 12px; }
 
@@ -141,6 +142,7 @@
   .view-heading { align-items: flex-start; }
   .view-heading h2.ant-typography { font-size: 24px; }
   .company-count { min-width: auto; padding-top: 2px; }
+  .machines-heading-actions { gap: 10px; }
   .filter-card { padding: 16px; }
   .filter-grid { grid-template-columns: 1fr; gap: 13px; }
   .table-heading { align-items: flex-start; flex-direction: column; }

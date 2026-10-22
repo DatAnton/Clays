@@ -156,11 +156,13 @@ function MachinesView({ onSelectCompany }: Props) {
           <Typography.Title level={2}>Machines</Typography.Title>
           <Typography.Paragraph type="secondary">Browse and filter machines in your directory.</Typography.Paragraph>
         </div>
-        <div className="company-count">
-          <span className="count-value">{page.totalCount.toLocaleString()}</span>
-          <span className="count-label">machines</span>
+        <div className="machines-heading-actions">
+          <Button type="primary" onClick={openAddMachine}>Add machine</Button>
+          <div className="company-count">
+            <span className="count-value">{page.totalCount.toLocaleString()}</span>
+            <span className="count-label">machines</span>
+          </div>
         </div>
-        <Button type="primary" onClick={openAddMachine}>Add machine</Button>
       </div>
 
       <div className="filter-card">
