@@ -10,6 +10,9 @@ using Clays.Services;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.PostgreSql;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Soenneker.Hangfire.BasicAuthentication;
 using Soenneker.Hangfire.BasicAuthentication.Registrars;
@@ -21,9 +24,37 @@ var applicationConnectionString = builder.Configuration.GetConnectionString("App
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build()));
+});
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "Clays.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.ExpireTimeSpan = TimeSpan.FromDays(14);
+        options.SlidingExpiration = true;
+        options.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        };
+    });
+builder.Services.AddAuthorization();
 
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
 {
@@ -83,12 +114,13 @@ try
 
     if (app.Environment.IsDevelopment())
     {
-        app.MapOpenApi();
+        app.MapOpenApi().RequireAuthorization();
     }
 
     app.UseHttpsRedirection();
     app.UseHangfireAuthorized();
 
+    app.UseAuthentication();
     app.UseAuthorization();
 
     ConfigureHangfire(app, builder.Configuration["Hangfire:Url"] ?? "/hangfire");

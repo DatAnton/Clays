@@ -270,9 +270,6 @@ function MachinesView({ onSelectCompany }: Props) {
             <Form.Item name="countryOfImport" label="Country of import"><Input maxLength={100} /></Form.Item>
             <Form.Item name="status" label="Status"><Select allowClear options={statuses} /></Form.Item>
           </div>
-          <Form.Item name="createdById" label="Created by user ID" rules={[{ required: true, type: 'number', min: 1 }]}>
-            <InputNumber min={1} style={{ width: '100%' }} />
-          </Form.Item>
         </Form>
       </Modal>
     </section>

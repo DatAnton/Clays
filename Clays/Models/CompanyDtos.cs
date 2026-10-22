@@ -79,9 +79,6 @@ public sealed record CreateCompanyCommentRequest
 {
     [Required, MaxLength(4000)]
     public required string Text { get; init; }
-
-    [Range(1, int.MaxValue)]
-    public required int AuthorId { get; init; }
 }
 
 /// <summary>Payload for adding a machine.</summary>
@@ -111,18 +108,12 @@ public sealed record CreateMachineRequest
     public MachineStatus? Status { get; init; }
 
     [Range(1, int.MaxValue)]
-    public required int CreatedById { get; init; }
-
-    [Range(1, int.MaxValue)]
     public int? CompanyId { get; init; }
 }
 
 /// <summary>Payload for creating an action.</summary>
 public sealed record CreateActionRequest
 {
-    [Range(1, int.MaxValue)]
-    public required int AuthorId { get; init; }
-
     [Range(1, int.MaxValue)]
     public int? AssignedUserId { get; init; }
 

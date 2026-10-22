@@ -39,7 +39,10 @@ export async function getMachines(
   if (filters.status !== undefined) params.set('status', String(filters.status))
   if (filters.city.trim()) params.set('city', filters.city.trim())
 
-  const response = await fetch(`/api/machines?${params.toString()}`, { signal })
+  const response = await fetch(`/api/machines?${params.toString()}`, {
+    signal,
+    credentials: 'same-origin',
+  })
   if (!response.ok) {
     throw new Error(`Unable to load machines (${response.status})`)
   }

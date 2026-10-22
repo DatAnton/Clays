@@ -2,6 +2,7 @@ using Clays.Application.Common.Interfaces;
 using Clays.Domain.Entities;
 using Clays.Domain.Entities.Enums;
 using Clays.Models;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,11 +27,12 @@ public sealed class CompanyEntitiesController(IApplicationDbContext context) : C
             return NotFound($"Company {companyId} was not found.");
         }
 
+        var authorId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var author = await context.Users.AsNoTracking()
-            .SingleOrDefaultAsync(user => user.Id == request.AuthorId, cancellationToken);
+            .SingleOrDefaultAsync(user => user.Id == authorId, cancellationToken);
         if (author is null)
         {
-            return NotFound($"Author {request.AuthorId} was not found.");
+            return Unauthorized();
         }
 
         var comment = new CompanyComment
@@ -67,11 +69,6 @@ public sealed class CompanyEntitiesController(IApplicationDbContext context) : C
             return NotFound($"Manufacturer {request.ManufacturerId} was not found.");
         }
 
-        if (!await context.Users.AnyAsync(user => user.Id == request.CreatedById, cancellationToken))
-        {
-            return NotFound($"User {request.CreatedById} was not found.");
-        }
-
         if (request.CompanyId.HasValue
             && !await context.Companies.AnyAsync(company => company.Id == request.CompanyId.Value, cancellationToken))
         {
@@ -93,7 +90,7 @@ public sealed class CompanyEntitiesController(IApplicationDbContext context) : C
             CountryOfImport = request.CountryOfImport,
             PurchaseYear = request.PurchaseYear,
             Status = request.Status,
-            CreatedById = request.CreatedById,
+            CreatedById = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!),
             CompanyId = request.CompanyId
         };
 
@@ -124,11 +121,12 @@ public sealed class CompanyEntitiesController(IApplicationDbContext context) : C
             return NotFound($"Company {request.CompanyId} was not found.");
         }
 
+        var authorId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var author = await context.Users.AsNoTracking()
-            .SingleOrDefaultAsync(user => user.Id == request.AuthorId, cancellationToken);
+            .SingleOrDefaultAsync(user => user.Id == authorId, cancellationToken);
         if (author is null)
         {
-            return NotFound($"Author {request.AuthorId} was not found.");
+            return Unauthorized();
         }
 
         User? assignedUser = null;

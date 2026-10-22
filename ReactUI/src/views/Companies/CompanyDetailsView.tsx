@@ -241,7 +241,6 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
         <Form form={form} layout="vertical" onFinish={(values: Record<string, string | number | undefined>) => void submitDialog(values)}>
           {dialog === 'comment' && <>
             <Form.Item name="text" label="Comment" rules={[{ required: true, whitespace: true, message: 'Enter a comment' }, { max: 4000 }]}><Input.TextArea rows={4} maxLength={4000} showCount /></Form.Item>
-            <Form.Item name="authorId" label="Your user ID" rules={[{ required: true, type: 'number', min: 1 }]}><InputNumber min={1} style={{ width: '100%' }} placeholder="Enter your user ID" /></Form.Item>
           </>}
           {dialog === 'contact' && <>
             <div className="form-two-columns"><Form.Item name="firstName" label="First name"><Input maxLength={200} /></Form.Item><Form.Item name="lastName" label="Last name"><Input maxLength={200} /></Form.Item></div>
@@ -253,12 +252,11 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
             <div className="form-two-columns"><Form.Item name="year" label="Year"><InputNumber min={1800} max={2200} style={{ width: '100%' }} /></Form.Item><Form.Item name="purchaseYear" label="Purchase year"><InputNumber min={1800} max={2200} style={{ width: '100%' }} /></Form.Item></div>
             <div className="form-two-columns"><Form.Item name="vinNumber" label="VIN"><Input maxLength={100} /></Form.Item><Form.Item name="registrationNumber" label="Registration number"><Input maxLength={50} /></Form.Item></div>
             <div className="form-two-columns"><Form.Item name="countryOfImport" label="Country of import"><Input maxLength={100} /></Form.Item><Form.Item name="status" label="Status"><Select allowClear options={machineStatuses} /></Form.Item></div>
-            <Form.Item name="createdById" label="Created by user ID" rules={[{ required: true, type: 'number', min: 1 }]}><InputNumber min={1} style={{ width: '100%' }} /></Form.Item>
           </>}
           {dialog === 'action' && <>
             <div className="form-two-columns"><Form.Item name="type" label="Type" rules={[{ required: true }]}><Select options={actionTypes} /></Form.Item><Form.Item name="status" label="Status" rules={[{ required: true }]}><Select options={actionStatuses} /></Form.Item></div>
             <Form.Item name="note" label="Details"><Input.TextArea rows={3} maxLength={4000} /></Form.Item>
-            <div className="form-two-columns"><Form.Item name="authorId" label="Author user ID" rules={[{ required: true, type: 'number', min: 1 }]}><InputNumber min={1} style={{ width: '100%' }} /></Form.Item><Form.Item name="assignedUserId" label="Assigned user ID"><InputNumber min={1} style={{ width: '100%' }} /></Form.Item></div>
+            <Form.Item name="assignedUserId" label="Assigned user ID"><InputNumber min={1} style={{ width: '100%' }} /></Form.Item>
             <div className="form-two-columns"><Form.Item name="actionWeek" label="Action week" rules={[{ required: true, type: 'number', min: 1, max: 53 }]}><InputNumber min={1} max={53} style={{ width: '100%' }} /></Form.Item><Form.Item name="machineId" label="Machine ID"><InputNumber min={1} style={{ width: '100%' }} /></Form.Item></div>
           </>}
         </Form>

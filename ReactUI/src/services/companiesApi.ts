@@ -87,7 +87,17 @@ export interface CompanyDetails extends Company {
   actions: CompanyAction[]
 }
 
-export interface CreateCommentPayload { text: string; authorId: number }
+export interface AuthUser {
+  id: number
+  firstName: string | null
+  lastName: string | null
+  userName: string | null
+  email: string | null
+}
+
+export interface AuthConfiguration { googleClientId: string | null }
+
+export interface CreateCommentPayload { text: string }
 export interface CreateContactPayload {
   firstName?: string
   lastName?: string
@@ -105,10 +115,8 @@ export interface CreateMachinePayload {
   countryOfImport?: string
   purchaseYear?: number
   status?: number
-  createdById: number
 }
 export interface CreateActionPayload {
-  authorId: number
   assignedUserId?: number
   type: number
   status: number
@@ -121,6 +129,7 @@ export interface CreateActionPayload {
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
     ...init,
+    credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json', ...init?.headers },
   })
   if (!response.ok) {
@@ -128,6 +137,28 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
     throw new Error(body || `Request failed (${response.status})`)
   }
   return response.json() as Promise<T>
+}
+
+export function getAuthConfiguration(): Promise<AuthConfiguration> {
+  return requestJson<AuthConfiguration>('/api/auth/config')
+}
+
+export function getCurrentUser(): Promise<AuthUser> {
+  return requestJson<AuthUser>('/api/auth/me')
+}
+
+export function signInWithGoogle(credential: string): Promise<AuthUser> {
+  return requestJson<AuthUser>('/api/auth/google', {
+    method: 'POST', body: JSON.stringify({ credential }),
+  })
+}
+
+export async function signOut(): Promise<void> {
+  const response = await fetch('/api/auth/logout', {
+    method: 'POST',
+    credentials: 'same-origin',
+  })
+  if (!response.ok) throw new Error(`Sign out failed (${response.status})`)
 }
 
 export function getCompany(id: number, signal?: AbortSignal): Promise<CompanyDetails> {
@@ -171,7 +202,10 @@ export async function getCompanies(
     params.set('isOurPartner', String(filters.isOurPartner))
   }
 
-  const response = await fetch(`/api/companies?${params.toString()}`, { signal })
+  const response = await fetch(`/api/companies?${params.toString()}`, {
+    signal,
+    credentials: 'same-origin',
+  })
   if (!response.ok) {
     throw new Error(`Unable to load companies (${response.status})`)
   }

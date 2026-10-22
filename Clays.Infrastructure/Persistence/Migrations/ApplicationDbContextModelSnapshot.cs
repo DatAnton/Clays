@@ -341,7 +341,13 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Property<long>("ChatId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
                     b.Property<string>("FirstName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GoogleSubject")
                         .HasColumnType("text");
 
                     b.Property<string>("LastName")
@@ -359,6 +365,9 @@ namespace Clays.Infrastructure.Persistence.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GoogleSubject")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
