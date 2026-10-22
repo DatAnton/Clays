@@ -7,6 +7,7 @@ import MachinesView from './views/Machines/MachinesView'
 import UsersView from './views/Users/UsersView'
 import { getAuthConfiguration, getCurrentUser, signInWithGoogle, signOut } from './services/companiesApi'
 import type { AuthUser } from './services/companiesApi'
+import invMachLogo from './assets/invmachlogo.jpg'
 import './App.css'
 
 interface GoogleCredentialResponse { credential: string }
@@ -82,7 +83,7 @@ function App() {
       /> : <div className="app-shell">
         <header className="app-header">
           <div className="header-inner">
-            <div className="brand-mark" aria-hidden="true">IM</div>
+            <img className="brand-logo" src={invMachLogo} alt="Invest Machinery logo" />
             <Typography.Title level={3} className="brand-title">Invest Machinery</Typography.Title>
             <nav className="primary-navigation" aria-label="Main navigation">
               <Tabs
@@ -171,7 +172,7 @@ function GoogleSignIn({ error, onCredential }: { error: string | null; onCredent
 
   return <main className="sign-in-page">
     <section className="sign-in-card">
-      <div className="sign-in-mark" aria-hidden="true">IM</div>
+      <img className="sign-in-logo" src={invMachLogo} alt="Invest Machinery logo" />
       <Typography.Text className="sign-in-eyebrow">INVEST MACHINERY</Typography.Text>
       <Typography.Title level={2}>Welcome</Typography.Title>
       <Typography.Paragraph type="secondary">Sign in with your Google account to access company and machine intelligence.</Typography.Paragraph>
