@@ -6,7 +6,6 @@ import CompanyDetailsView from './views/Companies/CompanyDetailsView'
 import MachinesView from './views/Machines/MachinesView'
 import { setAccessTokenProvider } from './services/apiClient'
 import invMachLogo from './assets/invmachlogo.jpg'
-import tabLogo from './assets/tablogo.png'
 import './App.css'
 
 function App() {
@@ -48,7 +47,6 @@ function App() {
         <header className="app-header">
           <div className="header-inner">
             <img className="brand-logo" src={invMachLogo} alt="Invest Machinery logo" />
-            <img className="brand-logo" src={tabLogo} alt="Invest Machinery tab logo" />
             <Typography.Title level={3} className="brand-title">Invest Machinery</Typography.Title>
             <nav className="primary-navigation" aria-label="Main navigation">
               <Tabs
