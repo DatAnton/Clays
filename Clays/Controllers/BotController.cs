@@ -1,4 +1,5 @@
 using Telegram.Bot.Types;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Clays.Application.Common.Interfaces;
 
@@ -6,6 +7,7 @@ namespace Clays.Controllers
 {
     [ApiController]
     [Route("api/message/update")]
+    [AllowAnonymous]
     public class BotController : Controller
     {
         private string _secretToken;

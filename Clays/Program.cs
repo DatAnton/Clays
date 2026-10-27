@@ -10,18 +10,39 @@ using Clays.Services;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.PostgreSql;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Soenneker.Hangfire.BasicAuthentication;
 using Soenneker.Hangfire.BasicAuthentication.Registrars;
 
 
 var builder = WebApplication.CreateBuilder(args);
+var auth0Domain = builder.Configuration["Auth0:Domain"];
+var auth0Audience = builder.Configuration["Auth0:Audience"];
+if (string.IsNullOrWhiteSpace(auth0Domain) || string.IsNullOrWhiteSpace(auth0Audience))
+{
+    throw new InvalidOperationException("Auth0:Domain and Auth0:Audience must be configured.");
+}
+
 var applicationConnectionString = builder.Configuration.GetConnectionString("ApplicationContext")
     ?? throw new InvalidOperationException("Connection string 'ApplicationContext' was not found.");
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = auth0Domain;
+        options.Audience = auth0Audience;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            NameClaimType = "sub"
+        };
+    });
+builder.Services.AddAuthorization();
+builder.Services.AddControllers(options => options.Filters.Add(new AuthorizeFilter()));
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -87,6 +108,8 @@ try
     }
 
     app.UseHttpsRedirection();
+    app.UseAuthentication();
+    app.UseAuthorization();
     app.UseHangfireAuthorized();
 
     ConfigureHangfire(app, builder.Configuration["Hangfire:Url"] ?? "/hangfire");

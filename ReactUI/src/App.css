@@ -1,4 +1,6 @@
 .app-shell { min-height: 100vh; display: flex; flex-direction: column; background: #fff; }
+.auth-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; }
+.auth-screen .ant-typography { margin-bottom: 8px; }
 
 .app-header {
   color: #fff;
@@ -34,6 +36,7 @@
 }
 
 .primary-navigation { align-self: stretch; display: flex; align-items: end; }
+.auth-button { margin-left: auto; }
 .primary-navigation .ant-tabs { color: rgb(255 255 255 / 74%); }
 .primary-navigation .ant-tabs-nav { margin: 0; }
 .primary-navigation .ant-tabs-nav::before { border-bottom-color: transparent; }

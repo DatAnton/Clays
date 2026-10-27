@@ -1,14 +1,35 @@
-import { ConfigProvider, Tabs, Typography } from 'antd'
+import { useAuth0 } from '@auth0/auth0-react'
+import { Button, ConfigProvider, Spin, Tabs, Typography } from 'antd'
 import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import CompaniesView from './views/Companies/CompaniesView'
 import CompanyDetailsView from './views/Companies/CompanyDetailsView'
 import MachinesView from './views/Machines/MachinesView'
+import { setAccessTokenProvider } from './services/apiClient'
 import invMachLogo from './assets/invmachlogo.jpg'
 import './App.css'
 
 function App() {
+  const { isLoading, isAuthenticated, loginWithRedirect, logout, getAccessTokenSilently } = useAuth0()
   const navigate = useNavigate()
   const location = useLocation()
+  setAccessTokenProvider(isAuthenticated
+    ? () => getAccessTokenSilently({
+      authorizationParams: { audience: import.meta.env.REACT_APP_AUTH0_AUDIENCE },
+    })
+    : null)
+
+  if (isLoading) {
+    return <div className="auth-screen"><Spin size="large" /></div>
+  }
+
+  if (!isAuthenticated) {
+    return <div className="auth-screen">
+      <Typography.Title level={2}>Invest Machinery</Typography.Title>
+      <Typography.Paragraph type="secondary">Sign in to access the company and machine directory.</Typography.Paragraph>
+      <Button type="primary" size="large" onClick={() => void loginWithRedirect()}>Continue with Auth0</Button>
+    </div>
+  }
+
   const activeTab = location.pathname.startsWith('/machines')
     ? 'machines'
     : 'companies'
@@ -37,6 +58,9 @@ function App() {
                 onChange={(key) => navigate(key === 'machines' ? '/machines' : '/')}
               />
             </nav>
+            <Button className="auth-button" onClick={() => void logout({
+              logoutParams: { returnTo: window.location.origin },
+            })}>Sign out</Button>
           </div>
         </header>
         <main className="app-main">
