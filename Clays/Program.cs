@@ -10,10 +10,6 @@ using Clays.Services;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.PostgreSql;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Soenneker.Hangfire.BasicAuthentication;
 using Soenneker.Hangfire.BasicAuthentication.Registrars;
@@ -25,63 +21,9 @@ var applicationConnectionString = builder.Configuration.GetConnectionString("App
 
 // Add services to the container.
 
-builder.Services.AddControllers(options =>
-{
-    // if (builder.Configuration.GetValue<bool>("Authentication:AllowAnonymousApi"))
-    // {
-    //     options.Filters.Add(new AllowAnonymousFilter());
-    // }
-    // else
-    // {
-    //     options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder()
-    //         .RequireAuthenticatedUser()
-    //         .Build()));
-    // }
-});
+builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-
-builder.Services
-    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.Cookie.Name = "Clays.Auth";
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.Lax;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.ExpireTimeSpan = TimeSpan.FromDays(14);
-        options.SlidingExpiration = true;
-        options.Events.OnRedirectToLogin = context =>
-        {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            return Task.CompletedTask;
-        };
-        options.Events.OnRedirectToAccessDenied = context =>
-        {
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            return Task.CompletedTask;
-        };
-        options.Events.OnValidatePrincipal = async context =>
-        {
-            var userId = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (!int.TryParse(userId, out var parsedUserId))
-            {
-                context.RejectPrincipal();
-                await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                return;
-            }
-
-            var dbContext = context.HttpContext.RequestServices.GetRequiredService<IApplicationDbContext>();
-            var isActive = await dbContext.Users.AsNoTracking()
-                .AnyAsync(user => user.Id == parsedUserId && user.IsActive);
-            if (!isActive)
-            {
-                context.RejectPrincipal();
-                await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            }
-        };
-    });
-builder.Services.AddAuthorization();
 
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
 {
@@ -127,24 +69,6 @@ var app = builder.Build();
 try
 {
     app.MigrateDatabase<ApplicationDbContext>();
-    if (builder.Configuration.GetValue<bool>("Authentication:AllowAnonymousApi"))
-    {
-        using var scope = app.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        const string anonymousApiUserSubject = "__anonymous_api__";
-        if (!await dbContext.Users.AnyAsync(user => user.GoogleSubject == anonymousApiUserSubject))
-        {
-            dbContext.Users.Add(new Clays.Domain.Entities.User
-            {
-                GoogleSubject = anonymousApiUserSubject,
-                FirstName = "Anonymous",
-                LastName = "API",
-                IsActive = false,
-                ChatId = 0
-            });
-            await dbContext.SaveChangesAsync();
-        }
-    }
     GlobalJobFilters.Filters.Add(new HangfireExceptionLoggingFilter(app.Services));
 
     using (var scope = app.Services.CreateScope())
@@ -159,14 +83,11 @@ try
 
     if (app.Environment.IsDevelopment())
     {
-        app.MapOpenApi().RequireAuthorization();
+        app.MapOpenApi();
     }
 
     app.UseHttpsRedirection();
     app.UseHangfireAuthorized();
-
-    app.UseAuthentication();
-    app.UseAuthorization();
 
     ConfigureHangfire(app, builder.Configuration["Hangfire:Url"] ?? "/hangfire");
 

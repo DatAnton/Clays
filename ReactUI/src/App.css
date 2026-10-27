@@ -126,18 +126,6 @@
 .form-two-columns .ant-form-item { min-width: 0; }
 .app-footer { padding: 18px 24px; color: #8794a4; border-top: 1px solid #eef1f5; text-align: center; font-size: 11px; }
 .app-footer span { padding: 0 5px; color: #b3bdc8; }
-.account-menu { margin-left: auto; display: flex; align-items: center; gap: 14px; }
-.account-name { max-width: 280px; overflow: hidden; color: #fff; font-size: 16px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-.auth-loading { min-height: 100vh; display: grid; place-items: center; background: #f4f7fb; }
-.sign-in-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: radial-gradient(ellipse at top left, #e6eff9 0%, #f4f7fb 48%, #edf2f7 100%); }
-.sign-in-card { width: min(100%, 440px); padding: 44px 42px 36px; border: 1px solid #e2e9f1; border-radius: 18px; background: #fff; box-shadow: 0 18px 60px rgb(25 53 84 / 11%); text-align: center; }
-.sign-in-logo { width: 72px; height: 72px; margin: 0 auto 20px; display: block; border-radius: 16px; object-fit: cover; }
-.sign-in-eyebrow { color: #66809b; font-size: 10px; font-weight: 750; letter-spacing: .14em; }
-.sign-in-card h2.ant-typography { margin: 10px 0 8px; color: #192d44; font-size: 28px; letter-spacing: -.6px; }
-.sign-in-card .ant-typography-secondary { display: block; margin: 0 auto 24px; max-width: 320px; line-height: 1.65; }
-.sign-in-error { margin-bottom: 16px; text-align: left; }
-.google-button-slot { min-height: 44px; display: flex; justify-content: center; margin: 4px auto 22px; }
-.sign-in-caption { color: #8794a4; font-size: 11px; }
 
 @media (max-width: 1000px) {
   .header-inner { padding: 0 28px; }
@@ -149,8 +137,6 @@
 @media (max-width: 600px) {
   .header-inner { min-height: 68px; padding: 0 18px; gap: 10px; }
   .brand-title.ant-typography { margin-right: auto; font-size: 17px; }
-  .account-menu { gap: 8px; }
-  .account-name { display: none; }
   .app-main { padding: 26px 16px 32px; }
   .view-heading { align-items: flex-start; }
   .view-heading h2.ant-typography { font-size: 24px; }
@@ -165,5 +151,4 @@
   .action-item-card .ant-card-extra { align-self: stretch; }
   .action-item-card .ant-card-extra .ant-select { width: 100%; }
   .form-two-columns { grid-template-columns: 1fr; gap: 0; }
-  .sign-in-card { padding: 36px 22px 30px; }
 }

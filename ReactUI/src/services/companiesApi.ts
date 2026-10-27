@@ -89,34 +89,6 @@ export interface CompanyDetails extends Company {
   actions: CompanyAction[]
 }
 
-export interface AuthUser {
-  id: number
-  firstName: string | null
-  lastName: string | null
-  userName: string | null
-  email: string | null
-  isActive: boolean
-  isAdmin: boolean
-}
-
-export interface AuthConfiguration { googleClientId: string | null }
-
-export interface UserDirectoryItem {
-  id: number
-  firstName: string | null
-  lastName: string | null
-  telegramNickname: string | null
-  email: string | null
-  isActive: boolean
-}
-
-export interface UserDirectoryPage {
-  items: UserDirectoryItem[]
-  page: number
-  pageSize: number
-  totalCount: number
-}
-
 export interface CreateCommentPayload { text: string }
 export interface CreateContactPayload {
   firstName?: string
@@ -156,48 +128,6 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
     throw new Error(body || `Request failed (${response.status})`)
   }
   return response.json() as Promise<T>
-}
-
-export function getAuthConfiguration(): Promise<AuthConfiguration> {
-  return requestJson<AuthConfiguration>('/api/auth/config')
-}
-
-export function getCurrentUser(): Promise<AuthUser> {
-  return requestJson<AuthUser>('/api/auth/me')
-}
-
-export async function getUsers(page: number, search: string, signal?: AbortSignal): Promise<UserDirectoryPage> {
-  const params = new URLSearchParams({ page: String(page) })
-  if (search.trim()) params.set('search', search.trim())
-
-  const response = await apiFetch(`/api/users?${params.toString()}`, {
-    signal,
-  })
-  if (!response.ok) throw new Error(`Unable to load users (${response.status})`)
-  return response.json() as Promise<UserDirectoryPage>
-}
-
-export async function updateUserActiveStatus(id: number, isActive: boolean): Promise<UserDirectoryItem> {
-  const response = await apiFetch(`/api/users/${id}/active`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ isActive }),
-  })
-  if (!response.ok) throw new Error(`Unable to update user access (${response.status})`)
-  return response.json() as Promise<UserDirectoryItem>
-}
-
-export function signInWithGoogle(credential: string): Promise<AuthUser> {
-  return requestJson<AuthUser>('/api/auth/google', {
-    method: 'POST', body: JSON.stringify({ credential }),
-  })
-}
-
-export async function signOut(): Promise<void> {
-  const response = await apiFetch('/api/auth/logout', {
-    method: 'POST',
-  })
-  if (!response.ok) throw new Error(`Sign out failed (${response.status})`)
 }
 
 export function getCompany(id: number, signal?: AbortSignal): Promise<CompanyDetails> {

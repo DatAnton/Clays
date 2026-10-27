@@ -2,8 +2,6 @@ using Clays.Application.Common.Interfaces;
 using Clays.Domain.Entities;
 using Clays.Domain.Entities.Enums;
 using Clays.Models;
-using System.Security.Claims;
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,8 +11,7 @@ namespace Clays.Controllers;
 [ApiController]
 [Route("api")]
 public sealed class CompanyEntitiesController(
-    IApplicationDbContext context,
-    IConfiguration configuration) : ControllerBase
+    IApplicationDbContext context) : ControllerBase
 {
     /// <summary>Adds a comment to a company.</summary>
     [HttpPost("companies/{companyId:int}/comments")]
@@ -236,25 +233,8 @@ public sealed class CompanyEntitiesController(
                 .ThenInclude(machine => machine!.Manufacturer)
             .SingleOrDefaultAsync(action => action.Id == id, cancellationToken);
 
-        private async Task<User?> GetRequestActorAsync(CancellationToken cancellationToken)
-        {
-            return await context.Users.AsNoTracking()
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-            {
-                return await context.Users.AsNoTracking()
-                    .SingleOrDefaultAsync(user => user.Id == userId, cancellationToken);
-            }
-
-            if (!configuration.GetValue<bool>("Authentication:AllowAnonymousApi"))
-            {
-                return null;
-            }
-
-            return await context.Users.AsNoTracking()
-                .SingleOrDefaultAsync(user => user.GoogleSubject == "__anonymous_api__", cancellationToken);
-        }
+    private Task<User?> GetRequestActorAsync(CancellationToken cancellationToken) =>
+        context.Users.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
 
     private static UserSummaryResponse ToUserResponse(User user) =>
         new(user.Id, user.FirstName, user.LastName, user.UserName);
