@@ -24,9 +24,16 @@ function App() {
 
   if (!isAuthenticated) {
     return <div className="auth-screen">
-      <Typography.Title level={2}>Invest Machinery</Typography.Title>
-      <Typography.Paragraph type="secondary">Sign in to access the company and machine directory.</Typography.Paragraph>
-      <Button type="primary" size="large" onClick={() => void loginWithRedirect()}>Continue with Auth0</Button>
+      <section className="welcome-card" aria-labelledby="welcome-title">
+        <div className="welcome-logo-frame">
+          <img className="welcome-logo" src={invMachLogo} alt="Invest Machinery logo" />
+        </div>
+        <Typography.Title id="welcome-title" level={2}>Invest Machinery</Typography.Title>
+        <Typography.Paragraph type="secondary">
+          Sign in to access the company and machine directory.
+        </Typography.Paragraph>
+        <Button type="primary" size="large" onClick={() => void loginWithRedirect()}>Sign in</Button>
+      </section>
     </div>
   }
 
