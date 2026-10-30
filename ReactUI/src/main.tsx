@@ -18,6 +18,7 @@ createRoot(document.getElementById('root')!).render(
     <Auth0Provider
       domain={auth0Domain}
       clientId={auth0ClientId}
+      cacheLocation="localstorage"
       authorizationParams={{
         redirect_uri: window.location.origin,
         audience: auth0Audience,
