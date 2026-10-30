@@ -7,13 +7,16 @@ using Clays.Infrastructure.Data;
 using Clays.Infrastructure.Services;
 using Clays.Infrastructure.Services.Scrapers;
 using Clays.Services;
+using FastEndpoints;
+using FastEndpoints.Swagger;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Mapster;
 using Soenneker.Hangfire.BasicAuthentication;
 using Soenneker.Hangfire.BasicAuthentication.Registrars;
 
@@ -41,10 +44,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             NameClaimType = "sub"
         };
     });
-builder.Services.AddAuthorization();
-builder.Services.AddControllers(options => options.Filters.Add(new AuthorizeFilter()));
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+builder.Services.AddFastEndpoints();
+builder.Services.SwaggerDocument();
+TypeAdapterConfig.GlobalSettings.Scan(typeof(Program).Assembly);
 
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
 {
@@ -102,22 +110,20 @@ try
     // Configure the HTTP request pipeline.
     app.UseMiddleware<ExceptionLoggingMiddleware>();
 
-    if (app.Environment.IsDevelopment())
-    {
-        app.MapOpenApi();
-    }
-
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseFastEndpoints();
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwaggerGen();
+    }
     app.UseHangfireAuthorized();
 
     ConfigureHangfire(app, builder.Configuration["Hangfire:Url"] ?? "/hangfire");
 
     app.UseDefaultFiles();
     app.UseStaticFiles();
-
-    app.MapControllers();
 
     app.MapFallbackToFile("index.html");
 
