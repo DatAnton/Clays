@@ -5,5 +5,5 @@ namespace Clays.Application.Common.Interfaces;
 
 public interface IUserService
 {
-    Task CreateUserFromBotAsync(Update update, CancellationToken cancellationToken);
+    Task<bool> IsTelegramUserRegisteredAsync(Update update, CancellationToken cancellationToken);
 }

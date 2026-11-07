@@ -48,18 +48,17 @@ public sealed class Auth0JwtBearerEvents(IApplicationDbContext context, IHttpCli
 
     public override async Task Challenge(JwtBearerChallengeContext context)
     {
-        if (!context.HttpContext.Items.ContainsKey(UserNotFoundKey))
-        {
-            return;
-        }
-
+        var userNotFound = context.HttpContext.Items.ContainsKey(UserNotFoundKey);
         context.HandleResponse();
-        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        context.Response.Headers.WWWAuthenticate = "Bearer";
         await context.Response.WriteAsJsonAsync(new ProblemDetails
         {
-            Status = StatusCodes.Status404NotFound,
-            Title = "User account not found.",
-            Detail = "Ask an existing user to register your email. Your Auth0 email must be verified."
+            Status = StatusCodes.Status401Unauthorized,
+            Title = userNotFound ? "User account not found." : "Sign-in required.",
+            Detail = userNotFound
+                ? "Ask an existing user to register your email and verify it before signing in."
+                : "Your session is missing or has expired. Please sign in again."
         }, cancellationToken: context.HttpContext.RequestAborted);
     }
 

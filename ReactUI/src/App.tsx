@@ -4,7 +4,7 @@ import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 're
 import CompaniesView from './views/Companies/CompaniesView'
 import CompanyDetailsView from './views/Companies/CompanyDetailsView'
 import MachinesView from './views/Machines/MachinesView'
-import { setAccessTokenProvider } from './services/apiClient'
+import { setAccessTokenProvider, setUnauthorizedHandler } from './services/apiClient'
 import AddUserButton from './components/AddUserButton'
 import invMachLogo from './assets/invmachlogo.jpg'
 import './App.css'
@@ -17,6 +17,12 @@ function App() {
     ? () => getAccessTokenSilently({
       authorizationParams: { audience: import.meta.env.REACT_APP_AUTH0_AUDIENCE },
     })
+    : null)
+  setUnauthorizedHandler(isAuthenticated
+    ? async (message) => {
+      window.alert(message)
+      await logout({ logoutParams: { returnTo: window.location.origin } })
+    }
     : null)
 
   if (isLoading) {

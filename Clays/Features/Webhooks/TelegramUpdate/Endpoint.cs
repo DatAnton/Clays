@@ -37,8 +37,10 @@ public sealed class Endpoint : FastEndpoints.Endpoint<Request>
         }
         if (update.Message.Text == "/start")
         {
-            await _userService.CreateUserFromBotAsync(update, cancellationToken);
-            await _telegramBotService.SendMessage(update.Message.Chat.Id, "We registered you as a user!");
+            var registered = await _userService.IsTelegramUserRegisteredAsync(update, cancellationToken);
+            await _telegramBotService.SendMessage(update.Message.Chat.Id, registered
+                ? "Your Telegram account is linked to a registered user."
+                : "Your Telegram account is not linked to a registered user. Contact an administrator.");
         }
         else
         {

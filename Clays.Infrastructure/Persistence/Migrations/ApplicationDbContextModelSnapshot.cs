@@ -341,10 +341,11 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Property<string>("Auth0Subject")
                         .HasColumnType("text");
 
-                    b.Property<long>("ChatId")
+                    b.Property<long?>("ChatId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(320)
                         .HasColumnType("character varying(320)");
 
@@ -355,11 +356,9 @@ namespace Clays.Infrastructure.Persistence.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("TCRefreshToken")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("TCToken")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("UserName")
