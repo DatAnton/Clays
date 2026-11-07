@@ -17,13 +17,11 @@ function App() {
   const location = useLocation()
   const [accessCheck, setAccessCheck] = useState<{
     subject: string | undefined
-    version: number
     isAdmin: boolean
     error: string | null
   } | null>(null)
-  const [accessVersion, setAccessVersion] = useState(0)
   const subject = user?.sub
-  const currentAccess = accessCheck?.subject === subject && accessCheck?.version === accessVersion
+  const currentAccess = accessCheck?.subject === subject
     ? accessCheck : null
   setAccessTokenProvider(isAuthenticated
     ? () => getAccessTokenSilently({
@@ -36,19 +34,19 @@ function App() {
     const controller = new AbortController()
     getCurrentUserAccess(controller.signal).then(access => {
       if (!controller.signal.aborted) {
-        setAccessCheck({ subject, version: accessVersion, isAdmin: access.isAdmin, error: null })
+        setAccessCheck({ subject, isAdmin: access.isAdmin, error: null })
       }
     }).catch((cause: unknown) => {
       if (!controller.signal.aborted) {
-        setAccessCheck({ subject, version: accessVersion, isAdmin: false,
+        setAccessCheck({ subject, isAdmin: false,
           error: cause instanceof Error ? cause.message : 'Unable to verify account access.' })
       }
     })
     return () => controller.abort()
-  }, [isAuthenticated, subject, accessVersion])
+  }, [isAuthenticated, subject])
   setUnauthorizedHandler(isAuthenticated
     ? async (message) => {
-      setAccessCheck({ subject, version: accessVersion, isAdmin: false, error: message })
+      setAccessCheck({ subject, isAdmin: false, error: message })
     }
     : null)
 
@@ -79,7 +77,6 @@ function App() {
     return <div className="auth-screen">
       <Result status="403" title="Access unavailable" subTitle={currentAccess.error}
         extra={[
-          <Button key="retry" onClick={() => setAccessVersion(value => value + 1)}>Retry access check</Button>,
           <Button key="logout" type="primary" onClick={() => void logout({
             logoutParams: { returnTo: window.location.origin },
           })}>Sign out</Button>,
