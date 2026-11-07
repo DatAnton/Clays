@@ -1,6 +1,6 @@
 import { useAuth0 } from '@auth0/auth0-react'
 import { useEffect, useState } from 'react'
-import { Alert, Button, ConfigProvider, Result, Spin, Tabs, Typography } from 'antd'
+import { Button, ConfigProvider, Result, Spin, Tabs, Typography } from 'antd'
 import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import CompaniesView from './views/Companies/CompaniesView'
 import CompanyDetailsView from './views/Companies/CompanyDetailsView'
@@ -12,12 +12,19 @@ import invMachLogo from './assets/invmachlogo.jpg'
 import './App.css'
 
 function App() {
-  const { isLoading, isAuthenticated, loginWithRedirect, logout, getAccessTokenSilently } = useAuth0()
+  const { isLoading, isAuthenticated, user, loginWithRedirect, logout, getAccessTokenSilently } = useAuth0()
   const navigate = useNavigate()
   const location = useLocation()
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
-  const [accessError, setAccessError] = useState<string | null>(null)
+  const [accessCheck, setAccessCheck] = useState<{
+    subject: string | undefined
+    version: number
+    isAdmin: boolean
+    error: string | null
+  } | null>(null)
   const [accessVersion, setAccessVersion] = useState(0)
+  const subject = user?.sub
+  const currentAccess = accessCheck?.subject === subject && accessCheck?.version === accessVersion
+    ? accessCheck : null
   setAccessTokenProvider(isAuthenticated
     ? () => getAccessTokenSilently({
       authorizationParams: { audience: import.meta.env.REACT_APP_AUTH0_AUDIENCE },
@@ -29,21 +36,19 @@ function App() {
     const controller = new AbortController()
     getCurrentUserAccess(controller.signal).then(access => {
       if (!controller.signal.aborted) {
-        setIsAdmin(access.isAdmin)
-        setAccessError(null)
+        setAccessCheck({ subject, version: accessVersion, isAdmin: access.isAdmin, error: null })
       }
     }).catch((cause: unknown) => {
       if (!controller.signal.aborted) {
-        setIsAdmin(false)
-        setAccessError(cause instanceof Error ? cause.message : 'Unable to check administrator access.')
+        setAccessCheck({ subject, version: accessVersion, isAdmin: false,
+          error: cause instanceof Error ? cause.message : 'Unable to verify account access.' })
       }
     })
     return () => controller.abort()
-  }, [isAuthenticated, accessVersion])
+  }, [isAuthenticated, subject, accessVersion])
   setUnauthorizedHandler(isAuthenticated
     ? async (message) => {
-      window.alert(message)
-      await logout({ logoutParams: { returnTo: window.location.origin } })
+      setAccessCheck({ subject, version: accessVersion, isAdmin: false, error: message })
     }
     : null)
 
@@ -66,6 +71,23 @@ function App() {
     </div>
   }
 
+  if (!currentAccess) {
+    return <div className="auth-screen"><Spin size="large" /></div>
+  }
+
+  if (currentAccess.error) {
+    return <div className="auth-screen">
+      <Result status="403" title="Access unavailable" subTitle={currentAccess.error}
+        extra={[
+          <Button key="retry" onClick={() => setAccessVersion(value => value + 1)}>Retry access check</Button>,
+          <Button key="logout" type="primary" onClick={() => void logout({
+            logoutParams: { returnTo: window.location.origin },
+          })}>Sign out</Button>,
+        ]} />
+    </div>
+  }
+
+  const isAdmin = currentAccess.isAdmin
   const activeTab = location.pathname.startsWith('/users') ? 'users' : location.pathname.startsWith('/machines')
     ? 'machines'
     : 'companies'
@@ -103,13 +125,11 @@ function App() {
           </div>
         </header>
         <main className="app-main">
-          {accessError && <Alert type="error" showIcon title={accessError}
-            action={<Button onClick={() => setAccessVersion(value => value + 1)}>Retry access check</Button>} />}
           <Routes>
             <Route path="/" element={<CompaniesView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
             <Route path="/machines" element={<MachinesView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
             <Route path="/company/:id" element={<CompanyDetailsRoute />} />
-            <Route path="/users" element={isAdmin === null ? <Spin /> : isAdmin ? <UsersView />
+            <Route path="/users" element={isAdmin ? <UsersView />
               : <Result status="403" title="Administrator access required"
                 subTitle="Only users with the Admin role can manage users." />} />
             <Route path="*" element={<Navigate to="/" replace />} />

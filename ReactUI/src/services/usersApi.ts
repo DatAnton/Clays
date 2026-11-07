@@ -27,10 +27,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   })
   if (!response.ok) {
     const problem = await response.json().catch(() => null) as {
-      title?: string; message?: string; errors?: Record<string, string[]>
+      title?: string; detail?: string; message?: string; errors?: Record<string, string[]>
     } | null
     const details = Object.values(problem?.errors ?? {}).flat().join(' ')
-    throw new Error(details || problem?.title || problem?.message || `Request failed (${response.status})`)
+    const summary = [problem?.title, problem?.detail].filter(Boolean).join(' ')
+    throw new Error(details || summary || problem?.message || `Request failed (${response.status})`)
   }
   return response.json() as Promise<T>
 }

@@ -30,7 +30,11 @@ export async function apiFetch(input: RequestInfo | URL, init: RequestInit = {})
     const message = [problem?.title, problem?.detail]
       .filter((value): value is string => typeof value === 'string' && value.length > 0)
       .join(' ') || 'Your session has expired. Please sign in again.'
-    await unauthorizedHandler(message)
+    try {
+      await unauthorizedHandler(message)
+    } finally {
+      handlingUnauthorized = false
+    }
   }
 
   return response
