@@ -10,6 +10,16 @@ namespace Clays.Services
             {
                 await next(context);
             }
+            catch (UserManagementException exception) when (!context.Response.HasStarted)
+            {
+                context.Response.Clear();
+                context.Response.StatusCode = exception.StatusCode;
+                await context.Response.WriteAsJsonAsync(new ProblemDetails
+                {
+                    Status = exception.StatusCode,
+                    Title = exception.Message
+                }, context.RequestAborted);
+            }
             catch (Exception exception)
             {
                 await ExceptionLogWriter.TryWriteAsync(

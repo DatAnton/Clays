@@ -330,6 +330,44 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.ToTable("OwnerHistories");
                 });
 
+            modelBuilder.Entity("Clays.Domain.Entities.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Staff"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "ProjectWorker"
+                        });
+                });
+
             modelBuilder.Entity("Clays.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -376,6 +414,21 @@ namespace Clays.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("CK_Users_Email_Normalized", "\"Email\" = lower(btrim(\"Email\"))");
                         });
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.UserRole", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("Clays.Domain.Entities.VinEntry", b =>
@@ -549,6 +602,25 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Navigation("Machine");
                 });
 
+            modelBuilder.Entity("Clays.Domain.Entities.UserRole", b =>
+                {
+                    b.HasOne("Clays.Domain.Entities.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Clays.Domain.Entities.User", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Clays.Domain.Entities.VinEntry", b =>
                 {
                     b.HasOne("Clays.Domain.Entities.VinSearchSession", "VinSearchSession")
@@ -582,6 +654,11 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Navigation("Machines");
 
                     b.Navigation("OwnerHistory");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.User", b =>
+                {
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("Clays.Domain.Entities.VinSearchSession", b =>

@@ -14,6 +14,7 @@ namespace Clays.Domain.Entities
         public long? ChatId { get; set; }
         public string? TCToken { get; set; } = string.Empty;
         public string? TCRefreshToken { get; set; } = string.Empty;
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
         public string DisplayName => HttpUtility.HtmlEncode($"{FirstName} {LastName} (@{UserName})");
     }
 }

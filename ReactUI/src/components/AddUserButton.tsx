@@ -3,7 +3,7 @@ import { Alert, Button, Form, Input, Modal, Typography, message } from 'antd'
 import { createUser } from '../services/usersApi'
 import type { CreateUserPayload } from '../services/usersApi'
 
-export default function AddUserButton() {
+export default function AddUserButton({ onCreated }: { onCreated?: () => void }) {
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -17,6 +17,7 @@ export default function AddUserButton() {
       await createUser(values)
       setOpen(false)
       form.resetFields()
+      onCreated?.()
       void messageApi.success('User added. They can now sign in with this email.')
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Unable to create user.')
@@ -27,7 +28,7 @@ export default function AddUserButton() {
 
   return <>
     {contextHolder}
-    <Button onClick={() => { setError(null); setOpen(true) }}>Add user</Button>
+    <Button type="primary" onClick={() => { setError(null); setOpen(true) }}>Add user</Button>
     <Modal
       title="Add user"
       open={open}
@@ -41,6 +42,7 @@ export default function AddUserButton() {
     >
       <Typography.Paragraph>
         Register the email this person will use to sign in. They’ll need to verify it before their first visit.
+        Assign their application roles from the Users page after adding them.
       </Typography.Paragraph>
       {error && <Alert type="error" title={error} showIcon />}
       <Form form={form} layout="vertical" onFinish={submit} disabled={saving}>

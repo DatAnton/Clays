@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using Clays.Application.Common.Interfaces;
+using Clays.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +42,26 @@ public sealed class Auth0JwtBearerEvents(IApplicationDbContext context, IHttpCli
             }
         }
 
+        // Only the application database may supply authorization roles and the local user ID.
+        foreach (var claimsIdentity in principal.Identities)
+        {
+            foreach (var claim in claimsIdentity.Claims.Where(claim => claim.Type == claimsIdentity.RoleClaimType
+                || claim.Type == CurrentUserService.UserDatabaseIdClaimType).ToList())
+            {
+                claimsIdentity.RemoveClaim(claim);
+            }
+        }
+
+        var roles = await context.UserRoles.AsNoTracking()
+            .Where(userRole => userRole.UserId == userDatabaseId.Value)
+            .Select(userRole => userRole.Role.Name)
+            .ToListAsync(cancellationToken);
+        foreach (var role in roles)
+        {
+            identity.AddClaim(new Claim(identity.RoleClaimType, role, ClaimValueTypes.String,
+                CurrentUserService.UserDatabaseIdClaimIssuer));
+        }
+
         identity.AddClaim(new Claim(CurrentUserService.UserDatabaseIdClaimType,
             userDatabaseId.Value.ToString(CultureInfo.InvariantCulture), ClaimValueTypes.Integer32,
             CurrentUserService.UserDatabaseIdClaimIssuer));
@@ -57,7 +78,7 @@ public sealed class Auth0JwtBearerEvents(IApplicationDbContext context, IHttpCli
             Status = StatusCodes.Status401Unauthorized,
             Title = userNotFound ? "User account not found." : "Sign-in required.",
             Detail = userNotFound
-                ? "Ask an existing user to register your email and verify it before signing in."
+                ? "Ask an administrator to register your email and verify it before signing in."
                 : "Your session is missing or has expired. Please sign in again."
         }, cancellationToken: context.HttpContext.RequestAborted);
     }
@@ -75,7 +96,7 @@ public sealed class Auth0JwtBearerEvents(IApplicationDbContext context, IHttpCli
 
         using var request = new HttpRequestMessage(HttpMethod.Get, "userinfo");
         request.Headers.Authorization = authorization;
-        using var response = await httpClientFactory.CreateClient("Auth0UserInfo")
+        using var response = await httpClientFactory.CreateClient(Auth0HttpClientNames.UserInfo)
             .SendAsync(request, cancellationToken);
         if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
         {

@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Mapster;
+using System.Security.Claims;
 using Soenneker.Hangfire.BasicAuthentication;
 using Soenneker.Hangfire.BasicAuthentication.Registrars;
 
@@ -42,11 +43,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.EventsType = typeof(Auth0JwtBearerEvents);
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            NameClaimType = "sub"
+            NameClaimType = "sub",
+            RoleClaimType = ClaimTypes.Role
         };
     });
 builder.Services.AddAuthorization(options =>
 {
+    AdminAuthorization.Configure(options);
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
@@ -57,7 +60,7 @@ TypeAdapterConfig.GlobalSettings.Scan(typeof(Program).Assembly);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<Auth0JwtBearerEvents>();
-builder.Services.AddHttpClient("Auth0UserInfo", client =>
+builder.Services.AddHttpClient(Auth0HttpClientNames.UserInfo, client =>
     client.BaseAddress = new Uri(auth0Domain));
 
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>

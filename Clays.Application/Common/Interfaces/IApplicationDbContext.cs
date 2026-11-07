@@ -7,6 +7,8 @@ namespace Clays.Application.Common.Interfaces
     {
         public DbSet<Machine> Machines { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<ErrorLog> ErrorLogs { get; set; }
         public DbSet<VinSearchSession> VinSearchSessions { get; set; }
         public DbSet<VinEntry> VinEntries { get; set; }

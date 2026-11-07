@@ -1,6 +1,7 @@
 ﻿using Clays.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Clays.Domain.Entities;
+using Clays.Domain.Constants;
 
 namespace Clays.Infrastructure.Data
 {
@@ -9,6 +10,8 @@ namespace Clays.Infrastructure.Data
     {
         public DbSet<Machine> Machines { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<ErrorLog> ErrorLogs { get; set; }
         public DbSet<VinSearchSession> VinSearchSessions { get; set; }
         public DbSet<VinEntry> VinEntries { get; set; }
@@ -21,6 +24,25 @@ namespace Clays.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.Property(role => role.Name).HasMaxLength(50);
+                entity.HasIndex(role => role.Name).IsUnique();
+                entity.HasData(
+                    new Role { Id = 1, Name = RoleNames.Admin },
+                    new Role { Id = 2, Name = RoleNames.Staff },
+                    new Role { Id = 3, Name = RoleNames.ProjectWorker });
+            });
+
+            modelBuilder.Entity<UserRole>(entity =>
+            {
+                entity.HasKey(userRole => new { userRole.UserId, userRole.RoleId });
+                entity.HasOne(userRole => userRole.User).WithMany(user => user.UserRoles)
+                    .HasForeignKey(userRole => userRole.UserId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(userRole => userRole.Role).WithMany()
+                    .HasForeignKey(userRole => userRole.RoleId).OnDelete(DeleteBehavior.Cascade);
+            });
+
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasIndex(user => user.Auth0Subject).IsUnique();

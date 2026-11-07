@@ -1,11 +1,13 @@
 import { useAuth0 } from '@auth0/auth0-react'
-import { Button, ConfigProvider, Spin, Tabs, Typography } from 'antd'
+import { useEffect, useState } from 'react'
+import { Alert, Button, ConfigProvider, Result, Spin, Tabs, Typography } from 'antd'
 import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import CompaniesView from './views/Companies/CompaniesView'
 import CompanyDetailsView from './views/Companies/CompanyDetailsView'
 import MachinesView from './views/Machines/MachinesView'
 import { setAccessTokenProvider, setUnauthorizedHandler } from './services/apiClient'
-import AddUserButton from './components/AddUserButton'
+import UsersView from './views/Users/UsersView'
+import { getCurrentUserAccess } from './services/usersApi'
 import invMachLogo from './assets/invmachlogo.jpg'
 import './App.css'
 
@@ -13,11 +15,31 @@ function App() {
   const { isLoading, isAuthenticated, loginWithRedirect, logout, getAccessTokenSilently } = useAuth0()
   const navigate = useNavigate()
   const location = useLocation()
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
+  const [accessError, setAccessError] = useState<string | null>(null)
+  const [accessVersion, setAccessVersion] = useState(0)
   setAccessTokenProvider(isAuthenticated
     ? () => getAccessTokenSilently({
       authorizationParams: { audience: import.meta.env.REACT_APP_AUTH0_AUDIENCE },
     })
     : null)
+
+  useEffect(() => {
+    if (!isAuthenticated) return
+    const controller = new AbortController()
+    getCurrentUserAccess(controller.signal).then(access => {
+      if (!controller.signal.aborted) {
+        setIsAdmin(access.isAdmin)
+        setAccessError(null)
+      }
+    }).catch((cause: unknown) => {
+      if (!controller.signal.aborted) {
+        setIsAdmin(false)
+        setAccessError(cause instanceof Error ? cause.message : 'Unable to check administrator access.')
+      }
+    })
+    return () => controller.abort()
+  }, [isAuthenticated, accessVersion])
   setUnauthorizedHandler(isAuthenticated
     ? async (message) => {
       window.alert(message)
@@ -44,7 +66,7 @@ function App() {
     </div>
   }
 
-  const activeTab = location.pathname.startsWith('/machines')
+  const activeTab = location.pathname.startsWith('/users') ? 'users' : location.pathname.startsWith('/machines')
     ? 'machines'
     : 'companies'
 
@@ -68,12 +90,12 @@ function App() {
                 items={[
                   { key: 'companies', label: 'Companies' },
                   { key: 'machines', label: 'Machines' },
+                  ...(isAdmin ? [{ key: 'users', label: 'Users' }] : []),
                 ]}
-                onChange={(key) => navigate(key === 'machines' ? '/machines' : '/')}
+                onChange={(key) => navigate(key === 'companies' ? '/' : `/${key}`)}
               />
             </nav>
             <div className="header-actions">
-              <AddUserButton />
               <Button onClick={() => void logout({
                 logoutParams: { returnTo: window.location.origin },
               })}>Sign out</Button>
@@ -81,10 +103,15 @@ function App() {
           </div>
         </header>
         <main className="app-main">
+          {accessError && <Alert type="error" showIcon title={accessError}
+            action={<Button onClick={() => setAccessVersion(value => value + 1)}>Retry access check</Button>} />}
           <Routes>
             <Route path="/" element={<CompaniesView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
             <Route path="/machines" element={<MachinesView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
             <Route path="/company/:id" element={<CompanyDetailsRoute />} />
+            <Route path="/users" element={isAdmin === null ? <Spin /> : isAdmin ? <UsersView />
+              : <Result status="403" title="Administrator access required"
+                subTitle="Only users with the Admin role can manage users." />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

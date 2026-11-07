@@ -4,12 +4,17 @@ using Clays.Features.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Clays.Services;
 
 namespace Clays.Features.Users.CreateUser;
 
 public sealed class Endpoint(IApplicationDbContext context) : FastEndpoints.Endpoint<Request, Response>
 {
-    public override void Configure() => Post("/api/users");
+    public override void Configure()
+    {
+        Post("/api/users");
+        Policies(AdminAuthorization.Policy);
+    }
 
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
