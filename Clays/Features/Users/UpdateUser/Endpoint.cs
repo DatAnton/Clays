@@ -1,7 +1,6 @@
 using Clays.Application.Common.Interfaces;
 using Clays.Services;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 
 namespace Clays.Features.Users.UpdateUser;
 
@@ -21,23 +20,9 @@ public sealed class Endpoint(IApplicationDbContext context) : FastEndpoints.Endp
             await Send.NotFoundAsync(ct);
             return;
         }
-        var email = request.Email.Trim().ToLowerInvariant();
-        if (await context.Users.AnyAsync(item => item.Id != user.Id && item.Email == email, ct))
-            throw new UserManagementException(409, "A user with this email already exists.");
-
-        user.Email = email;
         user.FirstName = Clean(request.FirstName);
         user.LastName = Clean(request.LastName);
-        user.UserName = Clean(request.UserName);
-        try
-        {
-            await context.SaveChangesAsync(ct);
-        }
-        catch (DbUpdateException exception) when (exception.InnerException is PostgresException
-            { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "IX_Users_Email" })
-        {
-            throw new UserManagementException(409, "A user with this email already exists.");
-        }
+        await context.SaveChangesAsync(ct);
         await Send.OkAsync(new Response(user.Id), ct);
     }
 

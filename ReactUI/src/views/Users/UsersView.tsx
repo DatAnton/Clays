@@ -12,9 +12,9 @@ export default function UsersView() {
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
+  const [searchInput, setSearchInput] = useState('')
   const [version, setVersion] = useState(0)
   const [editing, setEditing] = useState<ManagedUser | null>(null)
-  const [roleUser, setRoleUser] = useState<ManagedUser | null>(null)
   const [selectedRoles, setSelectedRoles] = useState<number[]>([])
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -42,32 +42,22 @@ export default function UsersView() {
     if (!editing) return
     setSaving(true)
     setSaveError(null)
+    let profileSaved = false
     try {
       await updateUser(editing.id, {
-        email: values.email,
         firstName: values.firstName,
         lastName: values.lastName,
-        userName: values.userName,
       })
+      profileSaved = true
+      const rolesChanged = selectedRoles.length !== editing.roles.length
+        || selectedRoles.some(id => !editing.roles.some(role => role.id === id))
+      if (rolesChanged) await assignUserRoles(editing, selectedRoles)
       setEditing(null)
-      refresh()
-      void messageApi.success('User details saved.')
+      void messageApi.success('User details and roles saved.')
     } catch (cause) {
-      setSaveError(cause instanceof Error ? cause.message : 'Unable to save user.')
-    } finally { setSaving(false) }
-  }
-
-  async function saveRoles() {
-    if (!roleUser) return
-    setSaving(true)
-    setSaveError(null)
-    try {
-      await assignUserRoles(roleUser, selectedRoles)
-      setRoleUser(null)
-      void messageApi.success('Roles saved. Access will use the updated roles on the next request.')
-    } catch (cause) {
-      setSaveError(cause instanceof Error ? cause.message : 'Unable to save roles.')
-      setRolesNeedRefresh(true)
+      const detail = cause instanceof Error ? cause.message : 'Unable to save user.'
+      setSaveError(profileSaved ? `User details saved, but roles could not be saved. ${detail}` : detail)
+      setRolesNeedRefresh(profileSaved)
     } finally {
       refresh()
       setSaving(false)
@@ -75,38 +65,30 @@ export default function UsersView() {
   }
 
   const columns: ColumnsType<ManagedUser> = [
-    { title: 'ID', dataIndex: 'id', width: 70 },
     { title: 'User', key: 'name', width: 240, render: (_, user) => <div className="company-name-cell">
       <Typography.Text strong>{[user.firstName, user.lastName].filter(Boolean).join(' ') || 'Unnamed user'}</Typography.Text>
+      {user.userName && <Typography.Text type="secondary">{user.userName}</Typography.Text>}
       <Typography.Text type="secondary">{user.email}</Typography.Text>
     </div> },
-    { title: 'Username', dataIndex: 'userName', width: 150, render: value => value || '—' },
-    { title: 'Roles', key: 'roles', width: 220, render: (_, user) => <Space wrap size={[0, 4]}>
-      {user.roles.length ? user.roles.map(role => <Tag color={role.name === 'Admin' ? 'blue' : 'default'} key={role.id}>{role.name}</Tag>)
+    { title: 'Roles', key: 'roles', width: 320, render: (_, user) => <Space wrap size={[8, 8]}>
+      {user.roles.length ? user.roles.map(role => <Tag className="user-role-tag" color={role.name === 'Admin' ? 'blue' : 'default'} key={role.id}>{role.name}</Tag>)
         : <Typography.Text type="secondary">No roles</Typography.Text>}
     </Space> },
-    { title: 'Auth0 account', key: 'account', width: 220, render: (_, user) => <div className="company-name-cell">
-      <Tag color={user.auth0Subject ? 'green' : 'default'}>
-        {user.auth0Subject ? 'Linked' : 'Awaiting verified sign-in'}
-      </Tag>
-      {user.auth0Subject && <Typography.Text type="secondary" className="user-account-id">{user.auth0Subject}</Typography.Text>}
-    </div> },
-    { title: 'Chat ID', dataIndex: 'chatId', width: 160, render: value => value || '—' },
-    { title: 'Actions', key: 'actions', width: 190, fixed: 'right', render: (_, user) => <Space>
-      <Button onClick={() => {
+    { title: 'Actions', key: 'actions', width: 90, fixed: 'right', render: (_, user) =>
+      <Button aria-label={`Edit ${user.email}`} title="Edit user" onClick={() => {
         form.resetFields()
-        form.setFieldsValue({ email: user.email, firstName: user.firstName,
-          lastName: user.lastName, userName: user.userName })
+        form.setFieldsValue({ firstName: user.firstName, lastName: user.lastName })
+        setSelectedRoles(user.roles.map(role => role.id))
         setSaveError(null)
+        setRolesNeedRefresh(false)
         setEditing(user)
-      }}>Edit</Button>
-        <Button onClick={() => {
-          setRoleUser(user)
-          setSelectedRoles(user.roles.map(role => role.id))
-          setSaveError(null)
-          setRolesNeedRefresh(false)
-        }}>Roles</Button>
-    </Space> },
+      }} icon={
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+          strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+          <path d="m10 3 3 3M3 13l3-.7 7.5-7.5a2.1 2.1 0 0 0-3-3L3 9.3 2.3 13.7Z" />
+        </svg>
+      } />
+    },
   ]
 
   return <section>
@@ -117,60 +99,52 @@ export default function UsersView() {
         <Typography.Paragraph type="secondary">Manage users and their application roles.</Typography.Paragraph>
       </div>
       <Space wrap>
-        <Button onClick={refresh} loading={loading}>Refresh</Button>
-        <AddUserButton onCreated={() => { setPage(1); setSearch(''); refresh() }} />
+        <AddUserButton onCreated={() => { setPage(1); setSearch(''); setSearchInput(''); refresh() }} />
       </Space>
     </div>
     <div className="filter-card users-filter-card">
-      <label className="filter-field">Search users
-        <Input.Search placeholder="Name, email or username" allowClear enterButton="Search" key={search}
-          defaultValue={search} onSearch={value => { setPage(1); setSearch(value.trim()) }} />
-      </label>
+      <form className="users-search-form" onSubmit={event => {
+        event.preventDefault()
+        setPage(1)
+        setSearch(searchInput.trim())
+      }}>
+        <label className="filter-field" htmlFor="users-search">Search users
+          <Input id="users-search" placeholder="Name, email or username" allowClear
+            value={searchInput} onChange={event => setSearchInput(event.target.value)}
+            onClear={() => { setPage(1); setSearch('') }} />
+        </label>
+        <Button type="primary" htmlType="submit">Search</Button>
+      </form>
     </div>
     {error && <Alert className="companies-error" type="error" showIcon title={error}
       action={<Button onClick={refresh}>Retry</Button>} />}
     <div className="table-card">
       <Table<ManagedUser> rowKey="id" columns={columns} dataSource={data?.items ?? []} loading={loading}
-        scroll={{ x: 1180 }} locale={{ emptyText: error ? 'Users could not be loaded.' : 'No users found.' }}
+        scroll={{ x: 700 }} locale={{ emptyText: error ? 'Users could not be loaded.' : 'No users found.' }}
         pagination={{ current: page, pageSize: 25, total: data?.totalCount ?? 0, showSizeChanger: false,
           showTotal: total => `${total} users`, onChange: setPage }} />
     </div>
-    <Modal title="Edit user" open={editing !== null} width={640} okText="Save details"
+    <Modal title="Edit user" open={editing !== null} width={640} okText="Save changes"
+      okButtonProps={{ disabled: rolesNeedRefresh }}
       confirmLoading={saving} cancelButtonProps={{ disabled: saving }} closable={!saving} maskClosable={!saving}
       onCancel={() => { if (!saving) setEditing(null) }} onOk={() => form.submit()}>
-      <Typography.Paragraph type="secondary">
-        Changes update the application profile. Auth0 login credentials are managed separately.
-        The Auth0 account link stays attached when a linked user’s application email changes.
-      </Typography.Paragraph>
-      {saveError && <Alert type="error" showIcon title={saveError} />}
+      {saveError && <Alert type="error" showIcon title={saveError}
+        description={rolesNeedRefresh ? 'Close this dialog and reopen the user before trying again.' : undefined} />}
       <Form form={form} layout="vertical" onFinish={saveProfile} disabled={saving}>
-        <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email',
-          transform: (value: string) => value?.trim() }, { max: 320 }]}>
-          <Input type="email" maxLength={320} />
+        <Form.Item label="Email">
+          <Input type="email" value={editing?.email ?? ''} readOnly />
         </Form.Item>
         <div className="form-two-columns">
           <Form.Item name="firstName" label="First name" rules={[{ max: 200 }]}><Input maxLength={200} /></Form.Item>
           <Form.Item name="lastName" label="Last name" rules={[{ max: 200 }]}><Input maxLength={200} /></Form.Item>
-          <Form.Item name="userName" label="Username" rules={[{ max: 200 }]}><Input maxLength={200} /></Form.Item>
         </div>
-        <Form.Item label="Auth0 subject"><Input value={editing?.auth0Subject ?? 'Not linked yet'} disabled /></Form.Item>
+        <Form.Item label="Assigned roles">
+          <Select mode="multiple" aria-label="Assigned roles" placeholder="Select roles" value={selectedRoles}
+            onChange={setSelectedRoles} disabled={saving || rolesNeedRefresh} optionFilterProp="label"
+            options={roles.map(role => ({ value: role.id, label: role.name }))} />
+        </Form.Item>
+        {roles.length === 0 && <Typography.Paragraph type="secondary">No application roles are available.</Typography.Paragraph>}
       </Form>
-    </Modal>
-    <Modal title="Assign roles" open={roleUser !== null} okText="Save roles" confirmLoading={saving}
-      okButtonProps={{ disabled: rolesNeedRefresh }} cancelButtonProps={{ disabled: saving }}
-      closable={!saving} maskClosable={!saving} onCancel={() => { if (!saving) setRoleUser(null) }} onOk={() => void saveRoles()}>
-      <Typography.Paragraph>Roles for <strong>{roleUser?.email}</strong></Typography.Paragraph>
-      {saveError && <Alert type="error" showIcon title={saveError}
-        description="Close this dialog and refresh the users before trying again." />}
-      <Typography.Paragraph type="secondary">
-        Assign Admin, Staff or ProjectWorker. Changes apply on the user’s next request.
-      </Typography.Paragraph>
-      <label className="filter-field">Assigned roles
-        <Select mode="multiple" aria-label="Assigned roles" placeholder="Select roles" value={selectedRoles}
-          onChange={setSelectedRoles} disabled={saving || rolesNeedRefresh} optionFilterProp="label"
-          options={roles.map(role => ({ value: role.id, label: role.name }))} />
-      </label>
-      {roles.length === 0 && <Typography.Paragraph type="secondary">No application roles are available.</Typography.Paragraph>}
     </Modal>
   </section>
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Alert, Button, Form, Input, Modal, Typography, message } from 'antd'
+import { Alert, Button, Form, Input, Modal, message } from 'antd'
 import { createUser } from '../services/usersApi'
 import type { CreateUserPayload } from '../services/usersApi'
 
@@ -40,10 +40,6 @@ export default function AddUserButton({ onCreated }: { onCreated?: () => void })
       onCancel={() => { if (!saving) setOpen(false) }}
       onOk={() => form.submit()}
     >
-      <Typography.Paragraph>
-        Register the email this person will use to sign in. They’ll need to verify it before their first visit.
-        Assign their application roles from the Users page after adding them.
-      </Typography.Paragraph>
       {error && <Alert type="error" title={error} showIcon />}
       <Form form={form} layout="vertical" onFinish={submit} disabled={saving}>
         <Form.Item name="email" label="Email" rules={[

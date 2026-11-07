@@ -1,4 +1,3 @@
-using System.Globalization;
 using Clays.Application.Common.Interfaces;
 using Clays.Domain.Entities;
 using Clays.Services;
@@ -46,8 +45,7 @@ public sealed class Endpoint(IApplicationDbContext context)
 
     private static UserItem CreateUserItem(User user) =>
         new(user.Id, user.Email, user.FirstName, user.LastName,
-            user.UserName, user.ChatId?.ToString(CultureInfo.InvariantCulture), user.Auth0Subject,
-            !string.IsNullOrEmpty(user.TCToken), !string.IsNullOrEmpty(user.TCRefreshToken),
+            user.UserName,
             user.UserRoles.OrderBy(userRole => userRole.RoleId)
                 .Select(userRole => new RoleItem(userRole.RoleId, userRole.Role.Name)).ToArray());
 }

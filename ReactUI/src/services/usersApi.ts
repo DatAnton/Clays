@@ -8,18 +8,12 @@ export interface ManagedUser {
   firstName: string | null
   lastName: string | null
   userName: string | null
-  chatId: string | null
-  auth0Subject: string | null
-  hasTCToken: boolean
-  hasTCRefreshToken: boolean
   roles: Role[]
 }
 export interface UserPage { items: ManagedUser[]; page: number; pageSize: number; totalCount: number }
 export interface UpdateUserPayload {
-  email: string
   firstName: string | null
   lastName: string | null
-  userName: string | null
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
