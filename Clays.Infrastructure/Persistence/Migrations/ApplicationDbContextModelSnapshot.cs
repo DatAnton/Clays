@@ -338,6 +338,9 @@ namespace Clays.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Auth0Subject")
+                        .HasColumnType("text");
+
                     b.Property<long>("ChatId")
                         .HasColumnType("bigint");
 
@@ -359,6 +362,9 @@ namespace Clays.Infrastructure.Persistence.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Auth0Subject")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });

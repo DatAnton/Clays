@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Clays.Features.Machines.CreateMachine;
 
-public sealed class Endpoint(IApplicationDbContext context) : FastEndpoints.Endpoint<Request, Response>
+public sealed class Endpoint(IApplicationDbContext context, ICurrentUser currentUser) : FastEndpoints.Endpoint<Request, Response>
 {
     public override void Configure() => Post("/api/machines");
 
@@ -24,7 +24,10 @@ public sealed class Endpoint(IApplicationDbContext context) : FastEndpoints.Endp
             await Send.NotFoundAsync(cancellationToken);
             return;
         }
-        var actor = await context.Users.FirstOrDefaultAsync(cancellationToken);
+        var subject = currentUser.UserId;
+        var actor = string.IsNullOrWhiteSpace(subject)
+            ? null
+            : await context.Users.SingleOrDefaultAsync(user => user.Auth0Subject == subject, cancellationToken);
         if (actor is null)
         {
             await Send.UnauthorizedAsync(cancellationToken);

@@ -21,6 +21,10 @@ namespace Clays.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>()
+                .HasIndex(user => user.Auth0Subject)
+                .IsUnique();
+
             modelBuilder.Entity<ErrorLog>().ToTable("Logs");
             modelBuilder.Entity<Manufacturer>().HasData(
                 new Manufacturer { Id = 1, Name = "Volvo" },

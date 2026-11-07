@@ -53,6 +53,8 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddFastEndpoints();
 builder.Services.SwaggerDocument();
 TypeAdapterConfig.GlobalSettings.Scan(typeof(Program).Assembly);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
 {
