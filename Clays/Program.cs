@@ -120,6 +120,11 @@ try
     app.UseMiddleware<ExceptionLoggingMiddleware>();
 
     app.UseHttpsRedirection();
+
+    // The React app and its assets must load before a visitor can sign in.
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+
     app.UseAuthentication();
     app.UseAuthorization();
     app.UseFastEndpoints();
@@ -131,10 +136,7 @@ try
 
     ConfigureHangfire(app, builder.Configuration["Hangfire:Url"] ?? "/hangfire");
 
-    app.UseDefaultFiles();
-    app.UseStaticFiles();
-
-    app.MapFallbackToFile("index.html");
+    app.MapFallbackToFile("index.html").AllowAnonymous();
 
     await app.RunAsync();
 }
