@@ -115,6 +115,7 @@ function App() {
               />
             </nav>
             <div className="header-actions">
+              {user?.email && <span className="header-user-email" title={user.email}>{user.email}</span>}
               <Button onClick={() => void logout({
                 logoutParams: { returnTo: window.location.origin },
               })}>Sign out</Button>
