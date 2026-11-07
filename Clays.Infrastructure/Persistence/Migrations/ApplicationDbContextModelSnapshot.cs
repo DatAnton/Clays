@@ -344,6 +344,10 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Property<long>("ChatId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("Email")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
                     b.Property<string>("FirstName")
                         .HasColumnType("text");
 
@@ -366,7 +370,13 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.HasIndex("Auth0Subject")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Users", t =>
+                        {
+                            t.HasCheckConstraint("CK_Users_Email_Normalized", "\"Email\" = lower(btrim(\"Email\"))");
+                        });
                 });
 
             modelBuilder.Entity("Clays.Domain.Entities.VinEntry", b =>

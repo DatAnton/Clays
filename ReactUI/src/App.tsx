@@ -5,6 +5,7 @@ import CompaniesView from './views/Companies/CompaniesView'
 import CompanyDetailsView from './views/Companies/CompanyDetailsView'
 import MachinesView from './views/Machines/MachinesView'
 import { setAccessTokenProvider } from './services/apiClient'
+import AddUserButton from './components/AddUserButton'
 import invMachLogo from './assets/invmachlogo.jpg'
 import './App.css'
 
@@ -65,9 +66,12 @@ function App() {
                 onChange={(key) => navigate(key === 'machines' ? '/machines' : '/')}
               />
             </nav>
-            <Button className="auth-button" onClick={() => void logout({
-              logoutParams: { returnTo: window.location.origin },
-            })}>Sign out</Button>
+            <div className="header-actions">
+              <AddUserButton />
+              <Button onClick={() => void logout({
+                logoutParams: { returnTo: window.location.origin },
+              })}>Sign out</Button>
+            </div>
           </div>
         </header>
         <main className="app-main">

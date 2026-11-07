@@ -21,9 +21,14 @@ namespace Clays.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>()
-                .HasIndex(user => user.Auth0Subject)
-                .IsUnique();
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasIndex(user => user.Auth0Subject).IsUnique();
+                entity.Property(user => user.Email).HasMaxLength(320);
+                entity.HasIndex(user => user.Email).IsUnique();
+                entity.ToTable(table => table.HasCheckConstraint("CK_Users_Email_Normalized",
+                    "\"Email\" = lower(btrim(\"Email\"))"));
+            });
 
             modelBuilder.Entity<ErrorLog>().ToTable("Logs");
             modelBuilder.Entity<Manufacturer>().HasData(

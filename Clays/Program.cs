@@ -39,6 +39,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.Authority = auth0Domain;
         options.Audience = auth0Audience;
+        options.EventsType = typeof(Auth0JwtBearerEvents);
         options.TokenValidationParameters = new TokenValidationParameters
         {
             NameClaimType = "sub"
@@ -54,7 +55,10 @@ builder.Services.AddFastEndpoints();
 builder.Services.SwaggerDocument();
 TypeAdapterConfig.GlobalSettings.Scan(typeof(Program).Assembly);
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<Auth0JwtBearerEvents>();
+builder.Services.AddHttpClient("Auth0UserInfo", client =>
+    client.BaseAddress = new Uri(auth0Domain));
 
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
 {
