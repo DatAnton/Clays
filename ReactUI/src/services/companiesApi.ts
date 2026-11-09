@@ -90,6 +90,14 @@ export interface CompanyDetails extends Company {
 }
 
 export interface CreateCommentPayload { text: string }
+export interface CreateCompanyPayload {
+  name: string
+  businessId?: string
+  city?: string
+  address?: string
+  mainBusinessLine?: string
+  isOurPartner: boolean
+}
 export interface CreateContactPayload {
   firstName?: string
   lastName?: string
@@ -132,6 +140,10 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
 
 export function getCompany(id: number, signal?: AbortSignal): Promise<CompanyDetails> {
   return requestJson<CompanyDetails>(`/api/companies/${id}`, { signal })
+}
+
+export function createCompany(payload: CreateCompanyPayload): Promise<Company> {
+  return requestJson<Company>('/api/companies', { method: 'POST', body: JSON.stringify(payload) })
 }
 
 export function createCompanyComment(companyId: number, payload: CreateCommentPayload): Promise<CompanyComment> {

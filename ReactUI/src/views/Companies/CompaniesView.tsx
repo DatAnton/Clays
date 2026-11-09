@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, Button, Input, Select, Space, Table, Tag, Typography } from 'antd'
+import { Alert, Button, Checkbox, ConfigProvider, Form, Input, Modal, Select, Space, Table, Tag, Typography, message } from 'antd'
 import type { TableColumnsType, TablePaginationConfig } from 'antd'
 import type { ChangeEvent } from 'react'
-import { getCompanies } from '../../services/companiesApi'
-import type { Company, CompanyFilters, CompanyPage } from '../../services/companiesApi'
+import { createCompany, getCompanies } from '../../services/companiesApi'
+import type { Company, CompanyFilters, CompanyPage, CreateCompanyPayload } from '../../services/companiesApi'
 
 interface Props {
   onSelectCompany: (companyId: number) => void
@@ -57,6 +57,11 @@ function CompaniesView({ onSelectCompany }: Props) {
   const [draftFilters, setDraftFilters] = useState<CompanyFilters>(initialFilters)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [addCompanyOpen, setAddCompanyOpen] = useState(false)
+  const [savingCompany, setSavingCompany] = useState(false)
+  const [reloadKey, setReloadKey] = useState(0)
+  const [form] = Form.useForm<CreateCompanyPayload>()
+  const [messageApi, contextHolder] = message.useMessage()
 
   const loadCompanies = useCallback(async (pageNumber: number, activeFilters: CompanyFilters, signal: AbortSignal) => {
     try {
@@ -79,7 +84,34 @@ function CompaniesView({ onSelectCompany }: Props) {
       }
     })
     return () => controller.abort()
-  }, [currentPage, filters, loadCompanies])
+  }, [currentPage, filters, loadCompanies, reloadKey])
+
+  const openAddCompany = () => {
+    form.resetFields()
+    setAddCompanyOpen(true)
+  }
+
+  const closeAddCompany = () => {
+    if (savingCompany) return
+    setAddCompanyOpen(false)
+  }
+
+  const submitNewCompany = async (values: CreateCompanyPayload) => {
+    if (savingCompany) return
+    setSavingCompany(true)
+    try {
+      await createCompany(values)
+      messageApi.success('Company added successfully')
+      setAddCompanyOpen(false)
+      setCurrentPage(1)
+      setLoading(true)
+      setReloadKey((key) => key + 1)
+    } catch (saveError) {
+      messageApi.error(saveError instanceof Error ? saveError.message : 'Could not add company')
+    } finally {
+      setSavingCompany(false)
+    }
+  }
 
   const applyFilters = () => {
     setLoading(true)
@@ -101,6 +133,7 @@ function CompaniesView({ onSelectCompany }: Props) {
 
   return (
     <section className="companies-view">
+      {contextHolder}
       <div className="view-heading">
         <div>
           <Typography.Title level={2}>Companies</Typography.Title>
@@ -108,9 +141,12 @@ function CompaniesView({ onSelectCompany }: Props) {
             Browse and filter registered companies in your directory.
           </Typography.Paragraph>
         </div>
-        <div className="company-count">
-          <span className="count-value">{page.totalCount.toLocaleString()}</span>
-          <span className="count-label">companies</span>
+        <div className="companies-heading-actions">
+          <Button type="primary" onClick={openAddCompany}>Add company</Button>
+          <div className="company-count">
+            <span className="count-value">{page.totalCount.toLocaleString()}</span>
+            <span className="count-label">companies</span>
+          </div>
         </div>
       </div>
 
@@ -196,6 +232,32 @@ function CompaniesView({ onSelectCompany }: Props) {
           locale={{ emptyText: loading ? 'Loading companies…' : 'No companies match these filters' }}
         />
       </div>
+      <Modal
+        title="Add company"
+        open={addCompanyOpen}
+        onCancel={closeAddCompany}
+        onOk={() => form.submit()}
+        confirmLoading={savingCompany}
+        cancelButtonProps={{ disabled: savingCompany }}
+        okText="Add company"
+        destroyOnHidden
+      >
+        <Form form={form} layout="vertical" initialValues={{ isOurPartner: false }} onFinish={submitNewCompany} disabled={savingCompany}>
+          <Form.Item name="name" label="Company name" rules={[{ required: true, whitespace: true, message: 'Enter a company name' }, { max: 200 }]}>
+            <Input maxLength={200} />
+          </Form.Item>
+          <div className="form-two-columns">
+            <Form.Item name="businessId" label="Business ID"><Input maxLength={50} /></Form.Item>
+            <Form.Item name="city" label="City"><Input maxLength={200} /></Form.Item>
+          </div>
+          <Form.Item name="address" label="Address"><Input maxLength={500} /></Form.Item>
+          <ConfigProvider theme={{ token: { controlInteractiveSize: 32 } }}>
+            <Form.Item name="isOurPartner" valuePropName="checked">
+              <Checkbox className="company-partner-checkbox">Our partner</Checkbox>
+            </Form.Item>
+          </ConfigProvider>
+        </Form>
+      </Modal>
     </section>
   )
 }

@@ -100,7 +100,7 @@
 .view-heading h2.ant-typography { color: #182b42; font-size: 27px; font-weight: 650; letter-spacing: -.55px; }
 .view-heading p.ant-typography { margin-top: 5px; font-size: 14px; }
 .company-count { min-width: 120px; display: flex; flex-direction: column; align-items: flex-end; }
-.machines-heading-actions { display: flex; align-items: center; gap: 18px; }
+.machines-heading-actions, .companies-heading-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; justify-content: flex-end; }
 .count-value { color: #123b70; font-size: 23px; font-weight: 700; line-height: 1.1; }
 .count-label { margin-top: 4px; color: #8190a3; font-size: 12px; }
 
@@ -181,6 +181,8 @@
 .comment-item .ant-typography { margin: 0; }
 .form-two-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .form-two-columns .ant-form-item { min-width: 0; }
+.company-partner-checkbox.ant-checkbox-wrapper { align-items: center; padding: 8px 0; font-size: 16px; font-weight: 500; }
+.company-partner-checkbox > span:last-child { padding-inline-start: 12px; }
 .app-footer { padding: 18px 24px; color: #8794a4; border-top: 1px solid #eef1f5; text-align: center; font-size: 11px; }
 .app-footer span { padding: 0 5px; color: #b3bdc8; }
 
@@ -203,7 +205,7 @@
   .view-heading { align-items: flex-start; }
   .view-heading h2.ant-typography { font-size: 24px; }
   .company-count { min-width: auto; padding-top: 2px; }
-  .machines-heading-actions { gap: 10px; }
+  .machines-heading-actions, .companies-heading-actions { gap: 10px; }
   .filter-card { padding: 16px; }
   .filter-grid { grid-template-columns: 1fr; gap: 13px; }
   .company-detail-grid { grid-template-columns: 1fr; }
