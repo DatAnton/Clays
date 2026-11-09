@@ -1,9 +1,9 @@
 import UsersGrid from './UsersGrid'
 import { useEffect, useState } from 'react'
-import { Alert, Button, Form, Input, Modal, Select, Space, Typography, message } from 'antd'
-import AddUserButton from '../../components/AddUserButton'
-import { assignUserRoles, getRoles, getUsers, updateUser } from '../../services/usersApi'
-import type { ManagedUser, Role, UpdateUserPayload, UserPage } from '../../services/usersApi'
+import { Alert, Button, Input, Space, Typography, message } from 'antd'
+import AddUpdateUserDialog from './AddUpdateUserDialog/AddUpdateUserDialog'
+import { getRoles, getUsers } from '../../services/usersApi'
+import type { ManagedUser, Role, UserPage } from '../../services/usersApi'
 
 export default function UsersView() {
   const [data, setData] = useState<UserPage | null>(null)
@@ -14,12 +14,8 @@ export default function UsersView() {
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [version, setVersion] = useState(0)
-  const [editing, setEditing] = useState<ManagedUser | null>(null)
-  const [selectedRoles, setSelectedRoles] = useState<number[]>([])
-  const [saving, setSaving] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
-  const [rolesNeedRefresh, setRolesNeedRefresh] = useState(false)
-  const [form] = Form.useForm<UpdateUserPayload>()
+  const [dialog, setDialog] = useState<{ mode: 'add' } | { mode: 'update'; user: ManagedUser } | null>(null)
+
   const [messageApi, contextHolder] = message.useMessage()
 
   function refresh() { setVersion(value => value + 1) }
@@ -38,40 +34,7 @@ export default function UsersView() {
     return () => controller.abort()
   }, [page, search, version])
 
-  async function saveProfile(values: UpdateUserPayload) {
-    if (!editing) return
-    setSaving(true)
-    setSaveError(null)
-    let profileSaved = false
-    try {
-      await updateUser(editing.id, {
-        firstName: values.firstName,
-        lastName: values.lastName,
-      })
-      profileSaved = true
-      const rolesChanged = selectedRoles.length !== editing.roles.length
-        || selectedRoles.some(id => !editing.roles.some(role => role.id === id))
-      if (rolesChanged) await assignUserRoles(editing, selectedRoles)
-      setEditing(null)
-      void messageApi.success('User details and roles saved.')
-    } catch (cause) {
-      const detail = cause instanceof Error ? cause.message : 'Unable to save user.'
-      setSaveError(profileSaved ? `User details saved, but roles could not be saved. ${detail}` : detail)
-      setRolesNeedRefresh(profileSaved)
-    } finally {
-      refresh()
-      setSaving(false)
-    }
-  }
-
-  const openEditUser = (user: ManagedUser) => {
-    form.resetFields()
-    form.setFieldsValue({ firstName: user.firstName, lastName: user.lastName })
-    setSelectedRoles(user.roles.map(role => role.id))
-    setSaveError(null)
-    setRolesNeedRefresh(false)
-    setEditing(user)
-  }
+  const openEditUser = (user: ManagedUser) => setDialog({ mode: 'update', user })
 
   return <section>
     {contextHolder}
@@ -81,7 +44,7 @@ export default function UsersView() {
         <Typography.Paragraph type="secondary">Manage users and their application roles.</Typography.Paragraph>
       </div>
       <Space wrap>
-        <AddUserButton onCreated={() => { setPage(1); setSearch(''); setSearchInput(''); refresh() }} />
+        <Button type="primary" onClick={() => setDialog({ mode: 'add' })}>Add user</Button>
       </Space>
     </div>
     <div className="filter-card users-filter-card">
@@ -104,27 +67,11 @@ export default function UsersView() {
         scroll={{ x: 700 }} locale={{ emptyText: error ? 'Users could not be loaded.' : 'No users found.' }}
         pagination={{ current: page, pageSize: 25, total: data?.totalCount ?? 0, showSizeChanger: false,
           showTotal: total => `${total} users`, onChange: setPage }} />
-    <Modal title="Edit user" open={editing !== null} width={640} okText="Save changes"
-      okButtonProps={{ disabled: rolesNeedRefresh }}
-      confirmLoading={saving} cancelButtonProps={{ disabled: saving }} closable={!saving} mask={{ closable: !saving }}
-      onCancel={() => { if (!saving) setEditing(null) }} onOk={() => form.submit()}>
-      {saveError && <Alert type="error" showIcon title={saveError}
-        description={rolesNeedRefresh ? 'Close this dialog and reopen the user before trying again.' : undefined} />}
-      <Form form={form} layout="vertical" onFinish={saveProfile} disabled={saving}>
-        <Form.Item label="Email">
-          <Input type="email" value={editing?.email ?? ''} readOnly />
-        </Form.Item>
-        <div className="form-two-columns">
-          <Form.Item name="firstName" label="First name" rules={[{ max: 200 }]}><Input maxLength={200} /></Form.Item>
-          <Form.Item name="lastName" label="Last name" rules={[{ max: 200 }]}><Input maxLength={200} /></Form.Item>
-        </div>
-        <Form.Item label="Assigned roles">
-          <Select mode="multiple" aria-label="Assigned roles" placeholder="Select roles" value={selectedRoles}
-            onChange={setSelectedRoles} disabled={saving || rolesNeedRefresh} optionFilterProp="label"
-            options={roles.map(role => ({ value: role.id, label: role.name }))} />
-        </Form.Item>
-        {roles.length === 0 && <Typography.Paragraph type="secondary">No application roles are available.</Typography.Paragraph>}
-      </Form>
-    </Modal>
+    {dialog && <AddUpdateUserDialog {...dialog} roles={roles} onCancel={() => setDialog(null)}
+      onRefresh={refresh} onSaved={mode => {
+        if (mode === 'add') { setPage(1); setSearch(''); setSearchInput(''); refresh() }
+        void messageApi.success(mode === 'add' ? 'User added. They can now sign in with this email.' : 'User details and roles saved.')
+      }} />}
+
   </section>
 }

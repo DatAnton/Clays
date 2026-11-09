@@ -1,6 +1,8 @@
+import AddUpdateMachineDialog from './AddUpdateMachineDialog/AddUpdateMachineDialog'
+import { manufacturers, machineStatuses } from './machineOptions'
 import MachinesGrid from './MachinesGrid'
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, Button, Form, Input, InputNumber, Modal, Select, Space, Typography, message } from 'antd'
+import { Alert, Button, Input, Select, Space, Typography, message } from 'antd'
 import type { TablePaginationConfig } from 'antd'
 import type { ChangeEvent } from 'react'
 import { createMachine, updateMachine } from '../../services/companiesApi'
@@ -20,23 +22,6 @@ const initialFilters: MachineFilters = {
   city: '',
 }
 
-const manufacturers = [
-  { value: 1, label: 'Volvo' },
-  { value: 2, label: 'Hyundai' },
-  { value: 3, label: 'Doosan' },
-  { value: 4, label: 'Develon' },
-  { value: 5, label: 'Hitachi' },
-  { value: 6, label: 'Caterpillar' },
-]
-
-const statuses = [
-  { value: 0, label: 'Sold' },
-  { value: 1, label: 'Commissioned' },
-  { value: 2, label: 'Decommissioned' },
-  { value: 3, label: 'Candidate' },
-  { value: 4, label: 'Bought' },
-]
-
 function MachinesView({ onSelectCompany }: Props) {
   const [page, setPage] = useState<MachinePage>({ items: [], page: 1, pageSize: PAGE_SIZE, totalCount: 0 })
   const [currentPage, setCurrentPage] = useState(1)
@@ -44,11 +29,10 @@ function MachinesView({ onSelectCompany }: Props) {
   const [draftFilters, setDraftFilters] = useState<MachineFilters>(initialFilters)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [addMachineOpen, setAddMachineOpen] = useState(false)
+  const [machineDialogOpen, setMachineDialogOpen] = useState(false)
   const [savingMachine, setSavingMachine] = useState(false)
   const [editingMachine, setEditingMachine] = useState<MachineGridItem | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
-  const [form] = Form.useForm()
   const [messageApi, contextHolder] = message.useMessage()
 
   const loadMachines = useCallback(async (pageNumber: number, activeFilters: MachineFilters, signal: AbortSignal) => {
@@ -91,24 +75,19 @@ function MachinesView({ onSelectCompany }: Props) {
   }
 
   const openAddMachine = () => {
-    form.resetFields()
     setEditingMachine(null)
-    form.setFieldsValue({ status: 0 })
-    setAddMachineOpen(true)
+    setMachineDialogOpen(true)
   }
 
-  const closeAddMachine = () => {
+  const closeMachineDialog = () => {
     if (savingMachine) return
-    setAddMachineOpen(false)
+    setMachineDialogOpen(false)
     setEditingMachine(null)
-    form.resetFields()
   }
 
   const openEditMachine = (machine: MachineGridItem) => {
-    form.resetFields()
-    form.setFieldsValue({ ...machine })
     setEditingMachine(machine)
-    setAddMachineOpen(true)
+    setMachineDialogOpen(true)
   }
 
   const submitMachine = async (values: CreateMachinePayload | UpdateMachinePayload) => {
@@ -122,9 +101,8 @@ function MachinesView({ onSelectCompany }: Props) {
         setCurrentPage(1)
       }
       messageApi.success(editingMachine ? 'Machine updated successfully' : 'Machine added successfully')
-      setAddMachineOpen(false)
+      setMachineDialogOpen(false)
       setEditingMachine(null)
-      form.resetFields()
       setLoading(true)
       setReloadKey((key) => key + 1)
     } catch (saveError) {
@@ -183,7 +161,7 @@ function MachinesView({ onSelectCompany }: Props) {
               placeholder="All statuses"
               value={draftFilters.status}
               onChange={(status: number | undefined) => setDraftFilters({ ...draftFilters, status })}
-              options={statuses}
+              options={machineStatuses}
             />
           </label>
           <label className="filter-field">
@@ -224,37 +202,9 @@ function MachinesView({ onSelectCompany }: Props) {
           locale={{ emptyText: loading ? 'Loading machines…' : 'No machines match these filters' }}
         />
 
-      <Modal
-        title={editingMachine ? 'Edit machine' : 'Add an unassigned machine'}
-        open={addMachineOpen}
-        onCancel={closeAddMachine}
-        onOk={() => form.submit()}
-        confirmLoading={savingMachine}
-        cancelButtonProps={{ disabled: savingMachine }}
-        okText="Save machine"
-        destroyOnHidden
-      >
-        <Form form={form} layout="vertical" disabled={savingMachine} onFinish={submitMachine}>
-          <Form.Item name="manufacturerId" label="Manufacturer" rules={[{ required: true }]}>
-            <Select options={manufacturers} placeholder="Select manufacturer" />
-          </Form.Item>
-          <Form.Item name="model" label="Model" rules={[{ required: true, whitespace: true }, { max: 200 }]}>
-            <Input maxLength={200} />
-          </Form.Item>
-          <div className="form-two-columns">
-            <Form.Item name="year" label="Year"><InputNumber min={1800} max={2200} style={{ width: '100%' }} /></Form.Item>
-            <Form.Item name="purchaseYear" label="Purchase year"><InputNumber min={1800} max={2200} style={{ width: '100%' }} /></Form.Item>
-          </div>
-          <div className="form-two-columns">
-            <Form.Item name="vinNumber" label="VIN"><Input maxLength={100} /></Form.Item>
-            <Form.Item name="registrationNumber" label="Registration number"><Input maxLength={50} /></Form.Item>
-          </div>
-          <div className="form-two-columns">
-            <Form.Item name="countryOfImport" label="Country of import"><Input maxLength={100} /></Form.Item>
-            <Form.Item name="status" label="Status"><Select allowClear options={statuses} /></Form.Item>
-          </div>
-        </Form>
-      </Modal>
+      {machineDialogOpen && <AddUpdateMachineDialog mode={editingMachine ? 'update' : 'add'} open
+        initialValues={editingMachine ?? undefined}
+        saving={savingMachine} onCancel={closeMachineDialog} onSubmit={submitMachine} />}
     </section>
   )
 }
