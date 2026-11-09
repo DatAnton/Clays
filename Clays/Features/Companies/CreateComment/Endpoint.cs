@@ -19,25 +19,19 @@ public sealed class Endpoint(IApplicationDbContext context, ICurrentUserService 
             return;
         }
 
-        var userDatabaseId = currentUser.UserDatabaseId;
-        var author = await context.Users.SingleOrDefaultAsync(user => user.Id == userDatabaseId, cancellationToken);
-        if (author is null)
-        {
-            await Send.UnauthorizedAsync(cancellationToken);
-            return;
-        }
-
         var comment = new CompanyComment
         {
             CompanyId = companyId,
             Text = request.Text.Trim(),
-            AuthorId = author.Id,
-            Author = author,
+            AuthorId = currentUser.UserDatabaseId,
             CreatedAtUtc = DateTimeOffset.UtcNow
         };
         context.CompanyComments.Add(comment);
         await context.SaveChangesAsync(cancellationToken);
 
-        await EndpointResponse.JsonAsync(HttpContext, comment.Adapt<Response>(), 201, cancellationToken);
+        var savedComment = await context.CompanyComments.AsNoTracking()
+            .Include(item => item.Author)
+            .SingleAsync(item => item.Id == comment.Id, cancellationToken);
+        await EndpointResponse.JsonAsync(HttpContext, savedComment.Adapt<Response>(), 201, cancellationToken);
     }
 }

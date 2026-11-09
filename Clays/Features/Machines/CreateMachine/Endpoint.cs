@@ -24,17 +24,9 @@ public sealed class Endpoint(IApplicationDbContext context, ICurrentUserService 
             await Send.NotFoundAsync(cancellationToken);
             return;
         }
-        var userDatabaseId = currentUser.UserDatabaseId;
-        var actor = await context.Users.SingleOrDefaultAsync(user => user.Id == userDatabaseId, cancellationToken);
-        if (actor is null)
-        {
-            await Send.UnauthorizedAsync(cancellationToken);
-            return;
-        }
-
         var machine = request.Adapt<Machine>();
         machine.Model = request.Model.Trim();
-        machine.CreatedById = actor.Id;
+        machine.CreatedById = currentUser.UserDatabaseId;
         context.Machines.Add(machine);
         await context.SaveChangesAsync(cancellationToken);
 

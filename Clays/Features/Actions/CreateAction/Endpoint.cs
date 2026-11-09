@@ -17,13 +17,6 @@ public sealed class Endpoint(IApplicationDbContext context, ICurrentUserService 
             await Send.NotFoundAsync(cancellationToken);
             return;
         }
-        var userDatabaseId = currentUser.UserDatabaseId;
-        var author = await context.Users.SingleOrDefaultAsync(user => user.Id == userDatabaseId, cancellationToken);
-        if (author is null)
-        {
-            await Send.UnauthorizedAsync(cancellationToken);
-            return;
-        }
         User? assignedUser = null;
         if (request.AssignedUserId.HasValue)
         {
@@ -42,7 +35,7 @@ public sealed class Endpoint(IApplicationDbContext context, ICurrentUserService 
         }
 
         var action = request.Adapt<Domain.Entities.Action>();
-        action.AuthorId = author.Id;
+        action.AuthorId = currentUser.UserDatabaseId;
         action.AssignedUserId = assignedUser?.Id;
         action.CreatedDate = DateTime.UtcNow;
         context.Actions.Add(action);
