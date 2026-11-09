@@ -1,6 +1,7 @@
+import MachinesGrid from './MachinesGrid'
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, Button, Form, Input, InputNumber, Modal, Select, Space, Table, Tag, Typography, message } from 'antd'
-import type { TableColumnsType, TablePaginationConfig } from 'antd'
+import { Alert, Button, Form, Input, InputNumber, Modal, Select, Space, Typography, message } from 'antd'
+import type { TablePaginationConfig } from 'antd'
 import type { ChangeEvent } from 'react'
 import { createMachine, updateMachine } from '../../services/companiesApi'
 import type { CreateMachinePayload, UpdateMachinePayload } from '../../services/companiesApi'
@@ -133,45 +134,6 @@ function MachinesView({ onSelectCompany }: Props) {
     }
   }
 
-  const columns: TableColumnsType<MachineGridItem> = [
-    {
-      title: 'Machine',
-      key: 'machine',
-      width: 260,
-      render: (_, machine) => <div className="company-name-cell">
-        <Typography.Text strong>{machine.manufacturerName} {machine.model}</Typography.Text>
-        <Typography.Text type="secondary" className="business-id">{machine.year ?? 'Year unknown'} · {machine.vinNumber || 'No VIN'}</Typography.Text>
-      </div>,
-    },
-    {
-      title: 'Company',
-      key: 'company',
-      width: 220,
-      render: (_, machine) => machine.companyId && machine.companyName
-        ? <Button type="link" className="machine-company-link" onClick={() => onSelectCompany(machine.companyId!)}>{machine.companyName}</Button>
-        : <Typography.Text type="secondary">Unassigned</Typography.Text>,
-    },
-    { title: 'City', dataIndex: 'companyCity', key: 'companyCity', width: 150, render: (city: string | null) => city || '—' },
-    { title: 'Registration', dataIndex: 'registrationNumber', key: 'registrationNumber', width: 160, render: (value: string | null) => value || '—' },
-    { title: 'Purchase year', dataIndex: 'purchaseYear', key: 'purchaseYear', width: 130, render: (value: number | null) => value ?? '—' },
-    { title: 'Country of import', dataIndex: 'countryOfImport', key: 'countryOfImport', width: 170, render: (value: string | null) => value || '—' },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      width: 150,
-      render: (status: number | null) => status === null
-        ? '—'
-        : <Tag color={status === 1 ? 'green' : status === 0 ? 'blue' : 'default'}>{statuses.find((item) => item.value === status)?.label ?? 'Unknown'}</Tag>,
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 100,
-      render: (_, machine) => <Button size="small" onClick={() => openEditMachine(machine)}>Edit</Button>,
-    },
-  ]
-
   return (
     <section className="companies-view machines-view">
       {contextHolder}
@@ -246,10 +208,7 @@ function MachinesView({ onSelectCompany }: Props) {
 
       {error && <Alert className="companies-error" type="error" showIcon message="Could not load machines" description={error} />}
 
-      <div className="table-card">
-        <Table<MachineGridItem>
-          rowKey="id"
-          columns={columns}
+      <MachinesGrid onEdit={openEditMachine} onSelectCompany={onSelectCompany}
           dataSource={page.items}
           loading={loading}
           onChange={handleTableChange}
@@ -259,12 +218,11 @@ function MachinesView({ onSelectCompany }: Props) {
             total: page.totalCount,
             showSizeChanger: false,
             showTotal: (total: number, range: [number, number]) => `${range[0]}–${range[1]} of ${total} machines`,
-            position: ['bottomRight'],
+            placement: ['bottomEnd'],
           }}
           scroll={{ x: 1100 }}
           locale={{ emptyText: loading ? 'Loading machines…' : 'No machines match these filters' }}
         />
-      </div>
 
       <Modal
         title={editingMachine ? 'Edit machine' : 'Add an unassigned machine'}

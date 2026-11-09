@@ -1,9 +1,10 @@
+import CompaniesGrid from './CompaniesGrid'
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, Button, Checkbox, ConfigProvider, Form, Input, Modal, Select, Space, Table, Tag, Typography, message } from 'antd'
-import type { TableColumnsType, TablePaginationConfig } from 'antd'
+import { Alert, Button, Checkbox, ConfigProvider, Form, Input, Modal, Select, Space, Typography, message } from 'antd'
+import type { TablePaginationConfig } from 'antd'
 import type { ChangeEvent } from 'react'
-import { createCompany, getCompanies } from '../../services/companiesApi'
-import type { Company, CompanyFilters, CompanyPage, CreateCompanyPayload } from '../../services/companiesApi'
+import { createCompany, getCompanies, getCompany, updateCompany } from '../../services/companiesApi'
+import type { Company, CompanyDetails, CompanyFilters, CompanyPage, CreateCompanyPayload } from '../../services/companiesApi'
 
 interface Props {
   onSelectCompany: (companyId: number) => void
@@ -17,39 +18,6 @@ const initialFilters: CompanyFilters = {
   isOurPartner: undefined,
 }
 
-const columns: TableColumnsType<Company> = [
-  {
-    title: 'Company',
-    dataIndex: 'name',
-    key: 'name',
-    width: 260,
-    render: (name: string, company) => (
-      <div className="company-name-cell">
-        <Typography.Text strong>{name}</Typography.Text>
-        <Typography.Text type="secondary" className="business-id">{company.businessId || 'Business ID unavailable'}</Typography.Text>
-      </div>
-    ),
-  },
-  { title: 'City', dataIndex: 'city', key: 'city', width: 160, render: (value: string | null) => value || '—' },
-  { title: 'Address', dataIndex: 'address', key: 'address', width: 220, render: (value: string | null) => value || '—' },
-  {
-    title: 'Business line',
-    dataIndex: 'mainBusinessLine',
-    key: 'mainBusinessLine',
-    width: 260,
-    render: (value: string | null) => value || '—',
-  },
-  {
-    title: 'Partner',
-    dataIndex: 'isOurPartner',
-    key: 'isOurPartner',
-    width: 120,
-    render: (isPartner: boolean) => isPartner
-      ? <Tag color="blue">Partner</Tag>
-      : <Typography.Text type="secondary">—</Typography.Text>,
-  },
-]
-
 function CompaniesView({ onSelectCompany }: Props) {
   const [page, setPage] = useState<CompanyPage>({ items: [], page: 1, pageSize: PAGE_SIZE, totalCount: 0 })
   const [currentPage, setCurrentPage] = useState(1)
@@ -57,7 +25,8 @@ function CompaniesView({ onSelectCompany }: Props) {
   const [draftFilters, setDraftFilters] = useState<CompanyFilters>(initialFilters)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [addCompanyOpen, setAddCompanyOpen] = useState(false)
+  const [companyDialogOpen, setCompanyDialogOpen] = useState(false)
+  const [editingCompany, setEditingCompany] = useState<CompanyDetails | null>(null)
   const [savingCompany, setSavingCompany] = useState(false)
   const [reloadKey, setReloadKey] = useState(0)
   const [form] = Form.useForm<CreateCompanyPayload>()
@@ -88,26 +57,59 @@ function CompaniesView({ onSelectCompany }: Props) {
 
   const openAddCompany = () => {
     form.resetFields()
-    setAddCompanyOpen(true)
+    setEditingCompany(null)
+    setCompanyDialogOpen(true)
   }
 
-  const closeAddCompany = () => {
+  const openEditCompany = async (company: Company) => {
+    try {
+      const details = await getCompany(company.id)
+      form.resetFields()
+      form.setFieldsValue({
+        name: details.name,
+        businessId: details.businessId ?? undefined,
+        city: details.city ?? undefined,
+        address: details.address ?? undefined,
+        mainBusinessLine: details.mainBusinessLine ?? undefined,
+        isOurPartner: details.isOurPartner,
+      })
+      setEditingCompany(details)
+      setCompanyDialogOpen(true)
+    } catch (loadError) {
+      messageApi.error(loadError instanceof Error ? loadError.message : 'Could not load company for editing')
+    }
+  }
+
+  const closeCompanyDialog = () => {
     if (savingCompany) return
-    setAddCompanyOpen(false)
+    setCompanyDialogOpen(false)
   }
 
-  const submitNewCompany = async (values: CreateCompanyPayload) => {
+  const submitCompany = async (values: CreateCompanyPayload) => {
     if (savingCompany) return
     setSavingCompany(true)
     try {
-      await createCompany(values)
-      messageApi.success('Company added successfully')
-      setAddCompanyOpen(false)
-      setCurrentPage(1)
+      if (editingCompany) {
+        await updateCompany(editingCompany.id, {
+          name: values.name,
+          businessId: values.businessId ?? null,
+          city: values.city ?? null,
+          address: values.address ?? null,
+          mainBusinessLine: values.mainBusinessLine ?? null,
+          isOurPartner: values.isOurPartner,
+          status: editingCompany.status,
+          note: editingCompany.note,
+        })
+      } else {
+        await createCompany(values)
+      }
+      messageApi.success(editingCompany ? 'Company updated successfully' : 'Company added successfully')
+      setCompanyDialogOpen(false)
+      if (!editingCompany) setCurrentPage(1)
       setLoading(true)
       setReloadKey((key) => key + 1)
     } catch (saveError) {
-      messageApi.error(saveError instanceof Error ? saveError.message : 'Could not add company')
+      messageApi.error(saveError instanceof Error ? saveError.message : 'Could not save company')
     } finally {
       setSavingCompany(false)
     }
@@ -208,10 +210,7 @@ function CompaniesView({ onSelectCompany }: Props) {
 
       {error && <Alert className="companies-error" type="error" showIcon message="Could not load companies" description={error} />}
 
-      <div className="table-card">
-        <Table<Company>
-          rowKey="id"
-          columns={columns}
+      <CompaniesGrid onEdit={openEditCompany}
           dataSource={page.items}
           loading={loading}
           onChange={handleTableChange}
@@ -226,23 +225,24 @@ function CompaniesView({ onSelectCompany }: Props) {
             total: page.totalCount,
             showSizeChanger: false,
             showTotal: (total: number, range: [number, number]) => `${range[0]}–${range[1]} of ${total} companies`,
-            position: ['bottomRight'],
+            placement: ['bottomEnd'],
           }}
           scroll={{ x: 900 }}
           locale={{ emptyText: loading ? 'Loading companies…' : 'No companies match these filters' }}
         />
-      </div>
       <Modal
-        title="Add company"
-        open={addCompanyOpen}
-        onCancel={closeAddCompany}
+        title={editingCompany ? 'Edit company' : 'Add company'}
+        open={companyDialogOpen}
+        onCancel={closeCompanyDialog}
         onOk={() => form.submit()}
         confirmLoading={savingCompany}
         cancelButtonProps={{ disabled: savingCompany }}
-        okText="Add company"
+        okText={editingCompany ? 'Save changes' : 'Add company'}
+        closable={!savingCompany}
+        mask={{ closable: !savingCompany }}
         destroyOnHidden
       >
-        <Form form={form} layout="vertical" initialValues={{ isOurPartner: false }} onFinish={submitNewCompany} disabled={savingCompany}>
+        <Form form={form} layout="vertical" initialValues={{ isOurPartner: false }} onFinish={submitCompany} disabled={savingCompany}>
           <Form.Item name="name" label="Company name" rules={[{ required: true, whitespace: true, message: 'Enter a company name' }, { max: 200 }]}>
             <Input maxLength={200} />
           </Form.Item>
@@ -251,6 +251,7 @@ function CompaniesView({ onSelectCompany }: Props) {
             <Form.Item name="city" label="City"><Input maxLength={200} /></Form.Item>
           </div>
           <Form.Item name="address" label="Address"><Input maxLength={500} /></Form.Item>
+          <Form.Item name="mainBusinessLine" label="Business line"><Input maxLength={500} /></Form.Item>
           <ConfigProvider theme={{ token: { controlInteractiveSize: 32 } }}>
             <Form.Item name="isOurPartner" valuePropName="checked">
               <Checkbox className="company-partner-checkbox">Our partner</Checkbox>

@@ -36,7 +36,7 @@ export default function AddUserButton({ onCreated }: { onCreated?: () => void })
       confirmLoading={saving}
       cancelButtonProps={{ disabled: saving }}
       closable={!saving}
-      maskClosable={!saving}
+      mask={{ closable: !saving }}
       onCancel={() => { if (!saving) setOpen(false) }}
       onOk={() => form.submit()}
     >

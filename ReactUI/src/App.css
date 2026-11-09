@@ -107,7 +107,6 @@
 .filter-card, .table-card { border: 1px solid #e8edf3; border-radius: 12px; background: #fff; box-shadow: 0 3px 14px rgb(25 53 84 / 4%); }
 .filter-card { margin-bottom: 20px; padding: 20px 22px 16px; }
 .users-filter-card { max-width: 620px; }
-.user-role-tag.ant-tag { font-size: 14px; line-height: 26px; padding: 1px 10px; }
 .filter-grid { display: grid; grid-template-columns: minmax(250px, 1.5fr) repeat(2, minmax(160px, 1fr)) minmax(170px, .85fr); gap: 16px; }
 .machine-filter-grid { grid-template-columns: minmax(260px, 1.6fr) repeat(2, minmax(170px, 1fr)) minmax(180px, .9fr); }
 .filter-field { display: flex; flex-direction: column; gap: 7px; color: #566579; font-size: 12px; font-weight: 600; }
@@ -130,15 +129,11 @@
 .filter-actions { display: flex; justify-content: flex-end; margin-top: 17px; }
 .companies-error { margin: 0 0 18px; }
 .table-card { overflow: hidden; }
-.table-card .ant-table, .machine-history .ant-table { color: #34445a; font-size: 15px; }
-.table-card .ant-table-thead > tr > th, .machine-history .ant-table-thead > tr > th { padding: 13px 16px; color: #627188; background: #f7f9fc; font-size: 12px; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; }
-.table-card .ant-table-tbody > tr > td, .machine-history .ant-table-tbody > tr > td { padding: 14px 16px; }
-.table-card .ant-table-tbody > tr:hover > td, .machine-history .ant-table-tbody > tr:hover > td { background: #f6f9fd !important; }
-.company-name-cell { display: flex; flex-direction: column; gap: 3px; }
-.company-name-cell .ant-typography { color: #1e344e; font-size: 15px; }
-.company-name-cell .business-id { font-size: 12px; }
+.machine-history .ant-table { color: #34445a; font-size: 15px; }
+.machine-history .ant-table-thead > tr > th { padding: 13px 16px; color: #627188; background: #f7f9fc; font-size: 12px; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; }
+.machine-history .ant-table-tbody > tr > td { padding: 14px 16px; }
+.machine-history .ant-table-tbody > tr:hover > td { background: #f6f9fd !important; }
 .machine-company-link { padding: 0; white-space: normal; text-align: left; }
-.table-card .ant-pagination { padding: 12px 20px 17px; }
 .company-table-row { cursor: pointer; }
 .company-table-row:focus-visible { outline: 2px solid #3478c4; outline-offset: -2px; }
 .company-detail-view { width: 100%; }
