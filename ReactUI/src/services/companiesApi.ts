@@ -98,6 +98,26 @@ export interface CreateCompanyPayload {
   mainBusinessLine?: string
   isOurPartner: boolean
 }
+export interface UpdateCompanyPayload {
+  name: string
+  businessId: string | null
+  city: string | null
+  address: string | null
+  mainBusinessLine: string | null
+  isOurPartner: boolean
+  status: number | null
+  note: string | null
+}
+export interface UpdateMachinePayload {
+  manufacturerId: number
+  model: string
+  year: number | null
+  vinNumber: string | null
+  registrationNumber: string | null
+  countryOfImport: string | null
+  purchaseYear: number | null
+  status: number | null
+}
 export interface CreateContactPayload {
   firstName?: string
   lastName?: string
@@ -146,6 +166,10 @@ export function createCompany(payload: CreateCompanyPayload): Promise<Company> {
   return requestJson<Company>('/api/companies', { method: 'POST', body: JSON.stringify(payload) })
 }
 
+export function updateCompany(id: number, payload: UpdateCompanyPayload): Promise<Company> {
+  return requestJson<Company>(`/api/companies/${id}`, { method: 'PUT', body: JSON.stringify(payload) })
+}
+
 export function createCompanyComment(companyId: number, payload: CreateCommentPayload): Promise<CompanyComment> {
   return requestJson<CompanyComment>(`/api/companies/${companyId}/comments`, {
     method: 'POST', body: JSON.stringify(payload),
@@ -158,6 +182,10 @@ export function createContact(payload: CreateContactPayload): Promise<Contact> {
 
 export function createMachine(payload: CreateMachinePayload): Promise<Machine> {
   return requestJson<Machine>('/api/machines', { method: 'POST', body: JSON.stringify(payload) })
+}
+
+export function updateMachine(id: number, payload: UpdateMachinePayload): Promise<Machine> {
+  return requestJson<Machine>(`/api/machines/${id}`, { method: 'PUT', body: JSON.stringify(payload) })
 }
 
 export function createAction(payload: CreateActionPayload): Promise<CompanyAction> {

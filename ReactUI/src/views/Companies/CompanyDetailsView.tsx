@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, Button, Card, Descriptions, Form, Input, InputNumber, Modal, Popover, Select, Space, Spin, Table, Tag, Typography, message } from 'antd'
+import { Alert, Button, Card, Checkbox, Descriptions, Form, Input, InputNumber, Modal, Popover, Select, Space, Spin, Table, Tag, Typography, message } from 'antd'
 import {
   createAction,
   createCompanyComment,
@@ -7,6 +7,8 @@ import {
   createMachine,
   getCompany,
   updateActionStatus,
+  updateCompany,
+  updateMachine,
 } from '../../services/companiesApi'
 import type {
   CompanyAction,
@@ -18,6 +20,8 @@ import type {
   CreateContactPayload,
   CreateMachinePayload,
   Machine,
+  UpdateCompanyPayload,
+  UpdateMachinePayload,
 } from '../../services/companiesApi'
 
 interface Props {
@@ -25,7 +29,7 @@ interface Props {
   onBack: () => void
 }
 
-type DialogKind = 'comment' | 'contact' | 'machine' | 'action' | null
+type DialogKind = 'comment' | 'contact' | 'machine' | 'action' | 'editCompany' | 'editMachine' | null
 
 const actionStatuses = [
   { value: 0, label: 'To do' },
@@ -62,6 +66,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [dialog, setDialog] = useState<DialogKind>(null)
   const [saving, setSaving] = useState(false)
+  const [editingMachine, setEditingMachine] = useState<Machine | null>(null)
   const [busyActionId, setBusyActionId] = useState<number | null>(null)
   const [form] = Form.useForm()
   const [messageApi, contextHolder] = message.useMessage()
@@ -89,16 +94,27 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
 
   const openDialog = (kind: Exclude<DialogKind, null>) => {
     form.resetFields()
-    form.setFieldsValue({ status: 0, type: 0, actionWeek: getCurrentWeek() })
+    setEditingMachine(null)
+    form.setFieldsValue(kind === 'editCompany' ? { ...company } : { status: 0, type: 0, actionWeek: getCurrentWeek() })
     setDialog(kind)
   }
 
+  const openEditMachine = (machine: Machine) => {
+    form.resetFields()
+    form.setFieldsValue({ ...machine })
+    setEditingMachine(machine)
+    setDialog('editMachine')
+  }
+
   const closeDialog = () => {
+    if (saving) return
     setDialog(null)
+    setEditingMachine(null)
     form.resetFields()
   }
 
-  const submitDialog = async (values: Record<string, string | number | undefined>) => {
+  const submitDialog = async (values: Record<string, string | number | boolean | null | undefined>) => {
+    if (saving) return
     setSaving(true)
     try {
       if (dialog === 'comment') {
@@ -109,9 +125,15 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
         await createMachine({ ...values, companyId } as unknown as CreateMachinePayload)
       } else if (dialog === 'action') {
         await createAction({ ...values, companyId } as CreateActionPayload)
+      } else if (dialog === 'editCompany') {
+        await updateCompany(companyId, { ...values, status: values.status ?? null } as unknown as UpdateCompanyPayload)
+      } else if (dialog === 'editMachine' && editingMachine) {
+        await updateMachine(editingMachine.id, { ...values, status: values.status ?? null } as unknown as UpdateMachinePayload)
       }
       messageApi.success('Saved successfully')
-      closeDialog()
+      setDialog(null)
+      setEditingMachine(null)
+      form.resetFields()
       await loadCompany()
     } catch (saveError) {
       messageApi.error(saveError instanceof Error ? saveError.message : 'Could not save changes')
@@ -153,6 +175,8 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
     contact: 'Add a contact',
     machine: 'Add a machine',
     action: 'Create an action',
+    editCompany: 'Edit company',
+    editMachine: 'Edit machine',
   }
 
   return (
@@ -180,6 +204,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
             </div>
           </Popover>
         </div>
+        <Button onClick={() => openDialog('editCompany')}>Edit company</Button>
       </div>
 
       <div className="company-detail-grid">
@@ -208,7 +233,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
             const history = company.ownerHistory
               .filter((entry) => entry.machine.id === machine.id)
               .map(({ id }) => ({ id, owner: company.name, city: company.city || '—' }))
-            return <Card key={machine.id} size="small" className="machine-item-card" title={<span>{machine.manufacturerName} {machine.model}</span>}>
+            return <Card key={machine.id} size="small" className="machine-item-card" title={<span>{machine.manufacturerName} {machine.model}</span>} extra={<Button size="small" onClick={() => openEditMachine(machine)}>Edit machine</Button>}>
               <Descriptions size="small" column={{ xs: 1, sm: 2, lg: 3 }}>
                 <Descriptions.Item label="Year">{machine.year ?? '—'}</Descriptions.Item>
                 <Descriptions.Item label="VIN">{machine.vinNumber || '—'}</Descriptions.Item>
@@ -237,8 +262,17 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
         </Card>
       </div>
 
-      <Modal title={dialog ? titleForDialog[dialog] : ''} open={dialog !== null} onCancel={closeDialog} onOk={() => form.submit()} confirmLoading={saving} okText="Save" destroyOnHidden>
-        <Form form={form} layout="vertical" onFinish={(values: Record<string, string | number | undefined>) => void submitDialog(values)}>
+      <Modal title={dialog ? titleForDialog[dialog] : ''} open={dialog !== null} onCancel={closeDialog} onOk={() => form.submit()} confirmLoading={saving} cancelButtonProps={{ disabled: saving }} okText="Save" destroyOnHidden>
+        <Form form={form} layout="vertical" disabled={saving} onFinish={submitDialog}>
+          {dialog === 'editCompany' && <>
+            <Form.Item name="name" label="Company name" rules={[{ required: true, whitespace: true, message: 'Enter a company name' }, { max: 200 }]}><Input maxLength={200} /></Form.Item>
+            <div className="form-two-columns"><Form.Item name="businessId" label="Business ID"><Input maxLength={50} /></Form.Item><Form.Item name="city" label="City"><Input maxLength={200} /></Form.Item></div>
+            <Form.Item name="address" label="Address"><Input maxLength={500} /></Form.Item>
+            <Form.Item name="mainBusinessLine" label="Business line"><Input maxLength={500} /></Form.Item>
+            <Form.Item name="status" label="Status"><Select allowClear options={[0, 1, 2, 3].map((value) => ({ value, label: companyStatusLabel(value) }))} /></Form.Item>
+            <Form.Item name="note" label="Notes" rules={[{ max: 4000 }]}><Input.TextArea rows={3} maxLength={4000} /></Form.Item>
+            <Form.Item name="isOurPartner" valuePropName="checked"><Checkbox>Our partner</Checkbox></Form.Item>
+          </>}
           {dialog === 'comment' && <>
             <Form.Item name="text" label="Comment" rules={[{ required: true, whitespace: true, message: 'Enter a comment' }, { max: 4000 }]}><Input.TextArea rows={4} maxLength={4000} showCount /></Form.Item>
           </>}
@@ -246,7 +280,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
             <div className="form-two-columns"><Form.Item name="firstName" label="First name"><Input maxLength={200} /></Form.Item><Form.Item name="lastName" label="Last name"><Input maxLength={200} /></Form.Item></div>
             <div className="form-two-columns"><Form.Item name="email" label="Email" rules={[{ type: 'email' }]}><Input maxLength={320} /></Form.Item><Form.Item name="phoneNumber" label="Phone"><Input maxLength={50} /></Form.Item></div>
           </>}
-          {dialog === 'machine' && <>
+          {(dialog === 'machine' || dialog === 'editMachine') && <>
             <Form.Item name="manufacturerId" label="Manufacturer" rules={[{ required: true }]}><Select options={manufacturers} placeholder="Select manufacturer" /></Form.Item>
             <Form.Item name="model" label="Model" rules={[{ required: true, whitespace: true }, { max: 200 }]}><Input maxLength={200} /></Form.Item>
             <div className="form-two-columns"><Form.Item name="year" label="Year"><InputNumber min={1800} max={2200} style={{ width: '100%' }} /></Form.Item><Form.Item name="purchaseYear" label="Purchase year"><InputNumber min={1800} max={2200} style={{ width: '100%' }} /></Form.Item></div>

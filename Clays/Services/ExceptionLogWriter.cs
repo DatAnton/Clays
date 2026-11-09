@@ -28,10 +28,20 @@ namespace Clays.Services
             }
             catch (Exception loggingException)
             {
-                var logger = services.GetService<ILoggerFactory>()?.CreateLogger("ExceptionLogWriter");
-                logger?.LogError(loggingException,
-                    "Failed to persist an exception to the Logs table. Original exception: {OriginalException}",
-                    exception);
+                try
+                {
+                    var logger = services.GetService<ILoggerFactory>()?.CreateLogger("ExceptionLogWriter");
+                    logger?.LogError(loggingException,
+                        "Failed to persist an exception to the Logs table. Original exception: {OriginalException}",
+                        exception);
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Host shutdown may already have disposed the service provider.
+                    // Preserve the original exception for the caller to rethrow.
+                    await Console.Error.WriteLineAsync(
+                        $"Failed to persist an exception from {source}: {loggingException.Message}. Original exception: {exception}");
+                }
             }
         }
     }

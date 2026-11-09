@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Form, Input, InputNumber, Modal, Select, Space, Table, Tag, Typography, message } from 'antd'
 import type { TableColumnsType, TablePaginationConfig } from 'antd'
 import type { ChangeEvent } from 'react'
-import { createMachine } from '../../services/companiesApi'
-import type { CreateMachinePayload } from '../../services/companiesApi'
+import { createMachine, updateMachine } from '../../services/companiesApi'
+import type { CreateMachinePayload, UpdateMachinePayload } from '../../services/companiesApi'
 import { getMachines } from '../../services/machinesApi'
 import type { MachineFilters, MachineGridItem, MachinePage } from '../../services/machinesApi'
 
@@ -45,6 +45,7 @@ function MachinesView({ onSelectCompany }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [addMachineOpen, setAddMachineOpen] = useState(false)
   const [savingMachine, setSavingMachine] = useState(false)
+  const [editingMachine, setEditingMachine] = useState<MachineGridItem | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [form] = Form.useForm()
   const [messageApi, contextHolder] = message.useMessage()
@@ -90,26 +91,43 @@ function MachinesView({ onSelectCompany }: Props) {
 
   const openAddMachine = () => {
     form.resetFields()
+    setEditingMachine(null)
     form.setFieldsValue({ status: 0 })
     setAddMachineOpen(true)
   }
 
   const closeAddMachine = () => {
+    if (savingMachine) return
     setAddMachineOpen(false)
+    setEditingMachine(null)
     form.resetFields()
   }
 
-  const submitNewMachine = async (values: CreateMachinePayload) => {
+  const openEditMachine = (machine: MachineGridItem) => {
+    form.resetFields()
+    form.setFieldsValue({ ...machine })
+    setEditingMachine(machine)
+    setAddMachineOpen(true)
+  }
+
+  const submitMachine = async (values: CreateMachinePayload | UpdateMachinePayload) => {
+    if (savingMachine) return
     setSavingMachine(true)
     try {
-      await createMachine(values)
-      messageApi.success('Machine added successfully')
-      closeAddMachine()
-      setCurrentPage(1)
+      if (editingMachine) {
+        await updateMachine(editingMachine.id, { ...values, status: values.status ?? null } as UpdateMachinePayload)
+      } else {
+        await createMachine(values as CreateMachinePayload)
+        setCurrentPage(1)
+      }
+      messageApi.success(editingMachine ? 'Machine updated successfully' : 'Machine added successfully')
+      setAddMachineOpen(false)
+      setEditingMachine(null)
+      form.resetFields()
       setLoading(true)
       setReloadKey((key) => key + 1)
     } catch (saveError) {
-      messageApi.error(saveError instanceof Error ? saveError.message : 'Could not add machine')
+      messageApi.error(saveError instanceof Error ? saveError.message : 'Could not save machine')
     } finally {
       setSavingMachine(false)
     }
@@ -145,6 +163,12 @@ function MachinesView({ onSelectCompany }: Props) {
       render: (status: number | null) => status === null
         ? '—'
         : <Tag color={status === 1 ? 'green' : status === 0 ? 'blue' : 'default'}>{statuses.find((item) => item.value === status)?.label ?? 'Unknown'}</Tag>,
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 100,
+      render: (_, machine) => <Button size="small" onClick={() => openEditMachine(machine)}>Edit</Button>,
     },
   ]
 
@@ -243,15 +267,16 @@ function MachinesView({ onSelectCompany }: Props) {
       </div>
 
       <Modal
-        title="Add an unassigned machine"
+        title={editingMachine ? 'Edit machine' : 'Add an unassigned machine'}
         open={addMachineOpen}
         onCancel={closeAddMachine}
         onOk={() => form.submit()}
         confirmLoading={savingMachine}
+        cancelButtonProps={{ disabled: savingMachine }}
         okText="Save machine"
         destroyOnHidden
       >
-        <Form form={form} layout="vertical" onFinish={(values: CreateMachinePayload) => void submitNewMachine(values)}>
+        <Form form={form} layout="vertical" disabled={savingMachine} onFinish={submitMachine}>
           <Form.Item name="manufacturerId" label="Manufacturer" rules={[{ required: true }]}>
             <Select options={manufacturers} placeholder="Select manufacturer" />
           </Form.Item>
