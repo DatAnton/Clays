@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Clays.Application.Managers
 {
-    public class MachineManager
+    public class MachineryManager
     {
         private static readonly string[] WheelLoaderKeywords =
         [
@@ -57,7 +57,7 @@ namespace Clays.Application.Managers
 
         private static readonly string[] ExcavatorBrands = ["volvo", "caterpillar", "cat", "doosan", "develon", "hitachi", "hyundai"];
 
-        public static bool IsWantedMachine(string title)
+        public static bool IsWantedMachinery(string title)
         {
             if (string.IsNullOrWhiteSpace(title))
             {

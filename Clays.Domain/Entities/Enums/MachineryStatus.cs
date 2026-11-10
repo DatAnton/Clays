@@ -1,6 +1,6 @@
 namespace Clays.Domain.Entities.Enums;
 
-public enum MachineStatus
+public enum MachineryStatus
 {
     Sold,
     Commissioned,

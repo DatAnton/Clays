@@ -8,7 +8,7 @@ namespace Clays.Infrastructure.Data
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : DbContext(options), IApplicationDbContext
     {
-        public DbSet<Machine> Machinery { get; set; }
+        public DbSet<Machinery> Machinery { get; set; }
         public DbSet<MachineryLibrary> MachineryLibrary { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
@@ -82,22 +82,22 @@ namespace Clays.Infrastructure.Data
                 .HasForeignKey(entry => entry.ManufacturerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Machine>()
-                .HasOne(machine => machine.MachineryLibrary)
+            modelBuilder.Entity<Machinery>()
+                .HasOne(machinery => machinery.MachineryLibrary)
                 .WithMany()
-                .HasForeignKey(machine => machine.MachineryLibraryId)
+                .HasForeignKey(machinery => machinery.MachineryLibraryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Machine>()
-                .HasOne(machine => machine.CreatedBy)
+            modelBuilder.Entity<Machinery>()
+                .HasOne(machinery => machinery.CreatedBy)
                 .WithMany()
-                .HasForeignKey(machine => machine.CreatedById)
+                .HasForeignKey(machinery => machinery.CreatedById)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<Machine>()
-                .HasOne(machine => machine.Company)
-                .WithMany(company => company.Machines)
-                .HasForeignKey(machine => machine.CompanyId)
+            modelBuilder.Entity<Machinery>()
+                .HasOne(machinery => machinery.Company)
+                .WithMany(company => company.Machinery)
+                .HasForeignKey(machinery => machinery.CompanyId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<CompanyComment>()
@@ -123,9 +123,9 @@ namespace Clays.Infrastructure.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<OwnerHistory>()
-                .HasOne(history => history.Machine)
+                .HasOne(history => history.Machinery)
                 .WithMany()
-                .HasForeignKey(history => history.MachineId)
+                .HasForeignKey(history => history.MachineryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Clays.Domain.Entities.Action>()
@@ -147,9 +147,9 @@ namespace Clays.Infrastructure.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Clays.Domain.Entities.Action>()
-                .HasOne(action => action.Machine)
+                .HasOne(action => action.Machinery)
                 .WithMany()
-                .HasForeignKey(action => action.MachineId)
+                .HasForeignKey(action => action.MachineryId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             base.OnModelCreating(modelBuilder);

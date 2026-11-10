@@ -20,7 +20,7 @@ export default function AddActionDialog({ open, saving, initialValues, onCancel,
       <div className="form-two-columns"><Form.Item name="type" label="Type" rules={[{ required: true }]}><Select options={actionTypes} /></Form.Item><Form.Item name="status" label="Status" rules={[{ required: true }]}><Select options={actionStatuses} /></Form.Item></div>
       <Form.Item name="note" label="Details"><Input.TextArea rows={3} maxLength={4000} /></Form.Item>
       <Form.Item name="assignedUserId" label="Assigned user ID"><InputNumber min={1} style={{ width: '100%' }} /></Form.Item>
-      <div className="form-two-columns"><Form.Item name="actionWeek" label="Action week" rules={[{ required: true, type: 'number', min: 1, max: 53 }]}><InputNumber min={1} max={53} style={{ width: '100%' }} /></Form.Item><Form.Item name="machineId" label="Machine ID"><InputNumber min={1} style={{ width: '100%' }} /></Form.Item></div>
+      <div className="form-two-columns"><Form.Item name="actionWeek" label="Action week" rules={[{ required: true, type: 'number', min: 1, max: 53 }]}><InputNumber min={1} max={53} style={{ width: '100%' }} /></Form.Item><Form.Item name="machineryId" label="Machinery ID"><InputNumber min={1} style={{ width: '100%' }} /></Form.Item></div>
     </Form>
   </Modal>
 }

@@ -28,7 +28,7 @@ public sealed class Endpoint(IApplicationDbContext context, ICurrentUserService 
                 return;
             }
         }
-        if (request.MachineId.HasValue && !await context.Machinery.AnyAsync(machine => machine.Id == request.MachineId, cancellationToken))
+        if (request.MachineryId.HasValue && !await context.Machinery.AnyAsync(machinery => machinery.Id == request.MachineryId, cancellationToken))
         {
             await Send.NotFoundAsync(cancellationToken);
             return;
@@ -44,7 +44,7 @@ public sealed class Endpoint(IApplicationDbContext context, ICurrentUserService 
         var savedAction = await context.Actions.AsNoTracking()
             .Include(item => item.Author)
             .Include(item => item.AssignedUser)
-            .Include(item => item.Machine).ThenInclude(machine => machine!.MachineryLibrary).ThenInclude(entry => entry.Manufacturer)
+            .Include(item => item.Machinery).ThenInclude(machinery => machinery!.MachineryLibrary).ThenInclude(entry => entry.Manufacturer)
             .SingleAsync(item => item.Id == action.Id, cancellationToken);
         await EndpointResponse.JsonAsync(HttpContext, savedAction.Adapt<Response>(), 201, cancellationToken);
     }

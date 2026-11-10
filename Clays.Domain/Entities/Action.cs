@@ -13,10 +13,10 @@ public class Action
     public DateTime CreatedDate { get; set; }
     public int ActionWeek { get; set; }
     public int CompanyId { get; set; }
-    public int? MachineId { get; set; }
+    public int? MachineryId { get; set; }
 
     public User Author { get; set; } = null!;
     public User? AssignedUser { get; set; } = null!;
     public Company Company { get; set; } = null!;
-    public Machine? Machine { get; set; }
+    public Machinery? Machinery { get; set; }
 }

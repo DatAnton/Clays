@@ -7,7 +7,7 @@ export const manufacturers = [
   { value: 6, label: 'Caterpillar' },
 ]
 
-export const machineStatuses = [
+export const machineryStatuses = [
   { value: 0, label: 'Sold' },
   { value: 1, label: 'Commissioned' },
   { value: 2, label: 'Decommissioned' },

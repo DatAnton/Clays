@@ -1,10 +1,11 @@
 using Clays.Domain.Entities;
+using MachineryEntity = Clays.Domain.Entities.Machinery;
 using Mapster;
 using ActionEntity = Clays.Domain.Entities.Action;
 using ActionCreate = Clays.Features.Actions.CreateAction;
 using ActionUpdateStatus = Clays.Features.Actions.UpdateActionStatus;
 using CompanyDetails = Clays.Features.Companies.GetCompany;
-using MachineListItem = Clays.Features.Machines.ListMachines.MachineItem;
+using MachineryListItem = Clays.Features.Machinery.ListMachinery.MachineryItem;
 
 namespace Clays.Features.Common;
 
@@ -12,14 +13,14 @@ public sealed class MappingRegister : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<Machine, MachineListItem>()
+        config.NewConfig<MachineryEntity, MachineryListItem>()
             .Map(destination => destination.ManufacturerId, source => source.MachineryLibrary.ManufacturerId)
             .Map(destination => destination.Model, source => source.MachineryLibrary.Model)
             .Map(destination => destination.ManufacturerName, source => source.MachineryLibrary.Manufacturer.Name)
             .Map(destination => destination.CompanyName, source => source.Company == null ? null : source.Company.Name)
             .Map(destination => destination.CompanyCity, source => source.Company == null ? null : source.Company.City);
 
-        config.NewConfig<Machine, CompanyDetails.MachineItem>()
+        config.NewConfig<MachineryEntity, CompanyDetails.MachineryItem>()
             .Map(destination => destination.ManufacturerId, source => source.MachineryLibrary.ManufacturerId)
             .Map(destination => destination.Model, source => source.MachineryLibrary.Model)
             .Map(destination => destination.ManufacturerName, source => source.MachineryLibrary.Manufacturer.Name);

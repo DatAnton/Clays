@@ -1,43 +1,43 @@
-import AddUpdateMachineDialog from './AddUpdateMachineDialog/AddUpdateMachineDialog'
-import { manufacturers, machineStatuses } from './machineOptions'
-import MachinesGrid from './MachinesGrid'
+import AddUpdateMachineryDialog from './AddUpdateMachineryDialog/AddUpdateMachineryDialog'
+import { manufacturers, machineryStatuses } from './machineryOptions'
+import MachineryGrid from './MachineryGrid'
 import { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Input, Select, Space, Typography, message } from 'antd'
 import type { TablePaginationConfig } from 'antd'
 import type { ChangeEvent } from 'react'
-import { createMachine, updateMachine } from '../../services/companiesApi'
-import type { CreateMachinePayload, UpdateMachinePayload } from '../../services/companiesApi'
-import { getMachines } from '../../services/machinesApi'
-import type { MachineFilters, MachineGridItem, MachinePage } from '../../services/machinesApi'
+import { createMachinery, updateMachinery } from '../../services/companiesApi'
+import type { CreateMachineryPayload, UpdateMachineryPayload } from '../../services/companiesApi'
+import { getMachinery } from '../../services/machineryApi'
+import type { MachineryFilters, MachineryGridItem, MachineryPage } from '../../services/machineryApi'
 
 interface Props {
   onSelectCompany: (companyId: number) => void
 }
 
 const PAGE_SIZE = 50
-const initialFilters: MachineFilters = {
+const initialFilters: MachineryFilters = {
   search: '',
   manufacturerId: undefined,
   status: undefined,
   city: '',
 }
 
-function MachinesView({ onSelectCompany }: Props) {
-  const [page, setPage] = useState<MachinePage>({ items: [], page: 1, pageSize: PAGE_SIZE, totalCount: 0 })
+function MachineryView({ onSelectCompany }: Props) {
+  const [page, setPage] = useState<MachineryPage>({ items: [], page: 1, pageSize: PAGE_SIZE, totalCount: 0 })
   const [currentPage, setCurrentPage] = useState(1)
-  const [filters, setFilters] = useState<MachineFilters>(initialFilters)
-  const [draftFilters, setDraftFilters] = useState<MachineFilters>(initialFilters)
+  const [filters, setFilters] = useState<MachineryFilters>(initialFilters)
+  const [draftFilters, setDraftFilters] = useState<MachineryFilters>(initialFilters)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [machineDialogOpen, setMachineDialogOpen] = useState(false)
-  const [savingMachine, setSavingMachine] = useState(false)
-  const [editingMachine, setEditingMachine] = useState<MachineGridItem | null>(null)
+  const [machineryDialogOpen, setMachineryDialogOpen] = useState(false)
+  const [savingMachinery, setSavingMachinery] = useState(false)
+  const [editingMachinery, setEditingMachinery] = useState<MachineryGridItem | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [messageApi, contextHolder] = message.useMessage()
 
-  const loadMachines = useCallback(async (pageNumber: number, activeFilters: MachineFilters, signal: AbortSignal) => {
+  const loadMachinery = useCallback(async (pageNumber: number, activeFilters: MachineryFilters, signal: AbortSignal) => {
     try {
-      const result = await getMachines(pageNumber, activeFilters, signal)
+      const result = await getMachinery(pageNumber, activeFilters, signal)
       setPage(result)
       setError(null)
     } catch (loadError) {
@@ -51,10 +51,10 @@ function MachinesView({ onSelectCompany }: Props) {
   useEffect(() => {
     const controller = new AbortController()
     void Promise.resolve().then(() => {
-      if (!controller.signal.aborted) void loadMachines(currentPage, filters, controller.signal)
+      if (!controller.signal.aborted) void loadMachinery(currentPage, filters, controller.signal)
     })
     return () => controller.abort()
-  }, [currentPage, filters, loadMachines, reloadKey])
+  }, [currentPage, filters, loadMachinery, reloadKey])
 
   const applyFilters = () => {
     setLoading(true)
@@ -74,65 +74,65 @@ function MachinesView({ onSelectCompany }: Props) {
     setCurrentPage(pagination.current ?? 1)
   }
 
-  const openAddMachine = () => {
-    setEditingMachine(null)
-    setMachineDialogOpen(true)
+  const openAddMachinery = () => {
+    setEditingMachinery(null)
+    setMachineryDialogOpen(true)
   }
 
-  const closeMachineDialog = () => {
-    if (savingMachine) return
-    setMachineDialogOpen(false)
-    setEditingMachine(null)
+  const closeMachineryDialog = () => {
+    if (savingMachinery) return
+    setMachineryDialogOpen(false)
+    setEditingMachinery(null)
   }
 
-  const openEditMachine = (machine: MachineGridItem) => {
-    setEditingMachine(machine)
-    setMachineDialogOpen(true)
+  const openEditMachinery = (machinery: MachineryGridItem) => {
+    setEditingMachinery(machinery)
+    setMachineryDialogOpen(true)
   }
 
-  const submitMachine = async (values: CreateMachinePayload | UpdateMachinePayload) => {
-    if (savingMachine) return
-    setSavingMachine(true)
+  const submitMachinery = async (values: CreateMachineryPayload | UpdateMachineryPayload) => {
+    if (savingMachinery) return
+    setSavingMachinery(true)
     try {
-      if (editingMachine) {
-        await updateMachine(editingMachine.id, { ...values, status: values.status ?? null } as UpdateMachinePayload)
+      if (editingMachinery) {
+        await updateMachinery(editingMachinery.id, { ...values, status: values.status ?? null } as UpdateMachineryPayload)
       } else {
-        await createMachine(values as CreateMachinePayload)
+        await createMachinery(values as CreateMachineryPayload)
         setCurrentPage(1)
       }
-      messageApi.success(editingMachine ? 'Machine updated successfully' : 'Machine added successfully')
-      setMachineDialogOpen(false)
-      setEditingMachine(null)
+      messageApi.success(editingMachinery ? 'Machinery updated successfully' : 'Machinery added successfully')
+      setMachineryDialogOpen(false)
+      setEditingMachinery(null)
       setLoading(true)
       setReloadKey((key) => key + 1)
     } catch (saveError) {
-      messageApi.error(saveError instanceof Error ? saveError.message : 'Could not save machine')
+      messageApi.error(saveError instanceof Error ? saveError.message : 'Could not save machinery')
     } finally {
-      setSavingMachine(false)
+      setSavingMachinery(false)
     }
   }
 
   return (
-    <section className="companies-view machines-view">
+    <section className="companies-view machinery-view">
       {contextHolder}
       <div className="view-heading">
         <div>
-          <Typography.Title level={2}>Machines</Typography.Title>
-          <Typography.Paragraph type="secondary">Browse and filter machines in your directory.</Typography.Paragraph>
+          <Typography.Title level={2}>Machinery</Typography.Title>
+          <Typography.Paragraph type="secondary">Browse and filter machinery in your directory.</Typography.Paragraph>
         </div>
-        <div className="machines-heading-actions">
-          <Button type="primary" onClick={openAddMachine}>Add machine</Button>
+        <div className="machinery-heading-actions">
+          <Button type="primary" onClick={openAddMachinery}>Add machinery</Button>
           <div className="company-count">
             <span className="count-value">{page.totalCount.toLocaleString()}</span>
-            <span className="count-label">machines</span>
+            <span className="count-label">machinery</span>
           </div>
         </div>
       </div>
 
       <div className="filter-card">
-        <div className="filter-grid machine-filter-grid">
+        <div className="filter-grid machinery-filter-grid">
           <label className="filter-field filter-search">
-            <span>Search machines</span>
+            <span>Search machinery</span>
             <Input
               size="large"
               allowClear
@@ -161,7 +161,7 @@ function MachinesView({ onSelectCompany }: Props) {
               placeholder="All statuses"
               value={draftFilters.status}
               onChange={(status: number | undefined) => setDraftFilters({ ...draftFilters, status })}
-              options={machineStatuses}
+              options={machineryStatuses}
             />
           </label>
           <label className="filter-field">
@@ -184,9 +184,9 @@ function MachinesView({ onSelectCompany }: Props) {
         </div>
       </div>
 
-      {error && <Alert className="companies-error" type="error" showIcon message="Could not load machines" description={error} />}
+      {error && <Alert className="companies-error" type="error" showIcon message="Could not load machinery" description={error} />}
 
-      <MachinesGrid onEdit={openEditMachine} onSelectCompany={onSelectCompany}
+      <MachineryGrid onEdit={openEditMachinery} onSelectCompany={onSelectCompany}
           dataSource={page.items}
           loading={loading}
           onChange={handleTableChange}
@@ -195,18 +195,18 @@ function MachinesView({ onSelectCompany }: Props) {
             pageSize: PAGE_SIZE,
             total: page.totalCount,
             showSizeChanger: false,
-            showTotal: (total: number, range: [number, number]) => `${range[0]}–${range[1]} of ${total} machines`,
+            showTotal: (total: number, range: [number, number]) => `${range[0]}–${range[1]} of ${total} machinery`,
             placement: ['bottomEnd'],
           }}
           scroll={{ x: 1100 }}
-          locale={{ emptyText: loading ? 'Loading machines…' : 'No machines match these filters' }}
+          locale={{ emptyText: loading ? 'Loading machinery…' : 'No machinery matches these filters' }}
         />
 
-      {machineDialogOpen && <AddUpdateMachineDialog mode={editingMachine ? 'update' : 'add'} open
-        initialValues={editingMachine ?? undefined}
-        saving={savingMachine} onCancel={closeMachineDialog} onSubmit={submitMachine} />}
+      {machineryDialogOpen && <AddUpdateMachineryDialog mode={editingMachinery ? 'update' : 'add'} open
+        initialValues={editingMachinery ?? undefined}
+        saving={savingMachinery} onCancel={closeMachineryDialog} onSubmit={submitMachinery} />}
     </section>
   )
 }
 
-export default MachinesView
+export default MachineryView

@@ -5,7 +5,7 @@ namespace Clays.Application.Common.Interfaces
 {
     public interface IApplicationDbContext
     {
-        public DbSet<Machine> Machinery { get; set; }
+        public DbSet<Machinery> Machinery { get; set; }
         public DbSet<MachineryLibrary> MachineryLibrary { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }

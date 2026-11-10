@@ -92,7 +92,7 @@ builder.Services.AddOptions<CompanyScraperConfiguration>()
         "CompanyScraperConfiguration:EndpointUrl must be an absolute HTTP or HTTPS URL.")
     .ValidateOnStart();
 
-builder.Services.AddScoped<IMachineService, MachineService>();
+builder.Services.AddScoped<IMachineryService, MachineryService>();
 builder.Services.AddScoped<IKiertonetScraper, KiertonetScraper>();
 builder.Services.AddHttpClient<ICompanyScraper, CompanyScraper>();
 builder.Services.AddHttpClient<IEarthScraper, EarthScraper>();

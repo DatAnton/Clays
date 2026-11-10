@@ -1,14 +1,15 @@
 using Clays.Application.Common.Interfaces;
 using Clays.Domain.Entities;
+using MachineryEntity = Clays.Domain.Entities.Machinery;
 using Clays.Features.Common;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
-namespace Clays.Features.Machines.CreateMachine;
+namespace Clays.Features.Machinery.CreateMachinery;
 
 public sealed class Endpoint(IApplicationDbContext context, ICurrentUserService currentUser) : FastEndpoints.Endpoint<Request, Response>
 {
-    public override void Configure() => Post("/api/machines");
+    public override void Configure() => Post("/api/machinery");
 
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
@@ -25,15 +26,15 @@ public sealed class Endpoint(IApplicationDbContext context, ICurrentUserService 
             await Send.NotFoundAsync(cancellationToken);
             return;
         }
-        var machine = request.Adapt<Machine>();
-        machine.MachineryLibraryId = libraryEntry.Id;
-        machine.CreatedById = currentUser.UserDatabaseId;
-        context.Machinery.Add(machine);
+        var machinery = request.Adapt<MachineryEntity>();
+        machinery.MachineryLibraryId = libraryEntry.Id;
+        machinery.CreatedById = currentUser.UserDatabaseId;
+        context.Machinery.Add(machinery);
         await context.SaveChangesAsync(cancellationToken);
 
         await EndpointResponse.JsonAsync(HttpContext, new Response(
-            machine.Id, libraryEntry.ManufacturerId, libraryEntry.Manufacturer.Name, libraryEntry.Model, machine.Year,
-            machine.VinNumber, machine.RegistrationNumber, machine.CountryOfImport,
-            machine.PurchaseYear, machine.Status, machine.CreatedById, machine.MachineryLibraryId), 201, cancellationToken);
+            machinery.Id, libraryEntry.ManufacturerId, libraryEntry.Manufacturer.Name, libraryEntry.Model, machinery.Year,
+            machinery.VinNumber, machinery.RegistrationNumber, machinery.CountryOfImport,
+            machinery.PurchaseYear, machinery.Status, machinery.CreatedById, machinery.MachineryLibraryId), 201, cancellationToken);
     }
 }

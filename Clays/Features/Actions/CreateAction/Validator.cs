@@ -13,6 +13,6 @@ public sealed class Validator : Validator<Request>
         RuleFor(request => request.Note).MaximumLength(4000);
         RuleFor(request => request.ActionWeek).InclusiveBetween(1, 53);
         RuleFor(request => request.CompanyId).GreaterThan(0);
-        RuleFor(request => request.MachineId).GreaterThan(0).When(request => request.MachineId.HasValue);
+        RuleFor(request => request.MachineryId).GreaterThan(0).When(request => request.MachineryId.HasValue);
     }
 }

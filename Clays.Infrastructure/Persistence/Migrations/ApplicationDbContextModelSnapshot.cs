@@ -45,7 +45,7 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("MachineId")
+                    b.Property<int?>("MachineryId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Note")
@@ -65,7 +65,7 @@ namespace Clays.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.HasIndex("MachineId");
+                    b.HasIndex("MachineryId");
 
                     b.ToTable("Actions");
                 });
@@ -208,7 +208,7 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.ToTable("Logs", (string)null);
                 });
 
-            modelBuilder.Entity("Clays.Domain.Entities.Machine", b =>
+            modelBuilder.Entity("Clays.Domain.Entities.Machinery", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -337,14 +337,14 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Property<int>("CompanyId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("MachineId")
+                    b.Property<int>("MachineryId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
 
-                    b.HasIndex("MachineId");
+                    b.HasIndex("MachineryId");
 
                     b.ToTable("OwnerHistories");
                 });
@@ -523,9 +523,9 @@ namespace Clays.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Clays.Domain.Entities.Machine", "Machine")
+                    b.HasOne("Clays.Domain.Entities.Machinery", "Machinery")
                         .WithMany()
-                        .HasForeignKey("MachineId")
+                        .HasForeignKey("MachineryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("AssignedUser");
@@ -534,7 +534,7 @@ namespace Clays.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Company");
 
-                    b.Navigation("Machine");
+                    b.Navigation("Machinery");
                 });
 
             modelBuilder.Entity("Clays.Domain.Entities.Company", b =>
@@ -576,10 +576,10 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("Clays.Domain.Entities.Machine", b =>
+            modelBuilder.Entity("Clays.Domain.Entities.Machinery", b =>
                 {
                     b.HasOne("Clays.Domain.Entities.Company", "Company")
-                        .WithMany("Machines")
+                        .WithMany("Machinery")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.SetNull);
 
@@ -621,15 +621,15 @@ namespace Clays.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Clays.Domain.Entities.Machine", "Machine")
+                    b.HasOne("Clays.Domain.Entities.Machinery", "Machinery")
                         .WithMany()
-                        .HasForeignKey("MachineId")
+                        .HasForeignKey("MachineryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Company");
 
-                    b.Navigation("Machine");
+                    b.Navigation("Machinery");
                 });
 
             modelBuilder.Entity("Clays.Domain.Entities.UserRole", b =>
@@ -681,7 +681,7 @@ namespace Clays.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Contacts");
 
-                    b.Navigation("Machines");
+                    b.Navigation("Machinery");
 
                     b.Navigation("OwnerHistory");
                 });

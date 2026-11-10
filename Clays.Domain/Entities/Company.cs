@@ -18,7 +18,7 @@ public class Company
     public User? CreatedBy { get; set; }
     public ICollection<Contact> Contacts { get; set; } = new List<Contact>();
     public ICollection<CompanyComment> Comments { get; set; } = new List<CompanyComment>();
-    public ICollection<Machine> Machines { get; set; } = new List<Machine>();
+    public ICollection<Machinery> Machinery { get; set; } = new List<Machinery>();
     public ICollection<OwnerHistory> OwnerHistory { get; set; } = new List<OwnerHistory>();
     public ICollection<Action> Actions { get; set; } = new List<Action>();
 }

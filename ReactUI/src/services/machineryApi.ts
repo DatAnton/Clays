@@ -1,6 +1,6 @@
 import { apiFetch } from './apiClient'
 
-export interface MachineGridItem {
+export interface MachineryGridItem {
   id: number
   machineryLibraryId: number
   manufacturerId: number
@@ -17,39 +17,39 @@ export interface MachineGridItem {
   companyCity: string | null
 }
 
-export interface MachineFilters {
+export interface MachineryFilters {
   search: string
   manufacturerId: number | undefined
   status: number | undefined
   city: string
 }
 
-export interface MachinePage {
-  items: MachineGridItem[]
+export interface MachineryPage {
+  items: MachineryGridItem[]
   page: number
   pageSize: number
   totalCount: number
 }
 
-export async function getMachines(
+export async function getMachinery(
   page: number,
-  filters: MachineFilters,
+  filters: MachineryFilters,
   signal?: AbortSignal,
-): Promise<MachinePage> {
+): Promise<MachineryPage> {
   const params = new URLSearchParams({ page: String(page) })
   if (filters.search.trim()) params.set('search', filters.search.trim())
   if (filters.manufacturerId !== undefined) params.set('manufacturerId', String(filters.manufacturerId))
   if (filters.status !== undefined) params.set('status', String(filters.status))
   if (filters.city.trim()) params.set('city', filters.city.trim())
 
-  const response = await apiFetch(`/api/machines?${params.toString()}`, {
+  const response = await apiFetch(`/api/machinery?${params.toString()}`, {
     signal,
   })
   if (!response.ok) {
-    throw new Error(`Unable to load machines (${response.status})`)
+    throw new Error(`Unable to load machinery (${response.status})`)
   }
 
-  return response.json() as Promise<MachinePage>
+  return response.json() as Promise<MachineryPage>
 }
 
 export interface MachineryLibraryItem {

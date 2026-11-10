@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react'
 import { Alert, Form, Input, InputNumber, Modal, Select } from 'antd'
-import type { UpdateMachinePayload } from '../../../services/companiesApi'
-import { machineStatuses } from '../machineOptions'
-import { getMachineryLibrary } from '../../../services/machinesApi'
-import type { MachineryLibraryItem } from '../../../services/machinesApi'
+import type { UpdateMachineryPayload } from '../../../services/companiesApi'
+import { machineryStatuses } from '../machineryOptions'
+import { getMachineryLibrary } from '../../../services/machineryApi'
+import type { MachineryLibraryItem } from '../../../services/machineryApi'
 
-export type MachineFormValues = UpdateMachinePayload
+export type MachineryFormValues = UpdateMachineryPayload
 
 interface Props {
   mode: 'add' | 'update'
   open: boolean
   saving: boolean
-  initialValues?: Partial<MachineFormValues>
+  initialValues?: Partial<MachineryFormValues>
   onCancel: () => void
-  onSubmit: (values: MachineFormValues) => void | Promise<void>
+  onSubmit: (values: MachineryFormValues) => void | Promise<void>
 }
 
-export default function AddUpdateMachineDialog({ mode, open, saving, initialValues, onCancel, onSubmit }: Props) {
-  const [form] = Form.useForm<MachineFormValues>()
+export default function AddUpdateMachineryDialog({ mode, open, saving, initialValues, onCancel, onSubmit }: Props) {
+  const [form] = Form.useForm<MachineryFormValues>()
   const [library, setLibrary] = useState<MachineryLibraryItem[]>([])
   const [loadingLibrary, setLoadingLibrary] = useState(true)
   const [libraryError, setLibraryError] = useState<string | null>(null)
@@ -39,11 +39,11 @@ export default function AddUpdateMachineDialog({ mode, open, saving, initialValu
     return () => controller.abort()
   }, [])
 
-  return <Modal title={mode === 'update' ? 'Edit machine' : 'Add machine'} open={open}
+  return <Modal title={mode === 'update' ? 'Edit machinery' : 'Add machinery'} open={open}
     onCancel={onCancel} onOk={() => form.submit()} confirmLoading={saving}
     okButtonProps={{ disabled: loadingLibrary || libraryError !== null || library.length === 0 }}
     cancelButtonProps={{ disabled: saving }} closable={!saving} mask={{ closable: !saving }}
-    okText="Save machine" destroyOnHidden>
+    okText="Save machinery" destroyOnHidden>
     <Form form={form} initialValues={initialValues} layout="vertical" disabled={saving} onFinish={onSubmit}>
       {libraryError && <Alert type="error" showIcon title="Could not load machinery library" description={libraryError} />}
       <Form.Item name="machineryLibraryId" label="Manufacturer and model" rules={[{ required: true, message: 'Select machinery from the library' }]}>
@@ -63,7 +63,7 @@ export default function AddUpdateMachineDialog({ mode, open, saving, initialValu
       </div>
       <div className="form-two-columns">
         <Form.Item name="countryOfImport" label="Country of import"><Input maxLength={100} /></Form.Item>
-        <Form.Item name="status" label="Status"><Select allowClear options={machineStatuses} /></Form.Item>
+        <Form.Item name="status" label="Status"><Select allowClear options={machineryStatuses} /></Form.Item>
       </div>
     </Form>
   </Modal>

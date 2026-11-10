@@ -1,22 +1,22 @@
 import AddUpdateCompanyDialog from './AddUpdateCompanyDialog/AddUpdateCompanyDialog'
 import type { CompanyFormValues } from './AddUpdateCompanyDialog/AddUpdateCompanyDialog'
-import AddUpdateMachineDialog from '../Machines/AddUpdateMachineDialog/AddUpdateMachineDialog'
+import AddUpdateMachineryDialog from '../Machinery/AddUpdateMachineryDialog/AddUpdateMachineryDialog'
 import AddCommentDialog from './AddCommentDialog/AddCommentDialog'
 import AddContactDialog from './AddContactDialog/AddContactDialog'
 import AddActionDialog from './AddActionDialog/AddActionDialog'
 import { actionStatuses, actionTypes } from './actionOptions'
-import { machineStatuses } from '../Machines/machineOptions'
+import { machineryStatuses } from '../Machinery/machineryOptions'
 import { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Card, Descriptions, Popover, Select, Space, Spin, Table, Tag, Typography, message } from 'antd'
 import {
   createAction,
   createCompanyComment,
   createContact,
-  createMachine,
+  createMachinery,
   getCompany,
   updateActionStatus,
   updateCompany,
-  updateMachine,
+  updateMachinery,
 } from '../../services/companiesApi'
 import type {
   CompanyAction,
@@ -26,8 +26,8 @@ import type {
   CreateActionPayload,
   CreateCommentPayload,
   CreateContactPayload,
-  Machine,
-  UpdateMachinePayload,
+  Machinery,
+  UpdateMachineryPayload,
 } from '../../services/companiesApi'
 
 interface Props {
@@ -35,7 +35,7 @@ interface Props {
   onBack: () => void
 }
 
-type DialogKind = 'comment' | 'contact' | 'machine' | 'action' | 'editCompany' | 'editMachine' | null
+type DialogKind = 'comment' | 'contact' | 'machinery' | 'action' | 'editCompany' | 'editMachinery' | null
 
 const displayName = (user: { firstName: string | null; lastName: string | null; userName: string | null }) =>
   [user.firstName, user.lastName].filter(Boolean).join(' ') || user.userName || 'Unknown user'
@@ -46,7 +46,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [dialog, setDialog] = useState<DialogKind>(null)
   const [saving, setSaving] = useState(false)
-  const [editingMachine, setEditingMachine] = useState<Machine | null>(null)
+  const [editingMachinery, setEditingMachinery] = useState<Machinery | null>(null)
   const [busyActionId, setBusyActionId] = useState<number | null>(null)
   const [messageApi, contextHolder] = message.useMessage()
 
@@ -72,19 +72,19 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
   }, [loadCompany])
 
   const openDialog = (kind: Exclude<DialogKind, null>) => {
-    setEditingMachine(null)
+    setEditingMachinery(null)
     setDialog(kind)
   }
 
-  const openEditMachine = (machine: Machine) => {
-    setEditingMachine(machine)
-    setDialog('editMachine')
+  const openEditMachinery = (machinery: Machinery) => {
+    setEditingMachinery(machinery)
+    setDialog('editMachinery')
   }
 
   const closeDialog = () => {
     if (saving) return
     setDialog(null)
-    setEditingMachine(null)
+    setEditingMachinery(null)
   }
 
   const saveChanges = async (save: () => Promise<unknown>) => {
@@ -94,7 +94,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
       await save()
       messageApi.success('Saved successfully')
       setDialog(null)
-      setEditingMachine(null)
+      setEditingMachinery(null)
       await loadCompany()
     } catch (saveError) {
       messageApi.error(saveError instanceof Error ? saveError.message : 'Could not save changes')
@@ -115,9 +115,9 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
     status: values.status ?? null,
     note: values.note ?? null,
   }))
-  const submitMachine = (values: UpdateMachinePayload) => saveChanges(() => editingMachine
-    ? updateMachine(editingMachine.id, { ...values, status: values.status ?? null })
-    : createMachine({
+  const submitMachinery = (values: UpdateMachineryPayload) => saveChanges(() => editingMachinery
+    ? updateMachinery(editingMachinery.id, { ...values, status: values.status ?? null })
+    : createMachinery({
       machineryLibraryId: values.machineryLibraryId,
       companyId,
       year: values.year ?? undefined,
@@ -149,11 +149,11 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
     </section>
   }
 
-  const machines = new Map<number, Machine>()
-  company.machines.forEach((machine) => machines.set(machine.id, machine))
-  company.ownerHistory.forEach((entry) => machines.set(entry.machine.id, entry.machine))
+  const machinery = new Map<number, Machinery>()
+  company.machinery.forEach((item) => machinery.set(item.id, item))
+  company.ownerHistory.forEach((entry) => machinery.set(entry.machinery.id, entry.machinery))
   company.actions.forEach((action) => {
-    if (action.machine) machines.set(action.machine.id, action.machine)
+    if (action.machinery) machinery.set(action.machinery.id, action.machinery)
   })
 
   return (
@@ -194,7 +194,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
             extra={<Select aria-label={`Update action ${action.id} status`} value={action.status} loading={busyActionId === action.id} options={actionStatuses} onChange={(status: number) => void changeActionStatus(action, status)} style={{ minWidth: 135 }} />}
           >
             <Typography.Paragraph className="action-note">{action.note || 'No details provided'}</Typography.Paragraph>
-            <Typography.Text type="secondary">{new Date(action.createdDate).toLocaleDateString()} · Week {action.actionWeek}{action.assignedUser ? ` · Assigned to ${displayName(action.assignedUser)}` : ''}{action.machine ? ` · ${action.machine.manufacturerName} ${action.machine.model}` : ''}</Typography.Text>
+            <Typography.Text type="secondary">{new Date(action.createdDate).toLocaleDateString()} · Week {action.actionWeek}{action.assignedUser ? ` · Assigned to ${displayName(action.assignedUser)}` : ''}{action.machinery ? ` · ${action.machinery.manufacturerName} ${action.machinery.model}` : ''}</Typography.Text>
           </Card>)}</div> : <Typography.Text type="secondary">No actions recorded yet.</Typography.Text>}
         </Card>
 
@@ -205,20 +205,20 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
           </article>)}</div> : <Typography.Text type="secondary">No comments yet.</Typography.Text>}
         </Card>
 
-        <Card title={`Machines · ${machines.size}`} extra={<Button size="small" onClick={() => openDialog('machine')}>Add machine</Button>} className="detail-card detail-card-wide">
-          {machines.size ? <div className="machine-card-list">{[...machines.values()].map((machine) => {
+        <Card title={`Machinery · ${machinery.size}`} extra={<Button size="small" onClick={() => openDialog('machinery')}>Add machinery</Button>} className="detail-card detail-card-wide">
+          {machinery.size ? <div className="machinery-card-list">{[...machinery.values()].map((machinery) => {
             const history = company.ownerHistory
-              .filter((entry) => entry.machine.id === machine.id)
+              .filter((entry) => entry.machinery.id === machinery.id)
               .map(({ id }) => ({ id, owner: company.name, city: company.city || '—' }))
-            return <Card key={machine.id} size="small" className="machine-item-card" title={<span>{machine.manufacturerName} {machine.model}</span>} extra={<Button size="small" onClick={() => openEditMachine(machine)}>Edit machine</Button>}>
+            return <Card key={machinery.id} size="small" className="machinery-item-card" title={<span>{machinery.manufacturerName} {machinery.model}</span>} extra={<Button size="small" onClick={() => openEditMachinery(machinery)}>Edit machinery</Button>}>
               <Descriptions size="small" column={{ xs: 1, sm: 2, lg: 3 }}>
-                <Descriptions.Item label="Year">{machine.year ?? '—'}</Descriptions.Item>
-                <Descriptions.Item label="VIN">{machine.vinNumber || '—'}</Descriptions.Item>
-                <Descriptions.Item label="Registration">{machine.registrationNumber || '—'}</Descriptions.Item>
-                <Descriptions.Item label="Status">{machine.status === null ? '—' : machineStatuses[machine.status]?.label ?? '—'}</Descriptions.Item>
+                <Descriptions.Item label="Year">{machinery.year ?? '—'}</Descriptions.Item>
+                <Descriptions.Item label="VIN">{machinery.vinNumber || '—'}</Descriptions.Item>
+                <Descriptions.Item label="Registration">{machinery.registrationNumber || '—'}</Descriptions.Item>
+                <Descriptions.Item label="Status">{machinery.status === null ? '—' : machineryStatuses[machinery.status]?.label ?? '—'}</Descriptions.Item>
               </Descriptions>
-              <div className="machine-history">
-                <Typography.Text className="machine-history-title">Owner history</Typography.Text>
+              <div className="machinery-history">
+                <Typography.Text className="machinery-history-title">Owner history</Typography.Text>
                 {history.length ? <Table
                   size="small"
                   pagination={false}
@@ -231,7 +231,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
                 /> : <Typography.Text type="secondary">No owner history recorded.</Typography.Text>}
               </div>
             </Card>
-          })}</div> : <Typography.Text type="secondary">No machines linked to this company yet.</Typography.Text>}
+          })}</div> : <Typography.Text type="secondary">No machinery linked to this company yet.</Typography.Text>}
         </Card>
 
         <Card title={`Contacts · ${company.contacts.length}`} extra={<Button size="small" onClick={() => openDialog('contact')}>Add contact</Button>} className="detail-card detail-card-wide">
@@ -249,7 +249,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
         status: company.status,
         note: company.note,
       }} open saving={saving} onCancel={closeDialog} onSubmit={submitCompany} />}
-      {(dialog === 'machine' || dialog === 'editMachine') && <AddUpdateMachineDialog mode={dialog === 'editMachine' ? 'update' : 'add'} initialValues={editingMachine ?? undefined} open saving={saving} onCancel={closeDialog} onSubmit={submitMachine} />}
+      {(dialog === 'machinery' || dialog === 'editMachinery') && <AddUpdateMachineryDialog mode={dialog === 'editMachinery' ? 'update' : 'add'} initialValues={editingMachinery ?? undefined} open saving={saving} onCancel={closeDialog} onSubmit={submitMachinery} />}
       {dialog === 'comment' && <AddCommentDialog open saving={saving} onCancel={closeDialog} onSubmit={submitComment} />}
       {dialog === 'contact' && <AddContactDialog open saving={saving} onCancel={closeDialog} onSubmit={submitContact} />}
       {dialog === 'action' && <AddActionDialog initialValues={{ status: 0, type: 0, actionWeek: getCurrentWeek() }} open saving={saving} onCancel={closeDialog} onSubmit={submitAction} />}

@@ -10,5 +10,5 @@ public sealed class Request
     public string? Note { get; init; }
     public int ActionWeek { get; init; }
     public int CompanyId { get; init; }
-    public int? MachineId { get; init; }
+    public int? MachineryId { get; init; }
 }

@@ -31,7 +31,7 @@ export interface UserSummary {
   userName: string | null
 }
 
-export interface Machine {
+export interface Machinery {
   id: number
   machineryLibraryId: number
   manufacturerId: number
@@ -75,8 +75,8 @@ export interface CompanyAction {
   createdDate: string
   actionWeek: number
   companyId: number
-  machineId: number | null
-  machine: Machine | null
+  machineryId: number | null
+  machinery: Machinery | null
 }
 
 export interface CompanyDetails extends Company {
@@ -85,8 +85,8 @@ export interface CompanyDetails extends Company {
   createdBy: UserSummary | null
   contacts: Contact[]
   comments: CompanyComment[]
-  machines: Machine[]
-  ownerHistory: { id: number; machine: Machine }[]
+  machinery: Machinery[]
+  ownerHistory: { id: number; machinery: Machinery }[]
   actions: CompanyAction[]
 }
 
@@ -109,7 +109,7 @@ export interface UpdateCompanyPayload {
   status: number | null
   note: string | null
 }
-export interface UpdateMachinePayload {
+export interface UpdateMachineryPayload {
   machineryLibraryId: number
   year: number | null
   vinNumber: string | null
@@ -125,7 +125,7 @@ export interface CreateContactPayload {
   email?: string
   companyId: number
 }
-export interface CreateMachinePayload {
+export interface CreateMachineryPayload {
   machineryLibraryId: number
   companyId?: number
   year?: number
@@ -142,7 +142,7 @@ export interface CreateActionPayload {
   note?: string
   actionWeek: number
   companyId: number
-  machineId?: number
+  machineryId?: number
 }
 
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
@@ -179,12 +179,12 @@ export function createContact(payload: CreateContactPayload): Promise<Contact> {
   return requestJson<Contact>('/api/contacts', { method: 'POST', body: JSON.stringify(payload) })
 }
 
-export function createMachine(payload: CreateMachinePayload): Promise<Machine> {
-  return requestJson<Machine>('/api/machines', { method: 'POST', body: JSON.stringify(payload) })
+export function createMachinery(payload: CreateMachineryPayload): Promise<Machinery> {
+  return requestJson<Machinery>('/api/machinery', { method: 'POST', body: JSON.stringify(payload) })
 }
 
-export function updateMachine(id: number, payload: UpdateMachinePayload): Promise<Machine> {
-  return requestJson<Machine>(`/api/machines/${id}`, { method: 'PUT', body: JSON.stringify(payload) })
+export function updateMachinery(id: number, payload: UpdateMachineryPayload): Promise<Machinery> {
+  return requestJson<Machinery>(`/api/machinery/${id}`, { method: 'PUT', body: JSON.stringify(payload) })
 }
 
 export function createAction(payload: CreateActionPayload): Promise<CompanyAction> {

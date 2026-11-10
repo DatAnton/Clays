@@ -4,7 +4,7 @@ import { Button, ConfigProvider, Result, Spin, Tabs, Typography } from 'antd'
 import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import CompaniesView from './views/Companies/CompaniesView'
 import CompanyDetailsView from './views/Companies/CompanyDetailsView'
-import MachinesView from './views/Machines/MachinesView'
+import MachineryView from './views/Machinery/MachineryView'
 import { setAccessTokenProvider, setUnauthorizedHandler } from './services/apiClient'
 import UsersView from './views/Users/UsersView'
 import { getCurrentUserAccess } from './services/usersApi'
@@ -62,7 +62,7 @@ function App() {
         </div>
         <Typography.Title id="welcome-title" level={2}>Invest Machinery</Typography.Title>
         <Typography.Paragraph type="secondary">
-          Sign in to access the company and machine directory.
+          Sign in to access the company and machinery directory.
         </Typography.Paragraph>
         <Button type="primary" size="large" onClick={() => void loginWithRedirect()}>Sign in</Button>
       </section>
@@ -85,8 +85,8 @@ function App() {
   }
 
   const isAdmin = currentAccess.isAdmin
-  const activeTab = location.pathname.startsWith('/users') ? 'users' : location.pathname.startsWith('/machines')
-    ? 'machines'
+  const activeTab = location.pathname.startsWith('/users') ? 'users' : location.pathname.startsWith('/machinery')
+    ? 'machinery'
     : 'companies'
 
   return (
@@ -108,7 +108,7 @@ function App() {
                 activeKey={activeTab}
                 items={[
                   { key: 'companies', label: 'Companies' },
-                  { key: 'machines', label: 'Machines' },
+                  { key: 'machinery', label: 'Machinery' },
                   ...(isAdmin ? [{ key: 'users', label: 'Users' }] : []),
                 ]}
                 onChange={(key) => navigate(key === 'companies' ? '/' : `/${key}`)}
@@ -125,7 +125,7 @@ function App() {
         <main className="app-main">
           <Routes>
             <Route path="/" element={<CompaniesView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
-            <Route path="/machines" element={<MachinesView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
+            <Route path="/machinery" element={<MachineryView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
             <Route path="/company/:id" element={<CompanyDetailsRoute />} />
             <Route path="/users" element={isAdmin ? <UsersView />
               : <Result status="403" title="Administrator access required"

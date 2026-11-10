@@ -1,10 +1,10 @@
 using Clays.Domain.Entities.Enums;
 
-namespace Clays.Features.Machines.ListMachines;
+namespace Clays.Features.Machinery.ListMachinery;
 
-public sealed record Response(IReadOnlyList<MachineItem> Items, int Page, int PageSize, int TotalCount);
+public sealed record Response(IReadOnlyList<MachineryItem> Items, int Page, int PageSize, int TotalCount);
 
-public sealed record MachineItem(
+public sealed record MachineryItem(
     int Id,
     int ManufacturerId,
     string ManufacturerName,
@@ -14,7 +14,7 @@ public sealed record MachineItem(
     string? RegistrationNumber,
     string? CountryOfImport,
     int? PurchaseYear,
-    MachineStatus? Status,
+    MachineryStatus? Status,
     int? CompanyId,
     string? CompanyName,
     string? CompanyCity,

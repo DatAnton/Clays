@@ -1,6 +1,6 @@
 import { Button, Typography } from 'antd'
 import type { TableColumnsType, TableProps } from 'antd'
-import type { MachineGridItem } from '../../services/machinesApi'
+import type { MachineryGridItem } from '../../services/machineryApi'
 import DataGrid, { GridCell, GridTag, GridEditButton } from '../../components/grid/DataGrid'
 
 const statuses = [
@@ -11,24 +11,24 @@ const statuses = [
   { value: 4, label: 'Bought' },
 ]
 
-type Props = Omit<TableProps<MachineGridItem>, 'columns' | 'rowKey'> & { onEdit: (record: MachineGridItem) => void; onSelectCompany: (id: number) => void }
+type Props = Omit<TableProps<MachineryGridItem>, 'columns' | 'rowKey'> & { onEdit: (record: MachineryGridItem) => void; onSelectCompany: (id: number) => void }
 
-export default function MachinesGrid({ onEdit, onSelectCompany, ...props }: Props) {
-  const columns: TableColumnsType<MachineGridItem> = [
+export default function MachineryGrid({ onEdit, onSelectCompany, ...props }: Props) {
+  const columns: TableColumnsType<MachineryGridItem> = [
     {
-      title: 'Machine',
-      key: 'machine',
+      title: 'Machinery',
+      key: 'machinery',
       width: 260,
-      render: (_, machine) => <GridCell title={`${machine.manufacturerName} ${machine.model}`}>
-        <Typography.Text type="secondary">{machine.year ?? 'Year unknown'} · {machine.vinNumber || 'No VIN'}</Typography.Text>
+      render: (_, machinery) => <GridCell title={`${machinery.manufacturerName} ${machinery.model}`}>
+        <Typography.Text type="secondary">{machinery.year ?? 'Year unknown'} · {machinery.vinNumber || 'No VIN'}</Typography.Text>
       </GridCell>,
     },
     {
       title: 'Company',
       key: 'company',
       width: 220,
-      render: (_, machine) => machine.companyId && machine.companyName
-        ? <Button type="link" className="machine-company-link" onClick={() => onSelectCompany(machine.companyId!)}>{machine.companyName}</Button>
+      render: (_, machinery) => machinery.companyId && machinery.companyName
+        ? <Button type="link" className="machinery-company-link" onClick={() => onSelectCompany(machinery.companyId!)}>{machinery.companyName}</Button>
         : <Typography.Text type="secondary">Unassigned</Typography.Text>,
     },
     { title: 'City', dataIndex: 'companyCity', key: 'companyCity', width: 150, render: (city: string | null) => city || '—' },
@@ -49,9 +49,9 @@ export default function MachinesGrid({ onEdit, onSelectCompany, ...props }: Prop
       key: 'actions',
       width: 90,
       fixed: 'right',
-      render: (_, machine) => <GridEditButton label={`Edit ${machine.manufacturerName} ${machine.model}`} onClick={() => onEdit(machine)} />,
+      render: (_, machinery) => <GridEditButton label={`Edit ${machinery.manufacturerName} ${machinery.model}`} onClick={() => onEdit(machinery)} />,
     },
   ]
 
-  return <DataGrid<MachineGridItem> {...props} columns={columns} />
+  return <DataGrid<MachineryGridItem> {...props} columns={columns} />
 }

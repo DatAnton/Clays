@@ -2,7 +2,7 @@
 
 namespace Clays.Domain.Entities
 {
-    public class Machine
+    public class Machinery
     {
         public int Id { get; set; }
         public int MachineryLibraryId { get; set; }
@@ -11,7 +11,7 @@ namespace Clays.Domain.Entities
         public string? RegistrationNumber { get; set; }
         public string? CountryOfImport { get; set; }
         public int? PurchaseYear { get; set; }
-        public MachineStatus? Status { get; set; }
+        public MachineryStatus? Status { get; set; }
         public int CreatedById { get; set; }
         public int? CompanyId { get; set; }
 
