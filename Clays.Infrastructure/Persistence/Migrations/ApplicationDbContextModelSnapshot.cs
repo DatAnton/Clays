@@ -39,7 +39,7 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Property<int>("AuthorId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("CompanyId")
+                    b.Property<int?>("CompanyId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
@@ -525,8 +525,7 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.HasOne("Clays.Domain.Entities.Company", "Company")
                         .WithMany("Actions")
                         .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Clays.Domain.Entities.Machinery", "Machinery")
                         .WithMany()
