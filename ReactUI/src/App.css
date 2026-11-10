@@ -106,26 +106,18 @@
 
 .filter-card, .table-card { border: 1px solid #e8edf3; border-radius: 12px; background: #fff; box-shadow: 0 3px 14px rgb(25 53 84 / 4%); }
 .filter-card { margin-bottom: 20px; padding: 20px 22px 16px; }
-.users-filter-card { max-width: 620px; }
 .filter-grid { display: grid; grid-template-columns: minmax(250px, 1.5fr) repeat(2, minmax(160px, 1fr)) minmax(170px, .85fr); gap: 16px; }
 .machinery-filter-grid { grid-template-columns: minmax(260px, 1.6fr) repeat(2, minmax(170px, 1fr)) minmax(180px, .9fr); }
 .filter-field { display: flex; flex-direction: column; gap: 7px; color: #566579; font-size: 12px; font-weight: 600; }
-.filter-field .ant-input, .filter-field .ant-select-selector { min-height: 38px; }
-.users-search-form { display: flex; align-items: flex-end; gap: 12px; }
-.users-search-form .filter-field { flex: 1; min-width: 0; }
-.users-search-form .ant-input-affix-wrapper,
-.users-search-form > .ant-btn { height: 40px; }
-.users-search-form .ant-input-affix-wrapper .ant-input { min-height: 0; }
-.users-search-form > .ant-btn { flex-shrink: 0; }
 .filter-field .ant-select { width: 100%; }
-.machinery-filter-grid .filter-field > .ant-input,
-.machinery-filter-grid .filter-field > .ant-input-affix-wrapper,
-.machinery-filter-grid .filter-field > .ant-select,
-.machinery-filter-grid .filter-field > .ant-select .ant-select-selector { height: 40px; }
-.machinery-filter-grid .filter-field > .ant-input,
-.machinery-filter-grid .filter-field > .ant-select .ant-select-selector { min-height: 40px; }
-.machinery-filter-grid .filter-field > .ant-input-affix-wrapper { min-height: 40px; align-items: center; }
-.machinery-filter-grid .filter-field > .ant-input-affix-wrapper .ant-input { min-height: 0; }
+.filter-grid .filter-field > .ant-input,
+.filter-grid .filter-field > .ant-input-affix-wrapper,
+.filter-grid .filter-field > .ant-select,
+.filter-grid .filter-field > .ant-select .ant-select-selector { height: 40px; }
+.filter-grid .filter-field > .ant-input,
+.filter-grid .filter-field > .ant-select .ant-select-selector { min-height: 40px; }
+.filter-grid .filter-field > .ant-input-affix-wrapper { min-height: 40px; align-items: center; }
+.filter-grid .filter-field > .ant-input-affix-wrapper .ant-input { min-height: 0; }
 .filter-actions { display: flex; justify-content: flex-end; margin-top: 17px; }
 .companies-error { margin: 0 0 18px; }
 .table-card { overflow: hidden; }

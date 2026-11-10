@@ -1,7 +1,7 @@
 import AddButton from '../../components/AddButton'
 import UsersGrid from './UsersGrid'
 import { useEffect, useState } from 'react'
-import { Alert, Button, Input, Typography, message } from 'antd'
+import { Alert, Button, Input, Space, Typography, message } from 'antd'
 import AddUpdateUserDialog from './AddUpdateUserDialog/AddUpdateUserDialog'
 import { getRoles, getUsers } from '../../services/usersApi'
 import type { ManagedUser, Role, UserPage } from '../../services/usersApi'
@@ -52,20 +52,25 @@ export default function UsersView() {
         </div>
       </div>
     </div>
-    <div className="filter-card users-filter-card">
-      <form className="users-search-form" onSubmit={event => {
+    <form className="filter-card" onSubmit={event => {
         event.preventDefault()
         setPage(1)
         setSearch(searchInput.trim())
       }}>
-        <label className="filter-field" htmlFor="users-search">Search users
+      <div className="filter-grid">
+        <label className="filter-field filter-search" htmlFor="users-search">
+          <span>Search users</span>
           <Input id="users-search" placeholder="Name, email or username" allowClear
-            value={searchInput} onChange={event => setSearchInput(event.target.value)}
-            onClear={() => { setPage(1); setSearch('') }} />
+            value={searchInput} onChange={event => setSearchInput(event.target.value)} />
         </label>
-        <Button type="primary" htmlType="submit">Search</Button>
-      </form>
-    </div>
+      </div>
+      <div className="filter-actions">
+        <Space>
+          <Button onClick={() => { setPage(1); setSearch(''); setSearchInput('') }}>Clear filters</Button>
+          <Button type="primary" htmlType="submit">Apply filters</Button>
+        </Space>
+      </div>
+    </form>
     {error && <Alert className="companies-error" type="error" showIcon title={error}
       action={<Button onClick={refresh}>Retry</Button>} />}
     <UsersGrid onEdit={openEditUser} dataSource={data?.items ?? []} loading={loading}
