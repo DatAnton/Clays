@@ -1,3 +1,4 @@
+import { ClearOutlined, FilterOutlined, SearchOutlined, ReadOutlined } from '@ant-design/icons'
 import AddButton from '../../components/AddButton'
 import AddUpdateMachineryDialog from './AddUpdateMachineryDialog/AddUpdateMachineryDialog'
 import { manufacturers, machineryStatuses } from './machineryOptions'
@@ -150,10 +151,7 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
         </div>
         <div className="machinery-heading-actions">
           <Button onClick={() => setLibraryDialogOpen(true)}
-            icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"
-              strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M2 2h3v12H2zM5 2h3v12H5zM9 3l3-1 4 11-3 1z" />
-            </svg>}>Library</Button>
+            icon={<ReadOutlined />}>Library</Button>
           <AddButton aria-label="Add machinery" onClick={openAddMachinery} />
         </div>
       </div>
@@ -167,13 +165,14 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
         })() },
         { label: 'Status', value: machineryStatuses.find(item => item.value === filters.status)?.label ?? filters.status },
       ]} filterActions={<Space>
-        <Button onClick={clearFilters}>Clear filters</Button>
-        <Button type="primary" onClick={applyFilters}>Apply filters</Button>
+        <Button icon={<ClearOutlined />} onClick={clearFilters}>Clear filters</Button>
+        <Button icon={<FilterOutlined />} type="primary" onClick={applyFilters}>Apply filters</Button>
       </Space>}>
         <div className="filter-grid machinery-filter-grid">
           <label className="filter-field filter-search">
             <span>Search machinery</span>
             <Input
+              prefix={<SearchOutlined />}
               size="large"
               allowClear
               placeholder="Model, VIN, registration, company..."

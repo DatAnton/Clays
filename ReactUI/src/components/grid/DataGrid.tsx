@@ -22,6 +22,6 @@ export function GridTag(props: TagProps) {
 }
 
 export function GridEditButton({ label, onClick }: { label: string; onClick: () => void }) {
-  return <EditButton iconOnly size="small" aria-label={label} title={label}
+  return <EditButton iconOnly size="large" className="grid-action-button" aria-label={label} title={label}
     onClick={event => { event.stopPropagation(); onClick() }} />
 }

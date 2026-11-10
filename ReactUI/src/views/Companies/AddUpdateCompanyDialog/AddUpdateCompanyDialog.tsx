@@ -1,4 +1,5 @@
-import AddButton from '../../../components/AddButton'
+import { CloseOutlined } from '@ant-design/icons'
+import SaveButton from '../../../components/SaveButton'
 import { Checkbox, ConfigProvider, Form, Input, Modal, Select } from 'antd'
 import type { CreateCompanyPayload } from '../../../services/companiesApi'
 
@@ -17,10 +18,9 @@ export default function AddUpdateCompanyDialog({ mode, open, saving, initialValu
   const [form] = Form.useForm<CompanyFormValues>()
 
   return <Modal title={mode === 'update' ? 'Edit company' : 'Add company'}
-      footer={mode === 'add' ? (_, { CancelBtn }) => <><CancelBtn /><AddButton aria-label="Add company" loading={saving} onClick={() => form.submit()} /></> : undefined} open={open}
+      footer={(_, { CancelBtn }) => <><CancelBtn /><SaveButton aria-label="Save company" loading={saving} onClick={() => form.submit()} /></>} open={open}
     onCancel={onCancel} onOk={() => form.submit()} confirmLoading={saving}
-    cancelButtonProps={{ disabled: saving }} closable={!saving} mask={{ closable: !saving }}
-    okText={mode === 'update' ? 'Save changes' : 'Add company'} destroyOnHidden>
+    cancelButtonProps={{ icon: <CloseOutlined />, disabled: saving }} closable={!saving} mask={{ closable: !saving }} destroyOnHidden>
     <Form form={form} layout="vertical" initialValues={{ isOurPartner: false, ...initialValues }} onFinish={onSubmit} disabled={saving}>
       <Form.Item name="name" label="Company name" rules={[{ required: true, whitespace: true, message: 'Enter a company name' }, { max: 200 }]}>
         <Input maxLength={200} />

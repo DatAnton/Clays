@@ -1,3 +1,4 @@
+import { ClearOutlined, FilterOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons'
 import AddButton from '../../components/AddButton'
 import UsersGrid from './UsersGrid'
 import GridFilters from '../../components/grid/GridFilters'
@@ -54,19 +55,19 @@ export default function UsersView() {
         setPage(1)
         setSearch(searchInput.trim())
       }} filterActions={<Space>
-        <Button onClick={() => { setPage(1); setSearch(''); setSearchInput('') }}>Clear filters</Button>
-        <Button type="primary" htmlType="submit">Apply filters</Button>
+        <Button icon={<ClearOutlined />} onClick={() => { setPage(1); setSearch(''); setSearchInput('') }}>Clear filters</Button>
+        <Button icon={<FilterOutlined />} type="primary" htmlType="submit">Apply filters</Button>
       </Space>}>
       <div className="filter-grid">
         <label className="filter-field filter-search" htmlFor="users-search">
           <span>Search users</span>
-          <Input id="users-search" placeholder="Name, email or username" allowClear
+          <Input prefix={<SearchOutlined />} id="users-search" placeholder="Name, email or username" allowClear
             value={searchInput} onChange={event => setSearchInput(event.target.value)} />
         </label>
       </div>
     </GridFilters>
     {error && <Alert className="companies-error" type="error" showIcon title={error}
-      action={<Button onClick={refresh}>Retry</Button>} />}
+      action={<Button icon={<ReloadOutlined />} onClick={refresh}>Retry</Button>} />}
     <UsersGrid onEdit={openEditUser} dataSource={data?.items ?? []} loading={loading}
         scroll={{ x: 700 }} locale={{ emptyText: error ? 'Users could not be loaded.' : 'No users found.' }}
         pagination={{ current: page, pageSize: 25, total: data?.totalCount ?? 0, showSizeChanger: false,

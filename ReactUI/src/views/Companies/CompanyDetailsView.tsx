@@ -1,3 +1,4 @@
+import { ArrowLeftOutlined } from '@ant-design/icons'
 import AddButton from '../../components/AddButton'
 import EditButton from '../../components/EditButton'
 import AddUpdateCompanyDialog from './AddUpdateCompanyDialog/AddUpdateCompanyDialog'
@@ -156,7 +157,7 @@ function CompanyDetailsView({ companyId, canManageContacts, onBack }: Props) {
   if (loading) return <div className="company-detail-loading"><Spin size="large" /></div>
   if (error || !company) {
     return <section className="company-detail-view">
-      <Button type="link" onClick={onBack}>← Back to companies</Button>
+      <Button type="link" icon={<ArrowLeftOutlined />} onClick={onBack}>Back to companies</Button>
       <Alert type="error" showIcon title="Could not load company" description={error || 'Company not found'} />
     </section>
   }
@@ -171,7 +172,7 @@ function CompanyDetailsView({ companyId, canManageContacts, onBack }: Props) {
   return (
     <section className="company-detail-view">
       {contextHolder}
-      <div className="detail-back-row"><Button type="link" onClick={onBack}>← Companies</Button><Typography.Text type="secondary">Company profile</Typography.Text></div>
+      <div className="detail-back-row"><Button type="link" icon={<ArrowLeftOutlined />} onClick={onBack}>Companies</Button><Typography.Text type="secondary">Company profile</Typography.Text></div>
       <div className="detail-hero">
         <div>
           <Popover

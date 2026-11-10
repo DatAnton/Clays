@@ -1,4 +1,5 @@
-import AddButton from '../../../components/AddButton'
+import { CloseOutlined } from '@ant-design/icons'
+import SaveButton from '../../../components/SaveButton'
 import { useState } from 'react'
 import { Alert, Form, Input, Modal, Select, Typography } from 'antd'
 import { assignUserRoles, createUser, updateUser } from '../../../services/usersApi'
@@ -54,10 +55,8 @@ export default function AddUpdateUserDialog({ mode, user, roles, onCancel, onSav
   }
 
   return <Modal title={mode === 'add' ? 'Add user' : 'Edit user'}
-      footer={mode === 'add' ? (_, { CancelBtn }) => <><CancelBtn /><AddButton aria-label="Add user" loading={saving} disabled={rolesNeedRefresh} onClick={() => form.submit()} /></> : undefined} open width={640}
-      okText={mode === 'add' ? 'Create user' : 'Save changes'}
-      okButtonProps={{ disabled: rolesNeedRefresh }} confirmLoading={saving}
-      cancelButtonProps={{ disabled: saving }} closable={!saving} mask={{ closable: !saving }}
+      footer={(_, { CancelBtn }) => <><CancelBtn /><SaveButton aria-label="Save user" loading={saving} disabled={rolesNeedRefresh} onClick={() => form.submit()} /></>} open width={640} confirmLoading={saving}
+      cancelButtonProps={{ icon: <CloseOutlined />, disabled: saving }} closable={!saving} mask={{ closable: !saving }}
       onCancel={() => { if (!saving) onCancel() }} onOk={() => form.submit()}>
       {saveError && <Alert type="error" showIcon title={saveError}
         description={rolesNeedRefresh ? 'Close this dialog and reopen the user before trying again.' : undefined} />}

@@ -84,6 +84,9 @@
 .header-actions { margin-left: auto; display: flex; align-items: center; gap: 14px; min-width: 0; }
 .header-user-email { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
 .header-actions .ant-btn { flex-shrink: 0; }
+.header-actions .sign-out-button { color: #fff; font-size: 18px; }
+.header-actions .sign-out-button:hover,
+.header-actions .sign-out-button:active { color: #fff !important; background: rgb(255 255 255 / 12%) !important; }
 .primary-navigation .ant-tabs { width: 100%; color: rgb(255 255 255 / 74%); }
 .primary-navigation .ant-tabs-nav { flex: 1; margin: 0; }
 .primary-navigation .ant-tabs-nav::before { border-bottom-color: transparent; }

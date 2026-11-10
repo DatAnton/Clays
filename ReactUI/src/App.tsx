@@ -1,3 +1,6 @@
+import MachineryIcon from './components/MachineryIcon'
+import SignOutButton from './components/SignOutButton'
+import { BankOutlined, LoginOutlined, TeamOutlined } from '@ant-design/icons'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useEffect, useState } from 'react'
 import { Button, ConfigProvider, Result, Spin, Tabs, Typography } from 'antd'
@@ -65,7 +68,7 @@ function App() {
         <Typography.Paragraph type="secondary">
           Sign in to access the company and machinery directory.
         </Typography.Paragraph>
-        <Button type="primary" size="large" onClick={() => void loginWithRedirect()}>Sign in</Button>
+        <Button type="primary" size="large" icon={<LoginOutlined />} onClick={() => void loginWithRedirect()}>Sign in</Button>
       </section>
     </div>
   }
@@ -78,9 +81,9 @@ function App() {
     return <div className="auth-screen">
       <Result status="403" title="Access unavailable" subTitle={currentAccess.error}
         extra={[
-          <Button key="logout" type="primary" onClick={() => void logout({
+          <SignOutButton key="logout" onConfirm={() => logout({
             logoutParams: { returnTo: window.location.origin },
-          })}>Sign out</Button>,
+          })} />,
         ]} />
     </div>
   }
@@ -108,18 +111,18 @@ function App() {
               <Tabs
                 activeKey={activeTab}
                 items={[
-                  { key: 'companies', label: 'Companies' },
-                  { key: 'machinery', label: 'Machinery' },
-                  ...(isAdmin ? [{ key: 'users', label: 'Users' }] : []),
+                  { key: 'companies', label: 'Companies', icon: <BankOutlined /> },
+                  { key: 'machinery', label: 'Machinery', icon: <MachineryIcon /> },
+                  ...(isAdmin ? [{ key: 'users', label: 'Users', icon: <TeamOutlined /> }] : []),
                 ]}
                 onChange={(key) => navigate(key === 'companies' ? '/' : `/${key}`)}
               />
             </nav>
             <div className="header-actions">
               {user?.email && <span className="header-user-email" title={user.email}>{user.email}</span>}
-              <Button onClick={() => void logout({
+              <SignOutButton className="sign-out-button" onConfirm={() => logout({
                 logoutParams: { returnTo: window.location.origin },
-              })}>Sign out</Button>
+              })} />
             </div>
           </div>
         </header>

@@ -1,4 +1,5 @@
-import AddButton from '../../../components/AddButton'
+import { CloseOutlined } from '@ant-design/icons'
+import SaveButton from '../../../components/SaveButton'
 import { useEffect, useState } from 'react'
 import { Alert, Form, Input, InputNumber, Modal, Select } from 'antd'
 import type { UpdateMachineryPayload } from '../../../services/companiesApi'
@@ -41,11 +42,9 @@ export default function AddUpdateMachineryDialog({ mode, open, saving, initialVa
   }, [])
 
   return <Modal title={mode === 'update' ? 'Edit machinery' : 'Add machinery'}
-      footer={mode === 'add' ? (_, { CancelBtn }) => <><CancelBtn /><AddButton aria-label="Add machinery" loading={saving} disabled={loadingLibrary || libraryError !== null || library.length === 0} onClick={() => form.submit()} /></> : undefined} open={open}
+      footer={(_, { CancelBtn }) => <><CancelBtn /><SaveButton aria-label="Save machinery" loading={saving} disabled={loadingLibrary || libraryError !== null || library.length === 0} onClick={() => form.submit()} /></>} open={open}
     onCancel={onCancel} onOk={() => form.submit()} confirmLoading={saving}
-    okButtonProps={{ disabled: loadingLibrary || libraryError !== null || library.length === 0 }}
-    cancelButtonProps={{ disabled: saving }} closable={!saving} mask={{ closable: !saving }}
-    okText="Save machinery" destroyOnHidden>
+    cancelButtonProps={{ icon: <CloseOutlined />, disabled: saving }} closable={!saving} mask={{ closable: !saving }} destroyOnHidden>
     <Form form={form} initialValues={initialValues} layout="vertical" disabled={saving} onFinish={onSubmit}>
       {libraryError && <Alert type="error" showIcon title="Could not load machinery library" description={libraryError} />}
       <Form.Item name="machineryLibraryId" label="Manufacturer and model" rules={[{ required: true, message: 'Select machinery from the library' }]}>

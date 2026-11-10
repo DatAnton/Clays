@@ -1,4 +1,6 @@
+import { CloseOutlined, ReloadOutlined } from '@ant-design/icons'
 import AddButton from '../../components/AddButton'
+import SaveButton from '../../components/SaveButton'
 import { useEffect, useState } from 'react'
 import { Alert, Button, Form, Input, Modal, Select, message } from 'antd'
 import type { TableColumnsType } from 'antd'
@@ -84,7 +86,7 @@ export default function MachineryLibraryDialog({ isAdmin, onCancel, onChanged }:
 
   return <>
     {contextHolder}
-    <Modal title="Library" open width={850} onCancel={onCancel} footer={<Button onClick={onCancel}>Close</Button>}>
+    <Modal title="Library" open width={850} onCancel={onCancel} footer={<Button icon={<CloseOutlined />} onClick={onCancel}>Close</Button>}>
       <GridFilters values={[
         { label: 'Search', value: search },
         { label: 'Manufacturer', value: manufacturers.find(item => item.value === manufacturerId)?.label ?? manufacturerId },
@@ -98,15 +100,14 @@ export default function MachineryLibraryDialog({ isAdmin, onCancel, onChanged }:
         </div>
       </GridFilters>
       {error && <Alert type="error" showIcon title="Could not load machinery library" description={error}
-        action={<Button onClick={() => { setLoading(true); setReloadKey(key => key + 1) }}>Retry</Button>} />}
+        action={<Button icon={<ReloadOutlined />} onClick={() => { setLoading(true); setReloadKey(key => key + 1) }}>Retry</Button>} />}
       <DataGrid<MachineryLibraryItem> columns={columns} dataSource={filteredItems} loading={loading}
         pagination={{ pageSize: 10, showSizeChanger: false, hideOnSinglePage: true }}
         locale={{ emptyText: loading ? 'Loading machinery library…' : 'No machinery library entries found' }} />
     </Modal>
     <Modal title={editing ? 'Edit library machinery' : 'Add library machinery'}
-      footer={!editing ? (_, { CancelBtn }) => <><CancelBtn /><AddButton aria-label="Add library machinery" loading={saving} onClick={() => form.submit()} /></> : undefined} open={editorOpen && isAdmin}
-      onCancel={() => { if (!saving) setEditorOpen(false) }} onOk={() => form.submit()}
-      okText="Save machinery" confirmLoading={saving} cancelButtonProps={{ disabled: saving }}
+      footer={(_, { CancelBtn }) => <><CancelBtn /><SaveButton aria-label="Save library machinery" loading={saving} onClick={() => form.submit()} /></>} open={editorOpen && isAdmin}
+      onCancel={() => { if (!saving) setEditorOpen(false) }} onOk={() => form.submit()} confirmLoading={saving} cancelButtonProps={{ icon: <CloseOutlined />, disabled: saving }}
       closable={!saving} mask={{ closable: !saving }}>
       <Form form={form} layout="vertical" disabled={saving} onFinish={save}>
         <Form.Item name="manufacturerId" label="Manufacturer" rules={[{ required: true, message: 'Select a manufacturer' }]}>

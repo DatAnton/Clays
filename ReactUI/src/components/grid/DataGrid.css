@@ -9,3 +9,4 @@
 .data-grid .grid-cell-details .ant-typography { color: #8190a3; font-size: 14px; }
 .data-grid .grid-tag.ant-tag { margin: 0; padding: 2px 10px; font-size: 16px; line-height: 26px; }
 .data-grid .ant-pagination { padding: 12px 20px 17px; }
+.data-grid .grid-action-button .anticon { font-size: 22px; }

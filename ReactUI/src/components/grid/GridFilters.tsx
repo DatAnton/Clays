@@ -1,3 +1,4 @@
+import { DownOutlined, UpOutlined } from '@ant-design/icons'
 import { useId, useState } from 'react'
 import type { FormEventHandler, ReactNode } from 'react'
 import { Button, Tag } from 'antd'
@@ -20,10 +21,7 @@ export default function GridFilters({ values, children, onSubmit, actions, filte
     <div className="grid-filters-header">
       <Button type="text" htmlType="button" aria-expanded={expanded} aria-controls={contentId}
         onClick={() => setExpanded(value => !value)}
-        icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"
-          strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d={expanded ? 'm4 10 4-4 4 4' : 'm4 6 4 4 4-4'} />
-        </svg>}>
+        icon={expanded ? <UpOutlined /> : <DownOutlined />}>
         {expanded ? 'Hide filters' : 'Show filters'}
       </Button>
       {!expanded && <div className="grid-filters-summary" aria-label="Active filters">

@@ -1,4 +1,5 @@
-import AddButton from '../../../components/AddButton'
+import { CloseOutlined } from '@ant-design/icons'
+import SaveButton from '../../../components/SaveButton'
 import { Form, Input, InputNumber, Modal, Select } from 'antd'
 import type { CreateActionPayload } from '../../../services/companiesApi'
 import { actionStatuses, actionTypes } from '../actionOptions'
@@ -15,8 +16,8 @@ export default function AddActionDialog({ open, saving, initialValues, onCancel,
   const [form] = Form.useForm<CreateActionPayload>()
 
   return <Modal title="Create an action" open={open} onCancel={onCancel} onOk={() => form.submit()}
-    confirmLoading={saving} cancelButtonProps={{ disabled: saving }} closable={!saving}
-    mask={{ closable: !saving }} footer={(_, { CancelBtn }) => <><CancelBtn /><AddButton aria-label="Add action" loading={saving} onClick={() => form.submit()} /></>} destroyOnHidden>
+    confirmLoading={saving} cancelButtonProps={{ icon: <CloseOutlined />, disabled: saving }} closable={!saving}
+    mask={{ closable: !saving }} footer={(_, { CancelBtn }) => <><CancelBtn /><SaveButton aria-label="Save action" loading={saving} onClick={() => form.submit()} /></>} destroyOnHidden>
     <Form form={form} initialValues={initialValues} layout="vertical" disabled={saving} onFinish={onSubmit}>
       <div className="form-two-columns"><Form.Item name="type" label="Type" rules={[{ required: true }]}><Select options={actionTypes} /></Form.Item><Form.Item name="status" label="Status" rules={[{ required: true }]}><Select options={actionStatuses} /></Form.Item></div>
       <Form.Item name="note" label="Details"><Input.TextArea rows={3} maxLength={4000} /></Form.Item>

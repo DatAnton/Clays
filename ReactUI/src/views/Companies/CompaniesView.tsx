@@ -1,3 +1,4 @@
+import { ClearOutlined, FilterOutlined, SearchOutlined } from '@ant-design/icons'
 import AddButton from '../../components/AddButton'
 import AddUpdateCompanyDialog from './AddUpdateCompanyDialog/AddUpdateCompanyDialog'
 import type { CompanyFormValues } from './AddUpdateCompanyDialog/AddUpdateCompanyDialog'
@@ -147,13 +148,14 @@ function CompaniesView({ onSelectCompany }: Props) {
         { label: 'Business line', value: filters.businessLine },
         { label: 'Partner status', value: filters.isOurPartner === undefined ? undefined : filters.isOurPartner ? 'Partners only' : 'Non-partners' },
       ]} filterActions={<Space>
-        <Button onClick={clearFilters}>Clear filters</Button>
-        <Button type="primary" onClick={applyFilters}>Apply filters</Button>
+        <Button icon={<ClearOutlined />} onClick={clearFilters}>Clear filters</Button>
+        <Button icon={<FilterOutlined />} type="primary" onClick={applyFilters}>Apply filters</Button>
       </Space>}>
         <div className="filter-grid">
           <label className="filter-field filter-search">
             <span>Search companies</span>
             <Input
+              prefix={<SearchOutlined />}
               allowClear
               placeholder="Name, business ID, address..."
               value={draftFilters.search}

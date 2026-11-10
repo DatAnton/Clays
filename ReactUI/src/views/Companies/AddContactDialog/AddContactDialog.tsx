@@ -1,4 +1,5 @@
-import AddButton from '../../../components/AddButton'
+import { CloseOutlined } from '@ant-design/icons'
+import SaveButton from '../../../components/SaveButton'
 import { Form, Input, Modal } from 'antd'
 import type { CreateContactPayload } from '../../../services/companiesApi'
 import type { Machinery } from '../../../services/companiesApi'
@@ -18,9 +19,8 @@ export default function AddContactDialog({ mode, machinery, open, saving, initia
   const [form] = Form.useForm<CreateContactPayload>()
 
   return <Modal title={mode === 'update' ? 'Edit contact' : 'Add a contact'} open={open} onCancel={onCancel} onOk={() => form.submit()}
-    okText="Save changes"
-    confirmLoading={saving} cancelButtonProps={{ disabled: saving }} closable={!saving}
-    mask={{ closable: !saving }} footer={mode === 'add' ? (_, { CancelBtn }) => <><CancelBtn /><AddButton aria-label="Add contact" loading={saving} onClick={() => form.submit()} /></> : undefined} destroyOnHidden>
+    confirmLoading={saving} cancelButtonProps={{ icon: <CloseOutlined />, disabled: saving }} closable={!saving}
+    mask={{ closable: !saving }} footer={(_, { CancelBtn }) => <><CancelBtn /><SaveButton aria-label="Save contact" loading={saving} onClick={() => form.submit()} /></>} destroyOnHidden>
     <Form form={form} initialValues={initialValues} layout="vertical" disabled={saving} onFinish={onSubmit}>
       <div className="form-two-columns"><Form.Item name="firstName" label="First name"><Input maxLength={200} /></Form.Item><Form.Item name="lastName" label="Last name"><Input maxLength={200} /></Form.Item></div>
       <div className="form-two-columns"><Form.Item name="email" label="Email" rules={[{ type: 'email' }]}><Input maxLength={320} /></Form.Item><Form.Item name="phoneNumber" label="Phone"><Input maxLength={50} /></Form.Item></div>
