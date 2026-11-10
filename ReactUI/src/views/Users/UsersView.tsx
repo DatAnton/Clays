@@ -1,5 +1,6 @@
 import AddButton from '../../components/AddButton'
 import UsersGrid from './UsersGrid'
+import GridFilters from '../../components/grid/GridFilters'
 import { useEffect, useState } from 'react'
 import { Alert, Button, Input, Space, Typography, message } from 'antd'
 import AddUpdateUserDialog from './AddUpdateUserDialog/AddUpdateUserDialog'
@@ -52,11 +53,14 @@ export default function UsersView() {
         </div>
       </div>
     </div>
-    <form className="filter-card" onSubmit={event => {
+    <GridFilters values={[{ label: 'Search', value: search }]} onSubmit={event => {
         event.preventDefault()
         setPage(1)
         setSearch(searchInput.trim())
-      }}>
+      }} filterActions={<Space>
+        <Button onClick={() => { setPage(1); setSearch(''); setSearchInput('') }}>Clear filters</Button>
+        <Button type="primary" htmlType="submit">Apply filters</Button>
+      </Space>}>
       <div className="filter-grid">
         <label className="filter-field filter-search" htmlFor="users-search">
           <span>Search users</span>
@@ -64,13 +68,7 @@ export default function UsersView() {
             value={searchInput} onChange={event => setSearchInput(event.target.value)} />
         </label>
       </div>
-      <div className="filter-actions">
-        <Space>
-          <Button onClick={() => { setPage(1); setSearch(''); setSearchInput('') }}>Clear filters</Button>
-          <Button type="primary" htmlType="submit">Apply filters</Button>
-        </Space>
-      </div>
-    </form>
+    </GridFilters>
     {error && <Alert className="companies-error" type="error" showIcon title={error}
       action={<Button onClick={refresh}>Retry</Button>} />}
     <UsersGrid onEdit={openEditUser} dataSource={data?.items ?? []} loading={loading}

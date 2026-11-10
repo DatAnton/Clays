@@ -2,6 +2,7 @@ import AddButton from '../../components/AddButton'
 import AddUpdateMachineryDialog from './AddUpdateMachineryDialog/AddUpdateMachineryDialog'
 import { manufacturers, machineryStatuses } from './machineryOptions'
 import MachineryGrid from './MachineryGrid'
+import GridFilters from '../../components/grid/GridFilters'
 import MachineryLibraryDialog from './MachineryLibraryDialog'
 import { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Input, Select, Space, Typography, message } from 'antd'
@@ -161,7 +162,18 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
         </div>
       </div>
 
-      <div className="filter-card">
+      <GridFilters values={[
+        { label: 'Search', value: filters.search },
+        { label: 'Manufacturer', value: manufacturers.find(item => item.value === filters.manufacturerId)?.label ?? filters.manufacturerId },
+        { label: 'Machinery', value: (() => {
+          const item = library.find(item => item.id === filters.machineryLibraryId)
+          return item ? `${item.manufacturerName} ${item.model}` : filters.machineryLibraryId
+        })() },
+        { label: 'Status', value: machineryStatuses.find(item => item.value === filters.status)?.label ?? filters.status },
+      ]} filterActions={<Space>
+        <Button onClick={clearFilters}>Clear filters</Button>
+        <Button type="primary" onClick={applyFilters}>Apply filters</Button>
+      </Space>}>
         <div className="filter-grid machinery-filter-grid">
           <label className="filter-field filter-search">
             <span>Search machinery</span>
@@ -211,13 +223,7 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
             />
           </label>
         </div>
-        <div className="filter-actions">
-          <Space>
-            <Button onClick={clearFilters}>Clear filters</Button>
-            <Button type="primary" onClick={applyFilters}>Apply filters</Button>
-          </Space>
-        </div>
-      </div>
+      </GridFilters>
 
       {error && <Alert className="companies-error" type="error" showIcon title="Could not load machinery" description={error} />}
       {libraryError && <Alert className="companies-error" type="error" showIcon title="Could not load machinery library" description={libraryError} />}

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Alert, Button, Form, Input, Modal, Select, message } from 'antd'
 import type { TableColumnsType } from 'antd'
 import DataGrid, { GridEditButton } from '../../components/grid/DataGrid'
+import GridFilters from '../../components/grid/GridFilters'
 import { createMachineryLibrary, getMachineryLibrary, updateMachineryLibrary } from '../../services/machineryApi'
 import type { MachineryLibraryItem, MachineryLibraryPayload } from '../../services/machineryApi'
 import { manufacturers } from './machineryOptions'
@@ -84,14 +85,18 @@ export default function MachineryLibraryDialog({ isAdmin, onCancel, onChanged }:
   return <>
     {contextHolder}
     <Modal title="Library" open width={850} onCancel={onCancel} footer={<Button onClick={onCancel}>Close</Button>}>
-      <div className="machinery-library-toolbar">
+      <GridFilters values={[
+        { label: 'Search', value: search },
+        { label: 'Manufacturer', value: manufacturers.find(item => item.value === manufacturerId)?.label ?? manufacturerId },
+      ]} actions={isAdmin && <AddButton aria-label="Add library machinery" onClick={() => openEditor(null)} />}>
+        <div className="machinery-library-toolbar">
         <Input.Search className="machinery-library-search" allowClear placeholder="Search manufacturer or model" value={search}
           onChange={event => setSearch(event.target.value)} />
         <Select className="machinery-library-manufacturer" aria-label="Filter by manufacturer"
           allowClear placeholder="All manufacturers" options={manufacturers} value={manufacturerId}
           onChange={(value: number | undefined) => setManufacturerId(value)} />
-        {isAdmin && <AddButton className="machinery-library-add" aria-label="Add library machinery" onClick={() => openEditor(null)} />}
-      </div>
+        </div>
+      </GridFilters>
       {error && <Alert type="error" showIcon title="Could not load machinery library" description={error}
         action={<Button onClick={() => { setLoading(true); setReloadKey(key => key + 1) }}>Retry</Button>} />}
       <DataGrid<MachineryLibraryItem> columns={columns} dataSource={filteredItems} loading={loading}

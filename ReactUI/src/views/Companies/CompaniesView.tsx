@@ -2,6 +2,7 @@ import AddButton from '../../components/AddButton'
 import AddUpdateCompanyDialog from './AddUpdateCompanyDialog/AddUpdateCompanyDialog'
 import type { CompanyFormValues } from './AddUpdateCompanyDialog/AddUpdateCompanyDialog'
 import CompaniesGrid from './CompaniesGrid'
+import GridFilters from '../../components/grid/GridFilters'
 import { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Input, Select, Space, Typography, message } from 'antd'
 import type { TablePaginationConfig } from 'antd'
@@ -144,7 +145,15 @@ function CompaniesView({ onSelectCompany }: Props) {
         </div>
       </div>
 
-      <div className="filter-card">
+      <GridFilters values={[
+        { label: 'Search', value: filters.search },
+        { label: 'City', value: filters.city },
+        { label: 'Business line', value: filters.businessLine },
+        { label: 'Partner status', value: filters.isOurPartner === undefined ? undefined : filters.isOurPartner ? 'Partners only' : 'Non-partners' },
+      ]} filterActions={<Space>
+        <Button onClick={clearFilters}>Clear filters</Button>
+        <Button type="primary" onClick={applyFilters}>Apply filters</Button>
+      </Space>}>
         <div className="filter-grid">
           <label className="filter-field filter-search">
             <span>Search companies</span>
@@ -192,13 +201,7 @@ function CompaniesView({ onSelectCompany }: Props) {
             />
           </label>
         </div>
-        <div className="filter-actions">
-          <Space>
-            <Button onClick={clearFilters}>Clear filters</Button>
-            <Button type="primary" onClick={applyFilters}>Apply filters</Button>
-          </Space>
-        </div>
-      </div>
+      </GridFilters>
 
       {error && <Alert className="companies-error" type="error" showIcon title="Could not load companies" description={error} />}
 

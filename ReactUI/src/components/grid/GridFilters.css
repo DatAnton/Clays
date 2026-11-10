@@ -1,0 +1,7 @@
+.grid-filters-header { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.grid-filters-header > .ant-btn { flex-shrink: 0; }
+.grid-filters-content:not([hidden]) { margin-top: 16px; }
+.grid-filters-summary { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; min-width: 0; flex: 1; }
+.grid-filters-summary .grid-filter-value { max-width: 100%; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #34577d; background: #eef4fb; border-color: #dbe6f3; }
+.grid-filters-empty { color: #8190a3; font-size: 12px; }
+.grid-filters-header-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-left: auto; }
