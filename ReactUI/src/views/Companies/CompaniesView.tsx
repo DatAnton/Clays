@@ -1,3 +1,4 @@
+import AddButton from '../../components/AddButton'
 import AddUpdateCompanyDialog from './AddUpdateCompanyDialog/AddUpdateCompanyDialog'
 import type { CompanyFormValues } from './AddUpdateCompanyDialog/AddUpdateCompanyDialog'
 import CompaniesGrid from './CompaniesGrid'
@@ -135,7 +136,7 @@ function CompaniesView({ onSelectCompany }: Props) {
           </Typography.Paragraph>
         </div>
         <div className="companies-heading-actions">
-          <Button type="primary" onClick={openAddCompany}>Add company</Button>
+          <AddButton aria-label="Add company" onClick={openAddCompany} />
           <div className="company-count">
             <span className="count-value">{page.totalCount.toLocaleString()}</span>
             <span className="count-label">companies</span>

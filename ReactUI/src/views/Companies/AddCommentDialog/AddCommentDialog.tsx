@@ -1,3 +1,4 @@
+import AddButton from '../../../components/AddButton'
 import { Form, Input, Modal } from 'antd'
 import type { CreateCommentPayload } from '../../../services/companiesApi'
 
@@ -14,7 +15,7 @@ export default function AddCommentDialog({ open, saving, initialValues, onCancel
 
   return <Modal title="Add a comment" open={open} onCancel={onCancel} onOk={() => form.submit()}
     confirmLoading={saving} cancelButtonProps={{ disabled: saving }} closable={!saving}
-    mask={{ closable: !saving }} okText="Save" destroyOnHidden>
+    mask={{ closable: !saving }} footer={(_, { CancelBtn }) => <><CancelBtn /><AddButton aria-label="Add comment" loading={saving} onClick={() => form.submit()} /></>} destroyOnHidden>
     <Form form={form} initialValues={initialValues} layout="vertical" disabled={saving} onFinish={onSubmit}>
       <Form.Item name="text" label="Comment" rules={[{ required: true, whitespace: true, message: 'Enter a comment' }, { max: 4000 }]}><Input.TextArea rows={4} maxLength={4000} showCount /></Form.Item>
     </Form>

@@ -1,3 +1,4 @@
+import AddButton from '../../components/AddButton'
 import UsersGrid from './UsersGrid'
 import { useEffect, useState } from 'react'
 import { Alert, Button, Input, Space, Typography, message } from 'antd'
@@ -44,7 +45,7 @@ export default function UsersView() {
         <Typography.Paragraph type="secondary">Manage users and their application roles.</Typography.Paragraph>
       </div>
       <Space wrap>
-        <Button type="primary" onClick={() => setDialog({ mode: 'add' })}>Add user</Button>
+        <AddButton aria-label="Add user" onClick={() => setDialog({ mode: 'add' })} />
       </Space>
     </div>
     <div className="filter-card users-filter-card">

@@ -1,3 +1,4 @@
+import AddButton from '../../components/AddButton'
 import AddUpdateMachineryDialog from './AddUpdateMachineryDialog/AddUpdateMachineryDialog'
 import { manufacturers, machineryStatuses } from './machineryOptions'
 import MachineryGrid from './MachineryGrid'
@@ -125,7 +126,7 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
         </div>
         <div className="machinery-heading-actions">
           <Button onClick={() => setLibraryDialogOpen(true)}>Llibrary</Button>
-          <Button type="primary" onClick={openAddMachinery}>Add machinery</Button>
+          <AddButton aria-label="Add machinery" onClick={openAddMachinery} />
           <div className="company-count">
             <span className="count-value">{page.totalCount.toLocaleString()}</span>
             <span className="count-label">machinery</span>

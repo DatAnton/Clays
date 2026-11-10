@@ -1,3 +1,4 @@
+import AddButton from '../../../components/AddButton'
 import { Checkbox, ConfigProvider, Form, Input, Modal, Select } from 'antd'
 import type { CreateCompanyPayload } from '../../../services/companiesApi'
 
@@ -15,7 +16,8 @@ interface Props {
 export default function AddUpdateCompanyDialog({ mode, open, saving, initialValues, onCancel, onSubmit }: Props) {
   const [form] = Form.useForm<CompanyFormValues>()
 
-  return <Modal title={mode === 'update' ? 'Edit company' : 'Add company'} open={open}
+  return <Modal title={mode === 'update' ? 'Edit company' : 'Add company'}
+      footer={mode === 'add' ? (_, { CancelBtn }) => <><CancelBtn /><AddButton aria-label="Add company" loading={saving} onClick={() => form.submit()} /></> : undefined} open={open}
     onCancel={onCancel} onOk={() => form.submit()} confirmLoading={saving}
     cancelButtonProps={{ disabled: saving }} closable={!saving} mask={{ closable: !saving }}
     okText={mode === 'update' ? 'Save changes' : 'Add company'} destroyOnHidden>

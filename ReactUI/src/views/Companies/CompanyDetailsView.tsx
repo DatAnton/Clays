@@ -1,3 +1,4 @@
+import AddButton from '../../components/AddButton'
 import AddUpdateCompanyDialog from './AddUpdateCompanyDialog/AddUpdateCompanyDialog'
 import type { CompanyFormValues } from './AddUpdateCompanyDialog/AddUpdateCompanyDialog'
 import AddUpdateMachineryDialog from '../Machinery/AddUpdateMachineryDialog/AddUpdateMachineryDialog'
@@ -185,7 +186,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
       </div>
 
       <div className="company-detail-grid">
-        <Card title={`Actions · ${company.actions.length}`} extra={<Button size="small" type="primary" onClick={() => openDialog('action')}>New action</Button>} className="detail-card">
+        <Card title={`Actions · ${company.actions.length}`} extra={<AddButton size="small" aria-label="Add action" onClick={() => openDialog('action')} />} className="detail-card">
           {company.actions.length ? <div className="action-card-list">{[...company.actions].sort((a, b) => b.createdDate.localeCompare(a.createdDate)).map((action) => <Card
             key={action.id}
             size="small"
@@ -198,14 +199,14 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
           </Card>)}</div> : <Typography.Text type="secondary">No actions recorded yet.</Typography.Text>}
         </Card>
 
-        <Card title={`Comments · ${company.comments.length}`} extra={<Button size="small" onClick={() => openDialog('comment')}>Add comment</Button>} className="detail-card">
+        <Card title={`Comments · ${company.comments.length}`} extra={<AddButton size="small" aria-label="Add comment" onClick={() => openDialog('comment')} />} className="detail-card">
           {company.comments.length ? <div className="comment-card-list">{[...company.comments].sort((a, b) => b.createdAtUtc.localeCompare(a.createdAtUtc)).map((comment: CompanyComment) => <article className="comment-item-card" key={comment.id}>
             <Typography.Paragraph>{comment.text}</Typography.Paragraph>
             <div className="comment-meta"><Typography.Text strong>{displayName(comment.author)}</Typography.Text><time dateTime={comment.createdAtUtc}>{new Date(comment.createdAtUtc).toLocaleString()}</time></div>
           </article>)}</div> : <Typography.Text type="secondary">No comments yet.</Typography.Text>}
         </Card>
 
-        <Card title={`Machinery · ${machinery.size}`} extra={<Button size="small" onClick={() => openDialog('machinery')}>Add machinery</Button>} className="detail-card detail-card-wide">
+        <Card title={`Machinery · ${machinery.size}`} extra={<AddButton size="small" aria-label="Add machinery" onClick={() => openDialog('machinery')} />} className="detail-card detail-card-wide">
           {machinery.size ? <div className="machinery-card-list">{[...machinery.values()].map((machinery) => {
             const history = company.ownerHistory
               .filter((entry) => entry.machinery.id === machinery.id)
@@ -234,7 +235,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
           })}</div> : <Typography.Text type="secondary">No machinery linked to this company yet.</Typography.Text>}
         </Card>
 
-        <Card title={`Contacts · ${company.contacts.length}`} extra={<Button size="small" onClick={() => openDialog('contact')}>Add contact</Button>} className="detail-card detail-card-wide">
+        <Card title={`Contacts · ${company.contacts.length}`} extra={<AddButton size="small" aria-label="Add contact" onClick={() => openDialog('contact')} />} className="detail-card detail-card-wide">
           {company.contacts.length ? <div className="detail-list">{company.contacts.map((contact: Contact) => <div className="detail-list-item" key={contact.id}><Typography.Text strong>{[contact.firstName, contact.lastName].filter(Boolean).join(' ') || 'Unnamed contact'}</Typography.Text><Typography.Text type="secondary">{contact.email || contact.phoneNumber || 'No contact details'}</Typography.Text>{contact.email && contact.phoneNumber && <Typography.Text type="secondary">{contact.phoneNumber}</Typography.Text>}</div>)}</div> : <Typography.Text type="secondary">No contacts have been added.</Typography.Text>}
         </Card>
       </div>

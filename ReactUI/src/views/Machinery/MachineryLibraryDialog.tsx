@@ -1,3 +1,4 @@
+import AddButton from '../../components/AddButton'
 import { useEffect, useState } from 'react'
 import { Alert, Button, Form, Input, Modal, Select, message } from 'antd'
 import type { TableColumnsType } from 'antd'
@@ -89,9 +90,7 @@ export default function MachineryLibraryDialog({ isAdmin, onCancel, onChanged }:
         <Select className="machinery-library-manufacturer" aria-label="Filter by manufacturer"
           allowClear placeholder="All manufacturers" options={manufacturers} value={manufacturerId}
           onChange={(value: number | undefined) => setManufacturerId(value)} />
-        {isAdmin && <Button className="machinery-library-add" type="primary" onClick={() => openEditor(null)}
-          icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"
-            strokeWidth="1.5" strokeLinecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10" /></svg>}>Add</Button>}
+        {isAdmin && <AddButton className="machinery-library-add" aria-label="Add library machinery" onClick={() => openEditor(null)} />}
       </div>
       {error && <Alert type="error" showIcon title="Could not load machinery library" description={error}
         action={<Button onClick={() => { setLoading(true); setReloadKey(key => key + 1) }}>Retry</Button>} />}
@@ -99,7 +98,8 @@ export default function MachineryLibraryDialog({ isAdmin, onCancel, onChanged }:
         pagination={{ pageSize: 10, showSizeChanger: false, hideOnSinglePage: true }}
         locale={{ emptyText: loading ? 'Loading machinery library…' : 'No machinery library entries found' }} />
     </Modal>
-    <Modal title={editing ? 'Edit library machinery' : 'Add library machinery'} open={editorOpen && isAdmin}
+    <Modal title={editing ? 'Edit library machinery' : 'Add library machinery'}
+      footer={!editing ? (_, { CancelBtn }) => <><CancelBtn /><AddButton aria-label="Add library machinery" loading={saving} onClick={() => form.submit()} /></> : undefined} open={editorOpen && isAdmin}
       onCancel={() => { if (!saving) setEditorOpen(false) }} onOk={() => form.submit()}
       okText="Save machinery" confirmLoading={saving} cancelButtonProps={{ disabled: saving }}
       closable={!saving} mask={{ closable: !saving }}>

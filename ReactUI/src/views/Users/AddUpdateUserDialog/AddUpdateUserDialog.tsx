@@ -1,3 +1,4 @@
+import AddButton from '../../../components/AddButton'
 import { useState } from 'react'
 import { Alert, Form, Input, Modal, Select, Typography } from 'antd'
 import { assignUserRoles, createUser, updateUser } from '../../../services/usersApi'
@@ -52,7 +53,8 @@ export default function AddUpdateUserDialog({ mode, user, roles, onCancel, onSav
     }
   }
 
-  return <Modal title={mode === 'add' ? 'Add user' : 'Edit user'} open width={640}
+  return <Modal title={mode === 'add' ? 'Add user' : 'Edit user'}
+      footer={mode === 'add' ? (_, { CancelBtn }) => <><CancelBtn /><AddButton aria-label="Add user" loading={saving} disabled={rolesNeedRefresh} onClick={() => form.submit()} /></> : undefined} open width={640}
       okText={mode === 'add' ? 'Create user' : 'Save changes'}
       okButtonProps={{ disabled: rolesNeedRefresh }} confirmLoading={saving}
       cancelButtonProps={{ disabled: saving }} closable={!saving} mask={{ closable: !saving }}
