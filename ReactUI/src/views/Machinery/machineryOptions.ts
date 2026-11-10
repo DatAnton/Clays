@@ -5,6 +5,7 @@ export const manufacturers = [
   { value: 4, label: 'Develon' },
   { value: 5, label: 'Hitachi' },
   { value: 6, label: 'Caterpillar' },
+  { value: 7, label: 'Other' },
 ]
 
 export const machineryStatuses = [

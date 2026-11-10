@@ -323,6 +323,11 @@ namespace Clays.Infrastructure.Persistence.Migrations
                         {
                             Id = 6,
                             Name = "Caterpillar"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Other"
                         });
                 });
 

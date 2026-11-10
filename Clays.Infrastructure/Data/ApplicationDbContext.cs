@@ -60,7 +60,8 @@ namespace Clays.Infrastructure.Data
                 new Manufacturer { Id = 3, Name = "Doosan" },
                 new Manufacturer { Id = 4, Name = "Develon" },
                 new Manufacturer { Id = 5, Name = "Hitachi" },
-                new Manufacturer { Id = 6, Name = "Caterpillar" });
+                new Manufacturer { Id = 6, Name = "Caterpillar" },
+                new Manufacturer { Id = 7, Name = "Other" });
 
             modelBuilder.Entity<Company>()
                 .Property(company => company.IsOurPartner)
