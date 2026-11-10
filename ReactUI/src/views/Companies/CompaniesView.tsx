@@ -200,7 +200,7 @@ function CompaniesView({ onSelectCompany }: Props) {
         </div>
       </div>
 
-      {error && <Alert className="companies-error" type="error" showIcon message="Could not load companies" description={error} />}
+      {error && <Alert className="companies-error" type="error" showIcon title="Could not load companies" description={error} />}
 
       <CompaniesGrid onEdit={openEditCompany}
           dataSource={page.items}

@@ -1,7 +1,7 @@
 import AddButton from '../../components/AddButton'
 import UsersGrid from './UsersGrid'
 import { useEffect, useState } from 'react'
-import { Alert, Button, Input, Space, Typography, message } from 'antd'
+import { Alert, Button, Input, Typography, message } from 'antd'
 import AddUpdateUserDialog from './AddUpdateUserDialog/AddUpdateUserDialog'
 import { getRoles, getUsers } from '../../services/usersApi'
 import type { ManagedUser, Role, UserPage } from '../../services/usersApi'
@@ -44,9 +44,13 @@ export default function UsersView() {
         <Typography.Title level={2}>Users</Typography.Title>
         <Typography.Paragraph type="secondary">Manage users and their application roles.</Typography.Paragraph>
       </div>
-      <Space wrap>
+      <div className="companies-heading-actions">
         <AddButton aria-label="Add user" onClick={() => setDialog({ mode: 'add' })} />
-      </Space>
+        <div className="company-count">
+          <span className="count-value">{(data?.totalCount ?? 0).toLocaleString()}</span>
+          <span className="count-label">users</span>
+        </div>
+      </div>
     </div>
     <div className="filter-card users-filter-card">
       <form className="users-search-form" onSubmit={event => {

@@ -146,7 +146,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
   if (error || !company) {
     return <section className="company-detail-view">
       <Button type="link" onClick={onBack}>← Back to companies</Button>
-      <Alert type="error" showIcon message="Could not load company" description={error || 'Company not found'} />
+      <Alert type="error" showIcon title="Could not load company" description={error || 'Company not found'} />
     </section>
   }
 

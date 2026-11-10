@@ -125,7 +125,11 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
           <Typography.Paragraph type="secondary">Browse and filter machinery in your directory.</Typography.Paragraph>
         </div>
         <div className="machinery-heading-actions">
-          <Button onClick={() => setLibraryDialogOpen(true)}>Llibrary</Button>
+          <Button onClick={() => setLibraryDialogOpen(true)}
+            icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+              strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M2 2h3v12H2zM5 2h3v12H5zM9 3l3-1 4 11-3 1z" />
+            </svg>}>Library</Button>
           <AddButton aria-label="Add machinery" onClick={openAddMachinery} />
           <div className="company-count">
             <span className="count-value">{page.totalCount.toLocaleString()}</span>
@@ -189,7 +193,7 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
         </div>
       </div>
 
-      {error && <Alert className="companies-error" type="error" showIcon message="Could not load machinery" description={error} />}
+      {error && <Alert className="companies-error" type="error" showIcon title="Could not load machinery" description={error} />}
 
       <MachineryGrid onEdit={openEditMachinery} onSelectCompany={onSelectCompany}
           dataSource={page.items}
