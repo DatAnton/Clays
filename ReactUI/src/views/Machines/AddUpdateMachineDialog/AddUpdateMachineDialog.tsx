@@ -1,6 +1,9 @@
-import { Form, Input, InputNumber, Modal, Select } from 'antd'
+import { useEffect, useState } from 'react'
+import { Alert, Form, Input, InputNumber, Modal, Select } from 'antd'
 import type { UpdateMachinePayload } from '../../../services/companiesApi'
-import { manufacturers, machineStatuses } from '../machineOptions'
+import { machineStatuses } from '../machineOptions'
+import { getMachineryLibrary } from '../../../services/machinesApi'
+import type { MachineryLibraryItem } from '../../../services/machinesApi'
 
 export type MachineFormValues = UpdateMachinePayload
 
@@ -15,17 +18,40 @@ interface Props {
 
 export default function AddUpdateMachineDialog({ mode, open, saving, initialValues, onCancel, onSubmit }: Props) {
   const [form] = Form.useForm<MachineFormValues>()
+  const [library, setLibrary] = useState<MachineryLibraryItem[]>([])
+  const [loadingLibrary, setLoadingLibrary] = useState(true)
+  const [libraryError, setLibraryError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    void getMachineryLibrary(controller.signal)
+      .then((items) => {
+        if (!controller.signal.aborted) setLibrary(items)
+      })
+      .catch((error: unknown) => {
+        if (!controller.signal.aborted) {
+          setLibraryError(error instanceof Error ? error.message : 'Could not load machinery library')
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoadingLibrary(false)
+      })
+    return () => controller.abort()
+  }, [])
 
   return <Modal title={mode === 'update' ? 'Edit machine' : 'Add machine'} open={open}
     onCancel={onCancel} onOk={() => form.submit()} confirmLoading={saving}
+    okButtonProps={{ disabled: loadingLibrary || libraryError !== null || library.length === 0 }}
     cancelButtonProps={{ disabled: saving }} closable={!saving} mask={{ closable: !saving }}
     okText="Save machine" destroyOnHidden>
     <Form form={form} initialValues={initialValues} layout="vertical" disabled={saving} onFinish={onSubmit}>
-      <Form.Item name="manufacturerId" label="Manufacturer" rules={[{ required: true }]}>
-        <Select options={manufacturers} placeholder="Select manufacturer" />
-      </Form.Item>
-      <Form.Item name="model" label="Model" rules={[{ required: true, whitespace: true }, { max: 200 }]}>
-        <Input maxLength={200} />
+      {libraryError && <Alert type="error" showIcon title="Could not load machinery library" description={libraryError} />}
+      <Form.Item name="machineryLibraryId" label="Manufacturer and model" rules={[{ required: true, message: 'Select machinery from the library' }]}>
+        <Select showSearch={{ optionFilterProp: 'label' }} loading={loadingLibrary}
+          disabled={loadingLibrary || libraryError !== null}
+          options={library.map((item) => ({ value: item.id, label: `${item.manufacturerName} ${item.model}` }))}
+          placeholder="Select from machinery library"
+          notFoundContent={loadingLibrary ? 'Loading machinery library…' : 'No machinery library entries available'} />
       </Form.Item>
       <div className="form-two-columns">
         <Form.Item name="year" label="Year"><InputNumber min={1800} max={2200} style={{ width: '100%' }} /></Form.Item>

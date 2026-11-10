@@ -13,12 +13,16 @@ public sealed class MappingRegister : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<Machine, MachineListItem>()
-            .Map(destination => destination.ManufacturerName, source => source.Manufacturer.Name)
+            .Map(destination => destination.ManufacturerId, source => source.MachineryLibrary.ManufacturerId)
+            .Map(destination => destination.Model, source => source.MachineryLibrary.Model)
+            .Map(destination => destination.ManufacturerName, source => source.MachineryLibrary.Manufacturer.Name)
             .Map(destination => destination.CompanyName, source => source.Company == null ? null : source.Company.Name)
             .Map(destination => destination.CompanyCity, source => source.Company == null ? null : source.Company.City);
 
         config.NewConfig<Machine, CompanyDetails.MachineItem>()
-            .Map(destination => destination.ManufacturerName, source => source.Manufacturer.Name);
+            .Map(destination => destination.ManufacturerId, source => source.MachineryLibrary.ManufacturerId)
+            .Map(destination => destination.Model, source => source.MachineryLibrary.Model)
+            .Map(destination => destination.ManufacturerName, source => source.MachineryLibrary.Manufacturer.Name);
 
         config.NewConfig<User, CompanyDetails.UserSummary>();
         config.NewConfig<Contact, CompanyDetails.ContactItem>();

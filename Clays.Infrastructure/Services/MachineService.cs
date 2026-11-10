@@ -7,7 +7,7 @@ namespace Clays.Infrastructure.Services
     {
         public async Task SaveMachine(Machine machine, CancellationToken cancellationToken)
         {
-            context.Machines.Add(machine);
+            context.Machinery.Add(machine);
             await context.SaveChangesAsync(cancellationToken);
         }
     }

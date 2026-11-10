@@ -24,7 +24,7 @@ public sealed record ContactItem(int Id, string? FirstName, string? LastName, st
 public sealed record CommentItem(int Id, int CompanyId, string Text, UserSummary Author, DateTimeOffset CreatedAtUtc);
 public sealed record MachineItem(
     int Id, int ManufacturerId, string ManufacturerName, string Model, int? Year, string? VinNumber,
-    string? RegistrationNumber, string? CountryOfImport, int? PurchaseYear, MachineStatus? Status, int CreatedById);
+    string? RegistrationNumber, string? CountryOfImport, int? PurchaseYear, MachineStatus? Status, int CreatedById, int MachineryLibraryId);
 public sealed record OwnerHistoryItem(int Id, MachineItem Machine);
 public sealed record ActionItem(
     int Id, int AuthorId, UserSummary Author, int? AssignedUserId, UserSummary? AssignedUser,

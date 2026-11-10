@@ -18,11 +18,6 @@ public sealed class Endpoint(IApplicationDbContext context) : FastEndpoints.Endp
         }
         action.Status = request.Status;
         await context.SaveChangesAsync(cancellationToken);
-        var result = await context.Actions.AsNoTracking()
-            .Include(item => item.Author)
-            .Include(item => item.AssignedUser)
-            .Include(item => item.Machine).ThenInclude(machine => machine!.Manufacturer)
-            .SingleAsync(item => item.Id == request.Id, cancellationToken);
-        await Send.OkAsync(result.Adapt<Response>(), cancellationToken);
+        await Send.OkAsync(action.Adapt<Response>(), cancellationToken);
     }
 }

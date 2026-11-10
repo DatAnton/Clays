@@ -17,4 +17,5 @@ public sealed record MachineItem(
     MachineStatus? Status,
     int? CompanyId,
     string? CompanyName,
-    string? CompanyCity);
+    string? CompanyCity,
+    int MachineryLibraryId);

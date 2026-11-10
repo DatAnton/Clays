@@ -8,7 +8,8 @@ namespace Clays.Infrastructure.Data
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : DbContext(options), IApplicationDbContext
     {
-        public DbSet<Machine> Machines { get; set; }
+        public DbSet<Machine> Machinery { get; set; }
+        public DbSet<MachineryLibrary> MachineryLibrary { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
@@ -71,10 +72,20 @@ namespace Clays.Infrastructure.Data
                 .HasForeignKey(contact => contact.CompanyId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Machine>()
-                .HasOne(machine => machine.Manufacturer)
+            modelBuilder.Entity<MachineryLibrary>()
+                .HasIndex(entry => new { entry.ManufacturerId, entry.Model })
+                .IsUnique();
+
+            modelBuilder.Entity<MachineryLibrary>()
+                .HasOne(entry => entry.Manufacturer)
                 .WithMany()
-                .HasForeignKey(machine => machine.ManufacturerId)
+                .HasForeignKey(entry => entry.ManufacturerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Machine>()
+                .HasOne(machine => machine.MachineryLibrary)
+                .WithMany()
+                .HasForeignKey(machine => machine.MachineryLibraryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Machine>()

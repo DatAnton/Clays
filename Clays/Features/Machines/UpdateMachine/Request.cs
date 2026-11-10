@@ -5,8 +5,7 @@ namespace Clays.Features.Machines.UpdateMachine;
 public sealed class Request
 {
     public int Id { get; init; }
-    public int ManufacturerId { get; init; }
-    public string Model { get; init; } = string.Empty;
+    public int MachineryLibraryId { get; init; }
     public int? Year { get; init; }
     public string? VinNumber { get; init; }
     public string? RegistrationNumber { get; init; }

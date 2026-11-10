@@ -16,11 +16,11 @@ public sealed class Endpoint(IApplicationDbContext context) : FastEndpoints.Endp
             .Include(item => item.CreatedBy)
             .Include(item => item.Contacts)
             .Include(item => item.Comments).ThenInclude(comment => comment.Author)
-            .Include(item => item.Machines).ThenInclude(machine => machine.Manufacturer)
-            .Include(item => item.OwnerHistory).ThenInclude(history => history.Machine).ThenInclude(machine => machine.Manufacturer)
+            .Include(item => item.Machines).ThenInclude(machine => machine.MachineryLibrary).ThenInclude(entry => entry.Manufacturer)
+            .Include(item => item.OwnerHistory).ThenInclude(history => history.Machine).ThenInclude(machine => machine.MachineryLibrary).ThenInclude(entry => entry.Manufacturer)
             .Include(item => item.Actions).ThenInclude(action => action.Author)
             .Include(item => item.Actions).ThenInclude(action => action.AssignedUser)
-            .Include(item => item.Actions).ThenInclude(action => action.Machine).ThenInclude(machine => machine!.Manufacturer)
+            .Include(item => item.Actions).ThenInclude(action => action.Machine).ThenInclude(machine => machine!.MachineryLibrary).ThenInclude(entry => entry.Manufacturer)
             .SingleOrDefaultAsync(item => item.Id == companyId, cancellationToken);
 
         if (company is null)

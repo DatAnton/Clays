@@ -12,9 +12,10 @@ public sealed class Endpoint(IApplicationDbContext context, ICurrentUserService 
 
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        var manufacturer = await context.Manufacturers
-            .SingleOrDefaultAsync(item => item.Id == request.ManufacturerId, cancellationToken);
-        if (manufacturer is null)
+        var libraryEntry = await context.MachineryLibrary
+            .Include(item => item.Manufacturer)
+            .SingleOrDefaultAsync(item => item.Id == request.MachineryLibraryId, cancellationToken);
+        if (libraryEntry is null)
         {
             await Send.NotFoundAsync(cancellationToken);
             return;
@@ -25,14 +26,14 @@ public sealed class Endpoint(IApplicationDbContext context, ICurrentUserService 
             return;
         }
         var machine = request.Adapt<Machine>();
-        machine.Model = request.Model.Trim();
+        machine.MachineryLibraryId = libraryEntry.Id;
         machine.CreatedById = currentUser.UserDatabaseId;
-        context.Machines.Add(machine);
+        context.Machinery.Add(machine);
         await context.SaveChangesAsync(cancellationToken);
 
         await EndpointResponse.JsonAsync(HttpContext, new Response(
-            machine.Id, machine.ManufacturerId, manufacturer.Name, machine.Model, machine.Year,
+            machine.Id, libraryEntry.ManufacturerId, libraryEntry.Manufacturer.Name, libraryEntry.Model, machine.Year,
             machine.VinNumber, machine.RegistrationNumber, machine.CountryOfImport,
-            machine.PurchaseYear, machine.Status, machine.CreatedById), 201, cancellationToken);
+            machine.PurchaseYear, machine.Status, machine.CreatedById, machine.MachineryLibraryId), 201, cancellationToken);
     }
 }

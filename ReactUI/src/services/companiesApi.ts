@@ -33,6 +33,7 @@ export interface UserSummary {
 
 export interface Machine {
   id: number
+  machineryLibraryId: number
   manufacturerId: number
   manufacturerName: string
   model: string
@@ -109,8 +110,7 @@ export interface UpdateCompanyPayload {
   note: string | null
 }
 export interface UpdateMachinePayload {
-  manufacturerId: number
-  model: string
+  machineryLibraryId: number
   year: number | null
   vinNumber: string | null
   registrationNumber: string | null
@@ -126,8 +126,7 @@ export interface CreateContactPayload {
   companyId: number
 }
 export interface CreateMachinePayload {
-  manufacturerId: number
-  model: string
+  machineryLibraryId: number
   companyId?: number
   year?: number
   vinNumber?: string

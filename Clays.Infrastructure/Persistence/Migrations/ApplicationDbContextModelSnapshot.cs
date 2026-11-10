@@ -225,12 +225,8 @@ namespace Clays.Infrastructure.Persistence.Migrations
                     b.Property<int>("CreatedById")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ManufacturerId")
+                    b.Property<int>("MachineryLibraryId")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Model")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<int?>("PurchaseYear")
                         .HasColumnType("integer");
@@ -253,9 +249,32 @@ namespace Clays.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("ManufacturerId");
+                    b.HasIndex("MachineryLibraryId");
 
-                    b.ToTable("Machines");
+                    b.ToTable("Machinery");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.MachineryLibrary", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ManufacturerId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ManufacturerId", "Model")
+                        .IsUnique();
+
+                    b.ToTable("MachineryLibrary");
                 });
 
             modelBuilder.Entity("Clays.Domain.Entities.Manufacturer", b =>
@@ -570,15 +589,26 @@ namespace Clays.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
-                    b.HasOne("Clays.Domain.Entities.Manufacturer", "Manufacturer")
+                    b.HasOne("Clays.Domain.Entities.MachineryLibrary", "MachineryLibrary")
                         .WithMany()
-                        .HasForeignKey("ManufacturerId")
+                        .HasForeignKey("MachineryLibraryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Company");
 
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("MachineryLibrary");
+                });
+
+            modelBuilder.Entity("Clays.Domain.Entities.MachineryLibrary", b =>
+                {
+                    b.HasOne("Clays.Domain.Entities.Manufacturer", "Manufacturer")
+                        .WithMany()
+                        .HasForeignKey("ManufacturerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Manufacturer");
                 });

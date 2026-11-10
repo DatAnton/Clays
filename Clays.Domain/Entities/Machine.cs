@@ -5,8 +5,7 @@ namespace Clays.Domain.Entities
     public class Machine
     {
         public int Id { get; set; }
-        public int ManufacturerId { get; set; }
-        public string Model { get; set; } = string.Empty;
+        public int MachineryLibraryId { get; set; }
         public int? Year { get; set; }
         public string? VinNumber { get; set; }
         public string? RegistrationNumber { get; set; }
@@ -16,7 +15,7 @@ namespace Clays.Domain.Entities
         public int CreatedById { get; set; }
         public int? CompanyId { get; set; }
 
-        public Manufacturer Manufacturer { get; set; } = null!;
+        public MachineryLibrary MachineryLibrary { get; set; } = null!;
         public User? CreatedBy { get; set; }
         public Company? Company { get; set; }
     }

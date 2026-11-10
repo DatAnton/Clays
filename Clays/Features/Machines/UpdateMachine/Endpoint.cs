@@ -10,23 +10,23 @@ public sealed class Endpoint(IApplicationDbContext context) : FastEndpoints.Endp
 
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        var machine = await context.Machines.SingleOrDefaultAsync(item => item.Id == request.Id, cancellationToken);
+        var machine = await context.Machinery.SingleOrDefaultAsync(item => item.Id == request.Id, cancellationToken);
         if (machine is null)
         {
             await Send.NotFoundAsync(cancellationToken);
             return;
         }
 
-        var manufacturer = await context.Manufacturers.AsNoTracking()
-            .SingleOrDefaultAsync(item => item.Id == request.ManufacturerId, cancellationToken);
-        if (manufacturer is null)
+        var libraryEntry = await context.MachineryLibrary.AsNoTracking()
+            .Include(item => item.Manufacturer)
+            .SingleOrDefaultAsync(item => item.Id == request.MachineryLibraryId, cancellationToken);
+        if (libraryEntry is null)
         {
             await Send.NotFoundAsync(cancellationToken);
             return;
         }
 
-        machine.ManufacturerId = request.ManufacturerId;
-        machine.Model = request.Model.Trim();
+        machine.MachineryLibraryId = libraryEntry.Id;
         machine.Year = request.Year;
         machine.VinNumber = request.VinNumber?.Trim();
         machine.RegistrationNumber = request.RegistrationNumber?.Trim();
@@ -36,8 +36,8 @@ public sealed class Endpoint(IApplicationDbContext context) : FastEndpoints.Endp
         await context.SaveChangesAsync(cancellationToken);
 
         await Send.OkAsync(new Response(
-            machine.Id, machine.ManufacturerId, manufacturer.Name, machine.Model, machine.Year,
+            machine.Id, libraryEntry.ManufacturerId, libraryEntry.Manufacturer.Name, libraryEntry.Model, machine.Year,
             machine.VinNumber, machine.RegistrationNumber, machine.CountryOfImport,
-            machine.PurchaseYear, machine.Status, machine.CreatedById), cancellationToken);
+            machine.PurchaseYear, machine.Status, machine.CreatedById, machine.MachineryLibraryId), cancellationToken);
     }
 }

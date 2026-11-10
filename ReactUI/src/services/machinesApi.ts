@@ -2,6 +2,7 @@ import { apiFetch } from './apiClient'
 
 export interface MachineGridItem {
   id: number
+  machineryLibraryId: number
   manufacturerId: number
   manufacturerName: string
   model: string
@@ -49,4 +50,19 @@ export async function getMachines(
   }
 
   return response.json() as Promise<MachinePage>
+}
+
+export interface MachineryLibraryItem {
+  id: number
+  manufacturerId: number
+  manufacturerName: string
+  model: string
+}
+
+export async function getMachineryLibrary(signal?: AbortSignal): Promise<MachineryLibraryItem[]> {
+  const response = await apiFetch('/api/machinery-library', { signal })
+  if (!response.ok) {
+    throw new Error(`Unable to load machinery library (${response.status})`)
+  }
+  return response.json() as Promise<MachineryLibraryItem[]>
 }

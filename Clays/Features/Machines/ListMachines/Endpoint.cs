@@ -14,18 +14,20 @@ public sealed class Endpoint(IApplicationDbContext context) : FastEndpoints.Endp
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
         var page = Math.Max(request.Page, 1);
-        IQueryable<Machine> query = context.Machines.AsNoTracking();
+        IQueryable<Machine> query = context.Machinery.AsNoTracking()
+            .Include(machine => machine.MachineryLibrary).ThenInclude(entry => entry.Manufacturer)
+            .Include(machine => machine.Company);
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var pattern = $"%{request.Search.Trim()}%";
-            query = query.Where(machine => EF.Functions.ILike(machine.Model, pattern)
+            query = query.Where(machine => EF.Functions.ILike(machine.MachineryLibrary.Model, pattern)
                 || (machine.VinNumber != null && EF.Functions.ILike(machine.VinNumber, pattern))
                 || (machine.RegistrationNumber != null && EF.Functions.ILike(machine.RegistrationNumber, pattern))
                 || (machine.Company != null && EF.Functions.ILike(machine.Company.Name, pattern))
-                || EF.Functions.ILike(machine.Manufacturer.Name, pattern));
+                || EF.Functions.ILike(machine.MachineryLibrary.Manufacturer.Name, pattern));
         }
         if (request.ManufacturerId.HasValue)
-            query = query.Where(machine => machine.ManufacturerId == request.ManufacturerId.Value);
+            query = query.Where(machine => machine.MachineryLibrary.ManufacturerId == request.ManufacturerId.Value);
         if (request.Status.HasValue)
             query = query.Where(machine => machine.Status == request.Status.Value);
         if (!string.IsNullOrWhiteSpace(request.City))
@@ -37,7 +39,7 @@ public sealed class Endpoint(IApplicationDbContext context) : FastEndpoints.Endp
 
         var totalCount = await query.CountAsync(cancellationToken);
         var offset = (int)Math.Min(((long)page - 1) * PageSize, int.MaxValue);
-        var machines = await query.OrderBy(machine => machine.Manufacturer.Name).ThenBy(machine => machine.Model)
+        var machines = await query.OrderBy(machine => machine.MachineryLibrary.Manufacturer.Name).ThenBy(machine => machine.MachineryLibrary.Model)
             .ThenBy(machine => machine.Id).Skip(offset).Take(PageSize).ToListAsync(cancellationToken);
         await Send.OkAsync(new Response(machines.Adapt<List<MachineItem>>(), page, PageSize, totalCount), cancellationToken);
     }

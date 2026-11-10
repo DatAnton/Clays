@@ -118,8 +118,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
   const submitMachine = (values: UpdateMachinePayload) => saveChanges(() => editingMachine
     ? updateMachine(editingMachine.id, { ...values, status: values.status ?? null })
     : createMachine({
-      manufacturerId: values.manufacturerId,
-      model: values.model,
+      machineryLibraryId: values.machineryLibraryId,
       companyId,
       year: values.year ?? undefined,
       purchaseYear: values.purchaseYear ?? undefined,
