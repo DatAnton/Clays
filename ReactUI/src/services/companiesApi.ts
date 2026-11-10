@@ -53,6 +53,8 @@ export interface Contact {
   phoneNumber: string | null
   email: string | null
   companyId: number
+  machineryId: number | null
+  comment: string | null
 }
 
 export interface CompanyComment {
@@ -124,6 +126,8 @@ export interface CreateContactPayload {
   phoneNumber?: string
   email?: string
   companyId: number
+  machineryId?: number | null
+  comment?: string | null
 }
 export interface CreateMachineryPayload {
   machineryLibraryId: number
@@ -177,6 +181,10 @@ export function createCompanyComment(companyId: number, payload: CreateCommentPa
 
 export function createContact(payload: CreateContactPayload): Promise<Contact> {
   return requestJson<Contact>('/api/contacts', { method: 'POST', body: JSON.stringify(payload) })
+}
+
+export function updateContact(id: number, payload: CreateContactPayload): Promise<Contact> {
+  return requestJson<Contact>(`/api/contacts/${id}`, { method: 'PUT', body: JSON.stringify(payload) })
 }
 
 export function createMachinery(payload: CreateMachineryPayload): Promise<Machinery> {

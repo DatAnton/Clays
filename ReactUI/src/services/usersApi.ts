@@ -36,7 +36,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>
 }
 
-export function getCurrentUserAccess(signal?: AbortSignal): Promise<{ isAdmin: boolean }> {
+export function getCurrentUserAccess(signal?: AbortSignal): Promise<{ isAdmin: boolean; isStaff: boolean }> {
   return request('/api/users/me', { signal })
 }
 

@@ -13,5 +13,7 @@ public sealed class Validator : Validator<Request>
         RuleFor(request => request.Email).EmailAddress().When(request => !string.IsNullOrWhiteSpace(request.Email));
         RuleFor(request => request.Email).MaximumLength(320);
         RuleFor(request => request.CompanyId).GreaterThan(0);
+        RuleFor(request => request.MachineryId).GreaterThan(0).When(request => request.MachineryId.HasValue);
+        RuleFor(request => request.Comment).MaximumLength(4000);
     }
 }

@@ -6,5 +6,7 @@ public sealed class Request
     public string? LastName { get; init; }
     public string? PhoneNumber { get; init; }
     public string? Email { get; init; }
+    public int? MachineryId { get; init; }
+    public string? Comment { get; init; }
     public int CompanyId { get; init; }
 }

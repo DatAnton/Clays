@@ -1,0 +1,20 @@
+using FastEndpoints;
+using FluentValidation;
+
+namespace Clays.Features.Contacts.UpdateContact;
+
+public sealed class Validator : Validator<Request>
+{
+    public Validator()
+    {
+        RuleFor(request => request.Id).GreaterThan(0);
+        RuleFor(request => request.FirstName).MaximumLength(200);
+        RuleFor(request => request.LastName).MaximumLength(200);
+        RuleFor(request => request.PhoneNumber).MaximumLength(50);
+        RuleFor(request => request.Email).EmailAddress().When(request => !string.IsNullOrWhiteSpace(request.Email));
+        RuleFor(request => request.Email).MaximumLength(320);
+        RuleFor(request => request.CompanyId).GreaterThan(0);
+        RuleFor(request => request.MachineryId).GreaterThan(0).When(request => request.MachineryId.HasValue);
+        RuleFor(request => request.Comment).MaximumLength(4000);
+    }
+}

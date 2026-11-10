@@ -6,7 +6,7 @@ import AddCommentDialog from './AddCommentDialog/AddCommentDialog'
 import AddContactDialog from './AddContactDialog/AddContactDialog'
 import AddActionDialog from './AddActionDialog/AddActionDialog'
 import { actionStatuses, actionTypes } from './actionOptions'
-import { machineryStatuses } from '../Machinery/machineryOptions'
+import { machineryLabel, machineryStatuses } from '../Machinery/machineryOptions'
 import { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Card, Descriptions, Popover, Select, Space, Spin, Table, Tag, Typography, message } from 'antd'
 import {
@@ -17,6 +17,7 @@ import {
   getCompany,
   updateActionStatus,
   updateCompany,
+  updateContact,
   updateMachinery,
 } from '../../services/companiesApi'
 import type {
@@ -33,21 +34,23 @@ import type {
 
 interface Props {
   companyId: number
+  canManageContacts: boolean
   onBack: () => void
 }
 
-type DialogKind = 'comment' | 'contact' | 'machinery' | 'action' | 'editCompany' | 'editMachinery' | null
+type DialogKind = 'comment' | 'contact' | 'editContact' | 'machinery' | 'action' | 'editCompany' | 'editMachinery' | null
 
 const displayName = (user: { firstName: string | null; lastName: string | null; userName: string | null }) =>
   [user.firstName, user.lastName].filter(Boolean).join(' ') || user.userName || 'Unknown user'
 
-function CompanyDetailsView({ companyId, onBack }: Props) {
+function CompanyDetailsView({ companyId, canManageContacts, onBack }: Props) {
   const [company, setCompany] = useState<CompanyDetails | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [dialog, setDialog] = useState<DialogKind>(null)
   const [saving, setSaving] = useState(false)
   const [editingMachinery, setEditingMachinery] = useState<Machinery | null>(null)
+  const [editingContact, setEditingContact] = useState<Contact | null>(null)
   const [busyActionId, setBusyActionId] = useState<number | null>(null)
   const [messageApi, contextHolder] = message.useMessage()
 
@@ -74,6 +77,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
 
   const openDialog = (kind: Exclude<DialogKind, null>) => {
     setEditingMachinery(null)
+    setEditingContact(null)
     setDialog(kind)
   }
 
@@ -86,6 +90,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
     if (saving) return
     setDialog(null)
     setEditingMachinery(null)
+    setEditingContact(null)
   }
 
   const saveChanges = async (save: () => Promise<unknown>) => {
@@ -96,6 +101,7 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
       messageApi.success('Saved successfully')
       setDialog(null)
       setEditingMachinery(null)
+      setEditingContact(null)
       await loadCompany()
     } catch (saveError) {
       messageApi.error(saveError instanceof Error ? saveError.message : 'Could not save changes')
@@ -105,7 +111,11 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
   }
 
   const submitComment = (values: CreateCommentPayload) => saveChanges(() => createCompanyComment(companyId, values))
-  const submitContact = (values: CreateContactPayload) => saveChanges(() => createContact({ ...values, companyId }))
+  const submitContact = (values: CreateContactPayload) => {
+    if (!canManageContacts) return
+    const payload = { ...values, companyId, machineryId: values.machineryId ?? null, comment: values.comment ?? null }
+    return saveChanges(() => editingContact ? updateContact(editingContact.id, payload) : createContact(payload))
+  }
   const submitAction = (values: CreateActionPayload) => saveChanges(() => createAction({ ...values, companyId }))
   const submitCompany = (values: CompanyFormValues) => saveChanges(() => updateCompany(companyId, {
     ...values,
@@ -235,8 +245,21 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
           })}</div> : <Typography.Text type="secondary">No machinery linked to this company yet.</Typography.Text>}
         </Card>
 
-        <Card title={`Contacts · ${company.contacts.length}`} extra={<AddButton size="small" aria-label="Add contact" onClick={() => openDialog('contact')} />} className="detail-card detail-card-wide">
-          {company.contacts.length ? <div className="detail-list">{company.contacts.map((contact: Contact) => <div className="detail-list-item" key={contact.id}><Typography.Text strong>{[contact.firstName, contact.lastName].filter(Boolean).join(' ') || 'Unnamed contact'}</Typography.Text><Typography.Text type="secondary">{contact.email || contact.phoneNumber || 'No contact details'}</Typography.Text>{contact.email && contact.phoneNumber && <Typography.Text type="secondary">{contact.phoneNumber}</Typography.Text>}</div>)}</div> : <Typography.Text type="secondary">No contacts have been added.</Typography.Text>}
+        <Card title={`Contacts · ${company.contacts.length}`} extra={canManageContacts && <AddButton size="small" aria-label="Add contact" onClick={() => openDialog('contact')} />} className="detail-card detail-card-wide">
+          {company.contacts.length ? <div className="detail-list">{company.contacts.map((contact: Contact) => {
+            const linkedMachinery = contact.machineryId == null ? undefined : machinery.get(contact.machineryId)
+            const name = [contact.firstName, contact.lastName].filter(Boolean).join(' ') || 'Unnamed contact'
+            return <div className="detail-list-item" key={contact.id}>
+              <div className="contact-heading"><Typography.Text strong>{name}</Typography.Text>{canManageContacts && <Button size="small" aria-label={`Edit contact ${name}`} onClick={() => {
+                setEditingContact(contact)
+                setDialog('editContact')
+              }}>Edit contact</Button>}</div>
+              <Typography.Text type="secondary">{contact.email || contact.phoneNumber || 'No contact details'}</Typography.Text>
+              {contact.email && contact.phoneNumber && <Typography.Text type="secondary">{contact.phoneNumber}</Typography.Text>}
+              {contact.machineryId != null && <div><Tag color="blue">Linked machinery: {linkedMachinery ? machineryLabel(linkedMachinery) : `Machinery #${contact.machineryId}`}</Tag></div>}
+              {contact.comment && <Typography.Paragraph className="contact-comment">{contact.comment}</Typography.Paragraph>}
+            </div>
+          })}</div> : <Typography.Text type="secondary">No contacts have been added.</Typography.Text>}
         </Card>
       </div>
 
@@ -252,7 +275,16 @@ function CompanyDetailsView({ companyId, onBack }: Props) {
       }} open saving={saving} onCancel={closeDialog} onSubmit={submitCompany} />}
       {(dialog === 'machinery' || dialog === 'editMachinery') && <AddUpdateMachineryDialog mode={dialog === 'editMachinery' ? 'update' : 'add'} initialValues={editingMachinery ?? undefined} open saving={saving} onCancel={closeDialog} onSubmit={submitMachinery} />}
       {dialog === 'comment' && <AddCommentDialog open saving={saving} onCancel={closeDialog} onSubmit={submitComment} />}
-      {dialog === 'contact' && <AddContactDialog open saving={saving} onCancel={closeDialog} onSubmit={submitContact} />}
+      {canManageContacts && (dialog === 'contact' || dialog === 'editContact') && <AddContactDialog
+        mode={editingContact ? 'update' : 'add'} machinery={company.machinery}
+        initialValues={editingContact ? {
+          firstName: editingContact.firstName ?? undefined,
+          lastName: editingContact.lastName ?? undefined,
+          email: editingContact.email ?? undefined,
+          phoneNumber: editingContact.phoneNumber ?? undefined,
+          machineryId: editingContact.machineryId,
+          comment: editingContact.comment,
+        } : undefined} open saving={saving} onCancel={closeDialog} onSubmit={submitContact} />}
       {dialog === 'action' && <AddActionDialog initialValues={{ status: 0, type: 0, actionWeek: getCurrentWeek() }} open saving={saving} onCancel={closeDialog} onSubmit={submitAction} />}
     </section>
   )

@@ -20,7 +20,9 @@ public sealed record Response(
     IReadOnlyList<ActionItem> Actions);
 
 public sealed record UserSummary(int Id, string? FirstName, string? LastName, string? UserName);
-public sealed record ContactItem(int Id, string? FirstName, string? LastName, string? PhoneNumber, string? Email, int CompanyId);
+public sealed record ContactItem(
+    int Id, string? FirstName, string? LastName, string? PhoneNumber, string? Email,
+    int CompanyId, int? MachineryId, string? Comment);
 public sealed record CommentItem(int Id, int CompanyId, string Text, UserSummary Author, DateTimeOffset CreatedAtUtc);
 public sealed record MachineryItem(
     int Id, int ManufacturerId, string ManufacturerName, string Model, int? Year, string? VinNumber,

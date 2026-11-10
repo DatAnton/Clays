@@ -1,3 +1,9 @@
+import type { Machinery } from '../../services/companiesApi'
+
+export function machineryLabel(item: Pick<Machinery, 'manufacturerName' | 'model' | 'registrationNumber' | 'vinNumber'>) {
+  return [`${item.manufacturerName} ${item.model}`, item.vinNumber, item.registrationNumber].filter(Boolean).join(' · ')
+}
+
 export const manufacturers = [
   { value: 1, label: 'Volvo' },
   { value: 2, label: 'Hyundai' },

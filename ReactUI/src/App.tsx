@@ -18,6 +18,7 @@ function App() {
   const [accessCheck, setAccessCheck] = useState<{
     subject: string | undefined
     isAdmin: boolean
+    isStaff: boolean
     error: string | null
   } | null>(null)
   const subject = user?.sub
@@ -34,11 +35,11 @@ function App() {
     const controller = new AbortController()
     getCurrentUserAccess(controller.signal).then(access => {
       if (!controller.signal.aborted) {
-        setAccessCheck({ subject, isAdmin: access.isAdmin, error: null })
+        setAccessCheck({ subject, isAdmin: access.isAdmin, isStaff: access.isStaff, error: null })
       }
     }).catch((cause: unknown) => {
       if (!controller.signal.aborted) {
-        setAccessCheck({ subject, isAdmin: false,
+        setAccessCheck({ subject, isAdmin: false, isStaff: false,
           error: cause instanceof Error ? cause.message : 'Unable to verify account access.' })
       }
     })
@@ -46,7 +47,7 @@ function App() {
   }, [isAuthenticated, subject])
   setUnauthorizedHandler(isAuthenticated
     ? async (message) => {
-      setAccessCheck({ subject, isAdmin: false, error: message })
+      setAccessCheck({ subject, isAdmin: false, isStaff: false, error: message })
     }
     : null)
 
@@ -126,7 +127,7 @@ function App() {
           <Routes>
             <Route path="/" element={<CompaniesView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
             <Route path="/machinery" element={<MachineryView isAdmin={isAdmin} onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
-            <Route path="/company/:id" element={<CompanyDetailsRoute />} />
+            <Route path="/company/:id" element={<CompanyDetailsRoute canManageContacts={isAdmin || currentAccess.isStaff} />} />
             <Route path="/users" element={isAdmin ? <UsersView />
               : <Result status="403" title="Administrator access required"
                 subTitle="Only users with the Admin role can manage users." />} />
@@ -139,7 +140,7 @@ function App() {
   )
 }
 
-function CompanyDetailsRoute() {
+function CompanyDetailsRoute({ canManageContacts }: { canManageContacts: boolean }) {
   const { id } = useParams()
   const navigate = useNavigate()
   const companyId = Number(id)
@@ -148,7 +149,7 @@ function CompanyDetailsRoute() {
     return <Navigate to="/" replace />
   }
 
-  return <CompanyDetailsView companyId={companyId} onBack={() => navigate('/')} />
+  return <CompanyDetailsView key={companyId} companyId={companyId} canManageContacts={canManageContacts} onBack={() => navigate('/')} />
 }
 
 export default App
