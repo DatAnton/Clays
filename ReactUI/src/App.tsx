@@ -125,7 +125,7 @@ function App() {
         <main className="app-main">
           <Routes>
             <Route path="/" element={<CompaniesView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
-            <Route path="/machinery" element={<MachineryView onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
+            <Route path="/machinery" element={<MachineryView isAdmin={isAdmin} onSelectCompany={(id) => navigate(`/company/${id}`)} />} />
             <Route path="/company/:id" element={<CompanyDetailsRoute />} />
             <Route path="/users" element={isAdmin ? <UsersView />
               : <Result status="403" title="Administrator access required"

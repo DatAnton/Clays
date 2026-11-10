@@ -66,3 +66,30 @@ export async function getMachineryLibrary(signal?: AbortSignal): Promise<Machine
   }
   return response.json() as Promise<MachineryLibraryItem[]>
 }
+
+export interface MachineryLibraryPayload {
+  manufacturerId: number
+  model: string
+}
+
+async function saveMachineryLibrary(payload: MachineryLibraryPayload, id?: number): Promise<MachineryLibraryItem> {
+  const response = await apiFetch(id === undefined ? '/api/machinery-library' : `/api/machinery-library/${id}`, {
+    method: id === undefined ? 'POST' : 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...payload, model: payload.model.trim() }),
+  })
+  if (!response.ok) {
+    const problem = await response.json().catch(() => null) as { title?: string; errors?: Record<string, string[]> } | null
+    const validationErrors = problem?.errors ? Object.values(problem.errors).flat().join(' ') : ''
+    throw new Error(validationErrors || problem?.title || `Unable to save machinery library entry (${response.status})`)
+  }
+  return response.json() as Promise<MachineryLibraryItem>
+}
+
+export function createMachineryLibrary(payload: MachineryLibraryPayload): Promise<MachineryLibraryItem> {
+  return saveMachineryLibrary(payload)
+}
+
+export function updateMachineryLibrary(id: number, payload: MachineryLibraryPayload): Promise<MachineryLibraryItem> {
+  return saveMachineryLibrary(payload, id)
+}

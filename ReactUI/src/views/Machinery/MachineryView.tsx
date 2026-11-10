@@ -1,6 +1,7 @@
 import AddUpdateMachineryDialog from './AddUpdateMachineryDialog/AddUpdateMachineryDialog'
 import { manufacturers, machineryStatuses } from './machineryOptions'
 import MachineryGrid from './MachineryGrid'
+import MachineryLibraryDialog from './MachineryLibraryDialog'
 import { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Input, Select, Space, Typography, message } from 'antd'
 import type { TablePaginationConfig } from 'antd'
@@ -11,6 +12,7 @@ import { getMachinery } from '../../services/machineryApi'
 import type { MachineryFilters, MachineryGridItem, MachineryPage } from '../../services/machineryApi'
 
 interface Props {
+  isAdmin: boolean
   onSelectCompany: (companyId: number) => void
 }
 
@@ -22,13 +24,14 @@ const initialFilters: MachineryFilters = {
   city: '',
 }
 
-function MachineryView({ onSelectCompany }: Props) {
+function MachineryView({ isAdmin, onSelectCompany }: Props) {
   const [page, setPage] = useState<MachineryPage>({ items: [], page: 1, pageSize: PAGE_SIZE, totalCount: 0 })
   const [currentPage, setCurrentPage] = useState(1)
   const [filters, setFilters] = useState<MachineryFilters>(initialFilters)
   const [draftFilters, setDraftFilters] = useState<MachineryFilters>(initialFilters)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [libraryDialogOpen, setLibraryDialogOpen] = useState(false)
   const [machineryDialogOpen, setMachineryDialogOpen] = useState(false)
   const [savingMachinery, setSavingMachinery] = useState(false)
   const [editingMachinery, setEditingMachinery] = useState<MachineryGridItem | null>(null)
@@ -121,6 +124,7 @@ function MachineryView({ onSelectCompany }: Props) {
           <Typography.Paragraph type="secondary">Browse and filter machinery in your directory.</Typography.Paragraph>
         </div>
         <div className="machinery-heading-actions">
+          <Button onClick={() => setLibraryDialogOpen(true)}>Llibrary</Button>
           <Button type="primary" onClick={openAddMachinery}>Add machinery</Button>
           <div className="company-count">
             <span className="count-value">{page.totalCount.toLocaleString()}</span>
@@ -201,6 +205,10 @@ function MachineryView({ onSelectCompany }: Props) {
           scroll={{ x: 1100 }}
           locale={{ emptyText: loading ? 'Loading machinery…' : 'No machinery matches these filters' }}
         />
+
+      {libraryDialogOpen && <MachineryLibraryDialog isAdmin={isAdmin}
+        onCancel={() => setLibraryDialogOpen(false)}
+        onChanged={() => { setLoading(true); setReloadKey((key) => key + 1) }} />}
 
       {machineryDialogOpen && <AddUpdateMachineryDialog mode={editingMachinery ? 'update' : 'add'} open
         initialValues={editingMachinery ?? undefined}
