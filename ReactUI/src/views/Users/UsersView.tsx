@@ -74,7 +74,8 @@ export default function UsersView() {
     <UsersGrid onEdit={openEditUser} dataSource={data?.items ?? []} loading={loading}
         scroll={{ x: 700 }} locale={{ emptyText: error ? 'Users could not be loaded.' : 'No users found.' }}
         pagination={{ current: page, pageSize: 25, total: data?.totalCount ?? 0, showSizeChanger: false,
-          showTotal: total => `${total} users`, onChange: setPage }} />
+          showTotal: (total, range) => `${range[0]}–${range[1]} of ${total} users`,
+          placement: ['bottomEnd'], onChange: setPage }} />
     {dialog && <AddUpdateUserDialog {...dialog} roles={roles} onCancel={() => setDialog(null)}
       onRefresh={refresh} onSaved={mode => {
         if (mode === 'add') { setPage(1); setSearch(''); setSearchInput(''); refresh() }
