@@ -73,7 +73,7 @@ export default function MachineryLibraryDialog({ isAdmin, onCancel, onChanged }:
     { title: 'Manufacturer', dataIndex: 'manufacturerName', key: 'manufacturer', width: 220 },
     { title: 'Model', dataIndex: 'model', key: 'model' },
     ...(isAdmin ? [{
-      title: 'Actions', key: 'actions', width: 90,
+      title: 'Actions', key: 'actions', width: 110,
       render: (_: unknown, entry: MachineryLibraryItem) => <GridEditButton
         label={`Edit ${entry.manufacturerName} ${entry.model}`} onClick={() => openEditor(entry)} />,
     }] : []),

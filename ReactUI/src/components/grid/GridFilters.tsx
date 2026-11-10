@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function GridFilters({ values, children, onSubmit, actions, filterActions }: Props) {
-  const [expanded, setExpanded] = useState(true)
+  const [expanded, setExpanded] = useState(false)
   const contentId = useId()
   const activeValues = values.filter(({ value }) => value !== undefined && String(value).trim() !== '')
 

@@ -131,17 +131,13 @@ function CompaniesView({ onSelectCompany }: Props) {
       {contextHolder}
       <div className="view-heading">
         <div>
-          <Typography.Title level={2}>Companies</Typography.Title>
+          <Typography.Title level={2}>Companies <span className="view-heading-count">({page.totalCount.toLocaleString()})</span></Typography.Title>
           <Typography.Paragraph type="secondary">
             Browse and filter registered companies in your directory.
           </Typography.Paragraph>
         </div>
         <div className="companies-heading-actions">
           <AddButton aria-label="Add company" onClick={openAddCompany} />
-          <div className="company-count">
-            <span className="count-value">{page.totalCount.toLocaleString()}</span>
-            <span className="count-label">companies</span>
-          </div>
         </div>
       </div>
 

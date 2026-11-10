@@ -42,15 +42,11 @@ export default function UsersView() {
     {contextHolder}
     <div className="view-heading">
       <div>
-        <Typography.Title level={2}>Users</Typography.Title>
+        <Typography.Title level={2}>Users <span className="view-heading-count">({(data?.totalCount ?? 0).toLocaleString()})</span></Typography.Title>
         <Typography.Paragraph type="secondary">Manage users and their application roles.</Typography.Paragraph>
       </div>
       <div className="companies-heading-actions">
         <AddButton aria-label="Add user" onClick={() => setDialog({ mode: 'add' })} />
-        <div className="company-count">
-          <span className="count-value">{(data?.totalCount ?? 0).toLocaleString()}</span>
-          <span className="count-label">users</span>
-        </div>
       </div>
     </div>
     <GridFilters values={[{ label: 'Search', value: search }]} onSubmit={event => {

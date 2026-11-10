@@ -36,7 +36,7 @@ export default function CompaniesGrid({ onEdit, ...props }: Props) {
         ? <GridTag color="blue">Partner</GridTag>
         : <Typography.Text type="secondary">—</Typography.Text>,
     },
-    { title: 'Actions', key: 'actions', width: 90, fixed: 'right',
+    { title: 'Actions', key: 'actions', width: 110, fixed: 'right',
       render: (_, company) => <GridEditButton label={`Edit ${company.name}`} onClick={() => onEdit(company)} /> },
   ]
 

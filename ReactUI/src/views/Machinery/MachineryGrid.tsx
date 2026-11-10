@@ -47,7 +47,7 @@ export default function MachineryGrid({ onEdit, onSelectCompany, ...props }: Pro
     {
       title: 'Actions',
       key: 'actions',
-      width: 90,
+      width: 110,
       fixed: 'right',
       render: (_, machinery) => <GridEditButton label={`Edit ${machinery.manufacturerName} ${machinery.model}`} onClick={() => onEdit(machinery)} />,
     },

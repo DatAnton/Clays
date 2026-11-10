@@ -15,7 +15,7 @@ export default function UsersGrid({ onEdit, ...props }: Props) {
       {user.roles.length ? user.roles.map(role => <GridTag color={role.name === 'Admin' ? 'blue' : 'default'} key={role.id}>{role.name}</GridTag>)
         : <Typography.Text type="secondary">No roles</Typography.Text>}
     </Space> },
-    { title: 'Actions', key: 'actions', width: 90, fixed: 'right', render: (_, user) =>
+    { title: 'Actions', key: 'actions', width: 110, fixed: 'right', render: (_, user) =>
       <GridEditButton label={`Edit ${user.email}`} onClick={() => onEdit(user)} />
     },
   ]

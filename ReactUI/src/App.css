@@ -99,10 +99,8 @@
 .view-heading .ant-typography { margin: 0; }
 .view-heading h2.ant-typography { color: #182b42; font-size: 27px; font-weight: 650; letter-spacing: -.55px; }
 .view-heading p.ant-typography { margin-top: 5px; font-size: 14px; }
-.company-count { min-width: 120px; display: flex; flex-direction: column; align-items: flex-end; }
+.view-heading-count { color: #8190a3; font-size: .8em; font-weight: 400; white-space: nowrap; }
 .machinery-heading-actions, .companies-heading-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; justify-content: flex-end; }
-.count-value { color: #123b70; font-size: 23px; font-weight: 700; line-height: 1.1; }
-.count-label { margin-top: 4px; color: #8190a3; font-size: 12px; }
 
 .filter-card, .table-card { border: 1px solid #e8edf3; border-radius: 12px; background: #fff; box-shadow: 0 3px 14px rgb(25 53 84 / 4%); }
 .filter-card { margin-bottom: 20px; padding: 20px 22px 16px; }
@@ -198,7 +196,6 @@
   .app-main { padding: 26px 16px 32px; }
   .view-heading { align-items: flex-start; }
   .view-heading h2.ant-typography { font-size: 24px; }
-  .company-count { min-width: auto; padding-top: 2px; }
   .machinery-heading-actions, .companies-heading-actions { gap: 10px; }
   .filter-card { padding: 16px; }
   .filter-grid { grid-template-columns: 1fr; gap: 13px; }

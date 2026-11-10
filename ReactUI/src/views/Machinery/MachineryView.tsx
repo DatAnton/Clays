@@ -145,7 +145,7 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
       {contextHolder}
       <div className="view-heading">
         <div>
-          <Typography.Title level={2}>Machinery</Typography.Title>
+          <Typography.Title level={2}>Machinery <span className="view-heading-count">({page.totalCount.toLocaleString()})</span></Typography.Title>
           <Typography.Paragraph type="secondary">Browse and filter machinery in your directory.</Typography.Paragraph>
         </div>
         <div className="machinery-heading-actions">
@@ -155,10 +155,6 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
               <path d="M2 2h3v12H2zM5 2h3v12H5zM9 3l3-1 4 11-3 1z" />
             </svg>}>Library</Button>
           <AddButton aria-label="Add machinery" onClick={openAddMachinery} />
-          <div className="company-count">
-            <span className="count-value">{page.totalCount.toLocaleString()}</span>
-            <span className="count-label">machinery</span>
-          </div>
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import AddButton from '../../components/AddButton'
+import EditButton from '../../components/EditButton'
 import AddUpdateCompanyDialog from './AddUpdateCompanyDialog/AddUpdateCompanyDialog'
 import type { CompanyFormValues } from './AddUpdateCompanyDialog/AddUpdateCompanyDialog'
 import AddUpdateMachineryDialog from '../Machinery/AddUpdateMachineryDialog/AddUpdateMachineryDialog'
@@ -192,7 +193,7 @@ function CompanyDetailsView({ companyId, canManageContacts, onBack }: Props) {
             </div>
           </Popover>
         </div>
-        <Button onClick={() => openDialog('editCompany')}>Edit company</Button>
+        <EditButton aria-label="Edit company" onClick={() => openDialog('editCompany')} />
       </div>
 
       <div className="company-detail-grid">
@@ -221,7 +222,7 @@ function CompanyDetailsView({ companyId, canManageContacts, onBack }: Props) {
             const history = company.ownerHistory
               .filter((entry) => entry.machinery.id === machinery.id)
               .map(({ id }) => ({ id, owner: company.name, city: company.city || '—' }))
-            return <Card key={machinery.id} size="small" className="machinery-item-card" title={<span>{machinery.manufacturerName} {machinery.model}</span>} extra={<Button size="small" onClick={() => openEditMachinery(machinery)}>Edit machinery</Button>}>
+            return <Card key={machinery.id} size="small" className="machinery-item-card" title={<span>{machinery.manufacturerName} {machinery.model}</span>} extra={<EditButton size="small" aria-label={`Edit machinery ${machinery.manufacturerName} ${machinery.model}`} onClick={() => openEditMachinery(machinery)} />}>
               <Descriptions size="small" column={{ xs: 1, sm: 2, lg: 3 }}>
                 <Descriptions.Item label="Year">{machinery.year ?? '—'}</Descriptions.Item>
                 <Descriptions.Item label="VIN">{machinery.vinNumber || '—'}</Descriptions.Item>
@@ -250,10 +251,10 @@ function CompanyDetailsView({ companyId, canManageContacts, onBack }: Props) {
             const linkedMachinery = contact.machineryId == null ? undefined : machinery.get(contact.machineryId)
             const name = [contact.firstName, contact.lastName].filter(Boolean).join(' ') || 'Unnamed contact'
             return <div className="detail-list-item" key={contact.id}>
-              <div className="contact-heading"><Typography.Text strong>{name}</Typography.Text>{canManageContacts && <Button size="small" aria-label={`Edit contact ${name}`} onClick={() => {
+              <div className="contact-heading"><Typography.Text strong>{name}</Typography.Text>{canManageContacts && <EditButton size="small" aria-label={`Edit contact ${name}`} onClick={() => {
                 setEditingContact(contact)
                 setDialog('editContact')
-              }}>Edit contact</Button>}</div>
+              }} />}</div>
               <Typography.Text type="secondary">{contact.email || contact.phoneNumber || 'No contact details'}</Typography.Text>
               {contact.email && contact.phoneNumber && <Typography.Text type="secondary">{contact.phoneNumber}</Typography.Text>}
               {contact.machineryId != null && <div><Tag color="blue">Linked machinery: {linkedMachinery ? machineryLabel(linkedMachinery) : `Machinery #${contact.machineryId}`}</Tag></div>}
