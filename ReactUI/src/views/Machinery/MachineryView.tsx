@@ -9,8 +9,8 @@ import type { TablePaginationConfig } from 'antd'
 import type { ChangeEvent } from 'react'
 import { createMachinery, updateMachinery } from '../../services/companiesApi'
 import type { CreateMachineryPayload, UpdateMachineryPayload } from '../../services/companiesApi'
-import { getMachinery } from '../../services/machineryApi'
-import type { MachineryFilters, MachineryGridItem, MachineryPage } from '../../services/machineryApi'
+import { getMachinery, getMachineryLibrary } from '../../services/machineryApi'
+import type { MachineryFilters, MachineryGridItem, MachineryLibraryItem, MachineryPage } from '../../services/machineryApi'
 
 interface Props {
   isAdmin: boolean
@@ -21,8 +21,8 @@ const PAGE_SIZE = 50
 const initialFilters: MachineryFilters = {
   search: '',
   manufacturerId: undefined,
+  machineryLibraryId: undefined,
   status: undefined,
-  city: '',
 }
 
 function MachineryView({ isAdmin, onSelectCompany }: Props) {
@@ -31,6 +31,9 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
   const [filters, setFilters] = useState<MachineryFilters>(initialFilters)
   const [draftFilters, setDraftFilters] = useState<MachineryFilters>(initialFilters)
   const [loading, setLoading] = useState(true)
+  const [library, setLibrary] = useState<MachineryLibraryItem[]>([])
+  const [loadingLibrary, setLoadingLibrary] = useState(true)
+  const [libraryError, setLibraryError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [libraryDialogOpen, setLibraryDialogOpen] = useState(false)
   const [machineryDialogOpen, setMachineryDialogOpen] = useState(false)
@@ -59,6 +62,26 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
     })
     return () => controller.abort()
   }, [currentPage, filters, loadMachinery, reloadKey])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    void getMachineryLibrary(controller.signal)
+      .then((items) => {
+        if (!controller.signal.aborted) {
+          setLibrary(items)
+          setLibraryError(null)
+        }
+      })
+      .catch((loadError: unknown) => {
+        if (!controller.signal.aborted) {
+          setLibraryError(loadError instanceof Error ? loadError.message : 'Could not load machinery library')
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoadingLibrary(false)
+      })
+    return () => controller.abort()
+  }, [reloadKey])
 
   const applyFilters = () => {
     setLoading(true)
@@ -163,6 +186,20 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
             />
           </label>
           <label className="filter-field">
+            <span>Machinery</span>
+            <Select
+              size="large"
+              allowClear
+              showSearch={{ optionFilterProp: 'label' }}
+              placeholder="All machinery"
+              loading={loadingLibrary}
+              disabled={loadingLibrary || libraryError !== null}
+              value={draftFilters.machineryLibraryId}
+              onChange={(machineryLibraryId: number | undefined) => setDraftFilters({ ...draftFilters, machineryLibraryId })}
+              options={library.map((item) => ({ value: item.id, label: `${item.manufacturerName} ${item.model}` }))}
+            />
+          </label>
+          <label className="filter-field">
             <span>Status</span>
             <Select
               size="large"
@@ -171,17 +208,6 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
               value={draftFilters.status}
               onChange={(status: number | undefined) => setDraftFilters({ ...draftFilters, status })}
               options={machineryStatuses}
-            />
-          </label>
-          <label className="filter-field">
-            <span>Company city</span>
-            <Input
-              size="large"
-              allowClear
-              placeholder="All cities"
-              value={draftFilters.city}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => setDraftFilters({ ...draftFilters, city: event.target.value })}
-              onPressEnter={applyFilters}
             />
           </label>
         </div>
@@ -194,6 +220,7 @@ function MachineryView({ isAdmin, onSelectCompany }: Props) {
       </div>
 
       {error && <Alert className="companies-error" type="error" showIcon title="Could not load machinery" description={error} />}
+      {libraryError && <Alert className="companies-error" type="error" showIcon title="Could not load machinery library" description={libraryError} />}
 
       <MachineryGrid onEdit={openEditMachinery} onSelectCompany={onSelectCompany}
           dataSource={page.items}

@@ -20,8 +20,8 @@ export interface MachineryGridItem {
 export interface MachineryFilters {
   search: string
   manufacturerId: number | undefined
+  machineryLibraryId: number | undefined
   status: number | undefined
-  city: string
 }
 
 export interface MachineryPage {
@@ -39,8 +39,8 @@ export async function getMachinery(
   const params = new URLSearchParams({ page: String(page) })
   if (filters.search.trim()) params.set('search', filters.search.trim())
   if (filters.manufacturerId !== undefined) params.set('manufacturerId', String(filters.manufacturerId))
+  if (filters.machineryLibraryId !== undefined) params.set('machineryLibraryId', String(filters.machineryLibraryId))
   if (filters.status !== undefined) params.set('status', String(filters.status))
-  if (filters.city.trim()) params.set('city', filters.city.trim())
 
   const response = await apiFetch(`/api/machinery?${params.toString()}`, {
     signal,

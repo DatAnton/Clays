@@ -29,14 +29,10 @@ public sealed class Endpoint(IApplicationDbContext context) : FastEndpoints.Endp
         }
         if (request.ManufacturerId.HasValue)
             query = query.Where(machinery => machinery.MachineryLibrary.ManufacturerId == request.ManufacturerId.Value);
+        if (request.MachineryLibraryId.HasValue)
+            query = query.Where(machinery => machinery.MachineryLibraryId == request.MachineryLibraryId.Value);
         if (request.Status.HasValue)
             query = query.Where(machinery => machinery.Status == request.Status.Value);
-        if (!string.IsNullOrWhiteSpace(request.City))
-        {
-            var pattern = $"%{request.City.Trim()}%";
-            query = query.Where(machinery => machinery.Company != null && machinery.Company.City != null
-                && EF.Functions.ILike(machinery.Company.City, pattern));
-        }
 
         var totalCount = await query.CountAsync(cancellationToken);
         var offset = (int)Math.Min(((long)page - 1) * PageSize, int.MaxValue);
