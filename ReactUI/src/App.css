@@ -129,8 +129,8 @@
 .filter-actions { display: flex; justify-content: flex-end; margin-top: 17px; }
 .companies-error { margin: 0 0 18px; }
 .table-card { overflow: hidden; }
-.machinery-history .ant-table { color: #34445a; font-size: 15px; }
-.machinery-history .ant-table-thead > tr > th { padding: 13px 16px; color: #627188; background: #f7f9fc; font-size: 12px; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; }
+.machinery-history .ant-table { color: #34445a; font-size: 16px; }
+.machinery-history .ant-table-thead > tr > th { padding: 13px 16px; color: #627188; background: #f7f9fc; font-size: 14px; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; }
 .machinery-history .ant-table-tbody > tr > td { padding: 14px 16px; }
 .machinery-history .ant-table-tbody > tr:hover > td { background: #f6f9fd !important; }
 .machinery-company-link { padding: 0; white-space: normal; text-align: left; }
